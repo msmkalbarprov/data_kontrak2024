@@ -11,6 +11,8 @@
             }
         });
 
+        let status_anggaran = "{{ $status_anggaran }}"
+
         $('.select_modal').select2({
             dropdownParent: $('#modal_rincian .modal-content'),
             theme: 'bootstrap-5',
@@ -453,6 +455,7 @@
             let total_rincian_kontrak = rupiah($('#total_rincian_kontrak').val());
 
             let tahun_anggaran = "{{ $tahun }}";
+
             let tahun_input = tgl_kontrak.substring(0, 4);
 
             // if (!id_kontrak) {
@@ -507,6 +510,11 @@
 
             if (!pimpinan) {
                 swalAlert('Pimpinan harus diisi');
+                return
+            }
+
+            if (!status_anggaran) {
+                swalAlert('Status Anggaran belum ada');
                 return
             }
 
@@ -572,10 +580,12 @@
                 pimpinan,
                 total_rincian_kontrak,
                 kontrak,
+                status_anggaran
             };
 
             Swal.fire({
-                title: "Apakah anda yakin?",
+                title: "Apakah anda yakin menyimpan dengan status anggaran " + status_anggaran +
+                    "?",
                 icon: "warning",
                 showCancelButton: true,
                 confirmButtonColor: "#3085d6",
@@ -602,13 +612,14 @@
                                 text: data.message,
                                 icon: "success"
                             });
+
                             window.location.href = "{{ route('kontrak.index') }}"
                         },
                         error: function(data) {
                             $('#simpan_rincian').prop('disabled', false);
                             $("#overlay").fadeOut(100);
                             let errors = data.responseJSON;
-                            console.log(errors);
+
                             Swal.fire({
                                 title: "Error!",
                                 text: errors.error,
@@ -633,6 +644,7 @@
                 dataType: 'json',
                 data: {
                     "_token": "{{ csrf_token() }}",
+                    status_anggaran: status_anggaran
                 },
                 beforeSend: function() {
                     $("#overlay").fadeIn(100);
@@ -663,6 +675,7 @@
                 data: {
                     kd_sub_kegiatan: $('#kd_sub_kegiatan').val(),
                     "_token": "{{ csrf_token() }}",
+                    status_anggaran: status_anggaran
                 },
                 beforeSend: function() {
                     $("#overlay").fadeIn(100);
@@ -694,6 +707,7 @@
                     kd_sub_kegiatan: $('#kd_sub_kegiatan').val(),
                     kd_rek6: $('#kd_rek6').val(),
                     "_token": "{{ csrf_token() }}",
+                    status_anggaran: status_anggaran
                 },
                 beforeSend: function() {
                     $("#overlay").fadeIn(100);
@@ -728,6 +742,7 @@
                     header: header,
                     sub_header: sub_header,
                     "_token": "{{ csrf_token() }}",
+                    status_anggaran: status_anggaran
                 },
                 beforeSend: function() {
                     $("#overlay").fadeIn(100);

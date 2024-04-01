@@ -37,7 +37,8 @@ class KontrakController extends Controller
         $orderBy = $request->order[0]['dir'] ?? 'desc';
 
         // get data from products table
-        $query = DB::table('trhkontrak')
+        $query = DB::table('trhkontrak as a')
+            ->selectRaw("a.*, (SELECT COUNT(*) FROM trhkontrak b WHERE b.nomorkontraklalu=a.nomorkontrak and a.kodeskpd=b.kodeskpd and b.adendum !=?) as cekAdendum", ['0'])
             ->where(function ($query) {
                 $query->where('adendum', '0')
                     ->orWhereNull('adendum');
@@ -63,7 +64,9 @@ class KontrakController extends Controller
         return DataTables::of($users)
             ->addColumn('aksi', function ($row) {
                 $btn = '<a href="' . route("kontrak.edit", ['id' => Crypt::encrypt($row->idkontrak), 'kd_skpd' => Crypt::encrypt($row->kodeskpd)]) . '" class="btn btn-sm btn-warning" style="margin-right:4px"><i class="fadeIn animated bx bx-edit"></i></a>';
-                $btn .= '<a onclick="hapus(\'' . $row->idkontrak . '\',\'' . $row->kodeskpd . '\')" class="btn btn-sm btn-danger"><i class="fadeIn animated bx bx-trash"></i></a>';
+                if ($row->cekAdendum == 0) {
+                    $btn .= '<a onclick="hapus(\'' . $row->idkontrak . '\',\'' . $row->kodeskpd . '\')" class="btn btn-sm btn-danger"><i class="fadeIn animated bx bx-trash"></i></a>';
+                }
                 return $btn;
             })
             ->rawColumns(['aksi'])
@@ -86,7 +89,15 @@ class KontrakController extends Controller
 
         $tahun = $this->tahun;
 
-        return view('kontrak.create', compact('daftar_rekening', 'skpd', 'tahun'));
+        $status_anggaran = status_anggaran();
+
+        if ($status_anggaran == '0') {
+            return redirect()
+                ->route('kontrak.index')
+                ->with('message', 'Anggaran belum disahkan, hubungi Anggaran!');;
+        }
+
+        return view('kontrak.create', compact('daftar_rekening', 'skpd', 'tahun', 'status_anggaran'));
     }
 
     public function store(Request $request)
@@ -110,6 +121,28 @@ class KontrakController extends Controller
 
             $idkontrak = $urut . "/KONTRAK" . "/" . $skpd->kd_skpd . "/" . $this->tahun;
 
+            $cekIdKontrak = DB::table('trhkontrak')
+                ->where(['idkontrak' => $idkontrak, 'kodeskpd' => $skpd->kd_skpd])
+                ->count();
+
+            if ($cekIdKontrak > 0) {
+                return response()->json([
+                    'status' => false,
+                    'error' => 'Error, ID Kontrak telah digunakan!',
+                ], 400);
+            }
+
+            $cekNomorKontrak = DB::table('trhkontrak')
+                ->where(['nomorkontrak' => $data['no_kontrak'], 'kodeskpd' => $skpd->kd_skpd])
+                ->count();
+
+            if ($cekNomorKontrak > 0) {
+                return response()->json([
+                    'status' => false,
+                    'error' => 'Error, Nomor Kontrak telah digunakan!',
+                ], 400);
+            }
+
             DB::table('trhkontrak')
                 ->insert([
                     'idkontrak' => $idkontrak,
@@ -127,13 +160,14 @@ class KontrakController extends Controller
                     'bank' => $data['bank'],
                     'npwp' => $data['npwp'],
                     'urut' => $urut,
+                    'jns_ang' => $data['status_anggaran'],
                 ]);
 
             $data['kontrak'] = json_decode($data['kontrak'], true);
 
             if (isset($data['kontrak'])) {
                 DB::table('trdkontrak')
-                    ->insert(array_map(function ($value) use ($idkontrak, $data) {
+                    ->insert(array_map(function ($value) use ($idkontrak, $data, $skpd) {
                         return [
                             'idkontrak' => $idkontrak,
                             'nomorkontrak' => $data['no_kontrak'],
@@ -164,6 +198,8 @@ class KontrakController extends Controller
                             'created_username' => Auth::user()->username,
                             'updated_at' => date('Y-m-d H:i:s'),
                             'updated_username' => Auth::user()->username,
+                            'kodeskpd' => $skpd->kd_skpd,
+                            'namaskpd' => $skpd->nm_skpd,
                         ];
                     }, $data['kontrak']));
             }
@@ -203,14 +239,29 @@ class KontrakController extends Controller
         $detail_kontrak1 = DB::table('trdkontrak as a')
             ->join('trhkontrak as b', function ($join) {
                 $join->on('a.idkontrak', '=', 'b.idkontrak');
+                $join->on('a.kodeskpd', '=', 'b.kodeskpd');
+                $join->on('a.nomorkontrak', '=', 'b.nomorkontrak');
             })
-            ->where(['b.idkontrak' => $id, 'b.kodeskpd' => $kd_skpd, 'b.adendum' => '0']);
+            ->where(['b.idkontrak' => $id, 'b.kodeskpd' => $kd_skpd, 'b.adendum' => '0', 'b.nomorkontrak' => $kontrak->nomorkontrak]);
 
         $detail_kontrak = $detail_kontrak1->get();
 
         $kd_sub_kegiatan = $detail_kontrak1->first()->kodesubkegiatan;
 
-        return view('kontrak.edit', compact('daftar_rekening', 'tahun', 'kontrak', 'detail_kontrak', 'kd_sub_kegiatan'));
+        $status_anggaran = $kontrak->jns_ang;
+
+        if ($status_anggaran == '0') {
+            return redirect()
+                ->route('kontrak.index')
+                ->with('message', 'Anggaran belum disahkan, hubungi Anggaran!');
+        }
+
+        $cekKontrakAdendum = DB::table('trhkontrak')
+            ->where(['nomorkontraklalu' => $kontrak->nomorkontrak, 'kodeskpd' => $kd_skpd])
+            ->where('adendum', '!=', '0')
+            ->count();
+
+        return view('kontrak.edit', compact('daftar_rekening', 'tahun', 'kontrak', 'detail_kontrak', 'kd_sub_kegiatan', 'status_anggaran', 'cekKontrakAdendum'));
     }
 
     public function update(Request $request)
@@ -305,12 +356,25 @@ class KontrakController extends Controller
         DB::beginTransaction();
 
         try {
+            $cekKontrakAdendum = DB::table('trhkontrak')
+                ->where(['idkontrak' => $id, 'kodeskpd' => $kd_skpd])
+                ->where('adendum', '!=', '0')
+                ->count();
+
+            if ($cekKontrakAdendum > 0) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Kontrak telah diadendum, tidak bisa dihapus!'
+                ], 400);
+            }
+
+
             DB::table('trhkontrak')
                 ->where(['idkontrak' => $id, 'kodeskpd' => $kd_skpd])
                 ->delete();
 
             DB::table('trdkontrak')
-                ->where(['idkontrak' => $id])
+                ->where(['idkontrak' => $id, 'kodeskpd' => $kd_skpd])
                 ->delete();
 
             DB::commit();

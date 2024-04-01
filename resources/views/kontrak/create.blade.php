@@ -1,21 +1,12 @@
 @extends('template.app')
 @section('konten')
     <div class="row">
+        @if (session()->has('message'))
+            <div class="alert alert-success">
+                {{ session()->get('message') }}
+            </div>
+        @endif
         <div class="col-xl-10 mx-auto">
-            @if (session('message'))
-                <div class="alert alert-danger">
-                    {{ session('message') }}
-                </div>
-            @endif
-            @if ($errors->any())
-                <div class="alert alert-danger">
-                    <ul>
-                        @foreach ($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
-                </div>
-            @endif
             <h6 class="mb-0 text-uppercase">Tambah Kontrak</h6>
             <hr />
             <div class="card">
@@ -259,6 +250,12 @@
                                 id="total_detail_kontrak" style="background-color:white;border:none">
                         </div>
                     </div>
+                    <div class="mb-3 row">
+                        <div class="col-md-12 text-center">
+                            <button type="button" class="btn btn-success" id="simpan_rincian">Simpan</button>
+                            <button type="button" class="btn btn-warning" data-bs-dismiss="modal">Kembali</button>
+                        </div>
+                    </div>
                     <div class="card">
                         <div class="card-header">
                             Rincian Kontrak
@@ -298,10 +295,6 @@
                             </table>
                         </div>
                     </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-success" id="simpan_rincian">Simpan</button>
-                    <button type="button" class="btn btn-warning" data-bs-dismiss="modal">Kembali</button>
                 </div>
             </div>
         </div>

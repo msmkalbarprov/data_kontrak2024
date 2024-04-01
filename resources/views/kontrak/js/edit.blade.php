@@ -11,6 +11,8 @@
             }
         });
 
+        let status_anggaran = "{{ $status_anggaran }}"
+
         $('.select_modal').select2({
             dropdownParent: $('#modal_rincian .modal-content'),
             theme: 'bootstrap-5',
@@ -636,7 +638,8 @@
                 data: {
                     "_token": "{{ csrf_token() }}",
                     tipe: 'edit',
-                    kd_sub_kegiatan: "{{ $kd_sub_kegiatan }}"
+                    kd_sub_kegiatan: "{{ $kd_sub_kegiatan }}",
+                    status_anggaran: status_anggaran
                 },
                 beforeSend: function() {
                     $("#overlay").fadeIn(100);
@@ -667,6 +670,7 @@
                 data: {
                     kd_sub_kegiatan: $('#kd_sub_kegiatan').val(),
                     "_token": "{{ csrf_token() }}",
+                    status_anggaran: status_anggaran
                 },
                 beforeSend: function() {
                     $("#overlay").fadeIn(100);
@@ -698,6 +702,7 @@
                     kd_sub_kegiatan: $('#kd_sub_kegiatan').val(),
                     kd_rek6: $('#kd_rek6').val(),
                     "_token": "{{ csrf_token() }}",
+                    status_anggaran: status_anggaran
                 },
                 beforeSend: function() {
                     $("#overlay").fadeIn(100);
@@ -732,6 +737,7 @@
                     header: header,
                     sub_header: sub_header,
                     "_token": "{{ csrf_token() }}",
+                    status_anggaran: status_anggaran
                 },
                 beforeSend: function() {
                     $("#overlay").fadeIn(100);

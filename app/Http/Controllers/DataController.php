@@ -19,71 +19,39 @@ class DataController extends Controller
     // Status Anggaran
     public function statusAnggaran()
     {
-        $kd_skpd = Auth::user()->kd_skpd;
-
-        $data = $this->connection
-            ->table('trhrka')
-            ->select('jns_ang')
-            ->where(['kd_skpd' => $kd_skpd, 'status' => '1'])
-            ->orderByDesc('tgl_dpa')
-            ->first();
-
-        return isset($data) ? $data->jns_ang : '0';
+        return status_anggaran();
     }
 
-    public function sumber($request)
-    {
-        $sumber = $this->connection
-            ->table('trdpo as a')
-            ->join('trdpo_rinci as b', function ($join) {
-                $join->on('a.jns_ang', '=', 'b.jns_ang');
-                $join->on('a.no_trdrka', '=', 'b.no_trdrka');
-                $join->on('a.header', '=', 'b.header');
-            })
-            ->where([
-                'a.kd_skpd' => Auth::user()->kd_skpd,
-                'a.kd_sub_kegiatan' => $request->kd_sub_kegiatan,
-                'a.kd_rek6' => $request->kd_rek6,
-                'a.jns_ang' => $this->statusAnggaran(),
-                'b.kd_barang' => $request->kd_barang,
-            ])
-            ->where('b.header', 'LIKE', '%' . trim(Str::replace('[#]', '', $request->header)) . '%')
-            ->where('b.sub_header', 'LIKE', '%' . trim(Str::replace('[-]', '', $request->sub_header)) . '%')
-            ->select('a.sumber', 'a.nm_sumber', 'b.volume1', 'b.volume2', 'b.volume3', 'b.volume4', 'b.satuan1', 'b.satuan2', 'b.satuan3', 'b.satuan4', 'b.harga', 'b.total', 'b.id', 'b.no_po', 'b.uraian', 'b.spesifikasi')
-            ->get();
-
-        return $sumber;
-    }
-
-    // Cari Kegiatan
-    public function kodeSubKegiatan(Request $request)
+    public function cariKegiatan($request)
     {
         $kd_skpd = Auth::user()->kd_skpd;
-        $anggaran = $this->statusAnggaran();
         $tipe = $request->tipe;
         $kd_sub_kegiatan = $request->kd_sub_kegiatan;
+        $status_anggaran = $request->status_anggaran;
 
-        $data = $this->connection
-            ->table('trskpd as a')
-            ->join('ms_sub_kegiatan as b', 'a.kd_sub_kegiatan', '=', 'b.kd_sub_kegiatan')
-            ->where(['a.kd_skpd' => $kd_skpd, 'a.status_sub_kegiatan' => '1', 'b.jns_sub_kegiatan' => '5', 'a.jns_ang' => $anggaran])
+        $data = $this
+            ->connection
+            ->table('simakda_2024.dbo.trskpd as a')
+            ->join('simakda_2024.dbo.ms_sub_kegiatan as b', 'a.kd_sub_kegiatan', '=', 'b.kd_sub_kegiatan')
+            ->where(['a.kd_skpd' => $kd_skpd, 'a.status_sub_kegiatan' => '1', 'b.jns_sub_kegiatan' => '5', 'a.jns_ang' => $status_anggaran])
             ->where(function ($query) use ($tipe, $kd_sub_kegiatan) {
-                if ($tipe == 'edit') {
+                if ($tipe == 'edit' || $tipe == 'adendum') {
                     $query->where('a.kd_sub_kegiatan', $kd_sub_kegiatan);
+                } else {
+                    $query->whereRaw("a.kd_sub_kegiatan NOT IN (SELECT c.kodesubkegiatan from data_kontrak.dbo.trdkontrak c where c.kodesubkegiatan=a.kd_sub_kegiatan and c.kodeskpd=a.kd_skpd)");
                 }
             })
-            ->select('a.kd_sub_kegiatan', 'b.nm_sub_kegiatan', 'a.kd_program', DB::raw("(SELECT nm_program FROM ms_program WHERE kd_program=a.kd_program) as nm_program"), 'a.total')
+            ->select('a.kd_sub_kegiatan', 'b.nm_sub_kegiatan', 'a.kd_program', DB::raw("(SELECT nm_program FROM simakda_2024.dbo.ms_program WHERE kd_program=a.kd_program) as nm_program"), 'a.total')
             ->get();
 
-        return response()->json($data);
+        return $data;
     }
 
-    // Cari Rekening
-    public function rekening(Request $request)
+    public function cariRekening($request)
     {
         $kd_sub_kegiatan = $request->kd_sub_kegiatan;
         $kd_skpd = Auth::user()->kd_skpd;
-        $jns_ang = $this->statusAnggaran();
+        $jns_ang = $request->status_anggaran;
 
         $daftar_rekening = $this->connection->select("SELECT a.kd_rek6,a.nm_rek6,e.map_lo,
                       (SELECT SUM(nilai) FROM
@@ -133,16 +101,15 @@ class DataController extends Controller
                       FROM trdrka a LEFT JOIN ms_rek6 e ON a.kd_rek6=e.kd_rek6
                       WHERE a.kd_sub_kegiatan= ? AND jns_ang=? AND a.kd_skpd = ? and a.status_aktif='1' and (left(a.kd_rek6,2)=? or left(a.kd_rek6,4)=?)", [$kd_skpd, $kd_sub_kegiatan, $jns_ang, $kd_skpd, '52', '5102']);
 
-        return response()->json($daftar_rekening);
+        return $daftar_rekening;
     }
 
-    // Cari Kode Barang
-    public function kodeBarang(Request $request)
+    public function cariKodeBarang($request)
     {
         $kd_skpd = Auth::user()->kd_skpd;
         $kd_sub_kegiatan = $request->kd_sub_kegiatan;
         $kd_rek6 = $request->kd_rek6;
-        $jns_ang = $this->statusAnggaran();
+        $jns_ang = $request->status_anggaran;
 
         $data = $this->connection
             ->table('trdpo_rinci as a')
@@ -150,13 +117,61 @@ class DataController extends Controller
             ->select('a.kd_barang', 'a.header', 'a.sub_header', 'a.uraian')
             ->get();
 
+        return $data;
+    }
+
+    public function cariSumber($request)
+    {
+        $sumber = $this->connection
+            ->table('trdpo as a')
+            ->join('trdpo_rinci as b', function ($join) {
+                $join->on('a.jns_ang', '=', 'b.jns_ang');
+                $join->on('a.no_trdrka', '=', 'b.no_trdrka');
+                $join->on('a.header', '=', 'b.header');
+            })
+            ->where([
+                'a.kd_skpd' => Auth::user()->kd_skpd,
+                'a.kd_sub_kegiatan' => $request->kd_sub_kegiatan,
+                'a.kd_rek6' => $request->kd_rek6,
+                'a.jns_ang' => $request->status_anggaran,
+                'b.kd_barang' => $request->kd_barang,
+            ])
+            ->where('b.header', 'LIKE', '%' . trim(Str::replace('[#]', '', $request->header)) . '%')
+            ->where('b.sub_header', 'LIKE', '%' . trim(Str::replace('[-]', '', $request->sub_header)) . '%')
+            ->select('a.sumber', 'a.nm_sumber', 'b.volume1', 'b.volume2', 'b.volume3', 'b.volume4', 'b.satuan1', 'b.satuan2', 'b.satuan3', 'b.satuan4', 'b.harga', 'b.total', 'b.id', 'b.no_po', 'b.uraian', 'b.spesifikasi')
+            ->get();
+
+        return $sumber;
+    }
+
+    // Cari Kegiatan
+    public function kodeSubKegiatan(Request $request)
+    {
+        $data = $this->cariKegiatan($request);
+
+        return response()->json($data);
+    }
+
+    // Cari Rekening
+    public function rekening(Request $request)
+    {
+        $daftar_rekening = $this->cariRekening($request);
+
+        return response()->json($daftar_rekening);
+    }
+
+    // Cari Kode Barang
+    public function kodeBarang(Request $request)
+    {
+        $data = $this->cariKodeBarang($request);
+
         return response()->json($data);
     }
 
     // Cari Sumber Dana
     public function sumberDana(Request $request)
     {
-        return response()->json($this->sumber($request));
+        return response()->json($this->cariSumber($request));
     }
 
     // Cari Detail Kontrak Untuk Buat Kontrak Adendum
@@ -169,11 +184,24 @@ class DataController extends Controller
         $data = DB::table('trdkontrak as a')
             ->join('trhkontrak as b', function ($join) {
                 $join->on('a.idkontrak', '=', 'b.idkontrak');
+                $join->on('a.nomorkontrak', '=', 'b.nomorkontrak');
+                $join->on('a.kodeskpd', '=', 'b.kodeskpd');
             })
             ->select('a.*')
             ->where(['b.kodeskpd' => $kd_skpd, 'b.nomorkontrak' => $kontrak_awal, 'b.idkontrak' => $id_kontrak])
             ->get();
 
         return response()->json($data);
+    }
+
+    // Cari Kegiatan, Rekening, Kode Barang, Sumber pada rincian kontrak awal untuk Kontrak Adendum
+    public function dataAdendum(Request $request)
+    {
+        return response()->json([
+            'kegiatan' => $this->cariKegiatan($request),
+            'rekening' => $this->cariRekening($request),
+            'kodeBarang' => $this->cariKodeBarang($request),
+            'sumber' => $this->cariSumber($request),
+        ]);
     }
 }

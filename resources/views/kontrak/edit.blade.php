@@ -101,7 +101,9 @@
                         </div>
                     </div>
                     <div class="mb-3 text-end">
-                        <button class="btn btn-primary" id="simpan">Simpan</button>
+                        @if ($cekKontrakAdendum == 0)
+                            <button class="btn btn-primary" id="simpan">Simpan</button>
+                        @endif
                         <a href="{{ route('kontrak.index') }}" class="btn btn-warning">Kembali</a>
                     </div>
                 </div>
@@ -157,9 +159,12 @@
                                     <td>{{ rupiah($detail->harga) }}</td>
                                     <td>{{ rupiah($detail->nilai) }}</td>
                                     <td>
-                                        <a href="javascript:void(0);"
-                                            onclick="hapusRincian('{{ $detail->idtrdpo }}','{{ $detail->nilai }}')"
-                                            class="btn btn-danger btn-sm"><i class="fadeIn animated bx bx-trash"></i></a>
+                                        @if ($cekKontrakAdendum == 0)
+                                            <a href="javascript:void(0);"
+                                                onclick="hapusRincian('{{ $detail->idtrdpo }}','{{ $detail->nilai }}')"
+                                                class="btn btn-danger btn-sm"><i
+                                                    class="fadeIn animated bx bx-trash"></i></a>
+                                        @endif
                                     </td>
                                 </tr>
                             @endforeach
@@ -301,6 +306,14 @@
                                 value="{{ rupiah($total) }}">
                         </div>
                     </div>
+                    <div class="mb-3 row">
+                        <div class="col-md-12 text-center">
+                            @if ($cekKontrakAdendum == 0)
+                                <button type="button" class="btn btn-success" id="simpan_rincian">Simpan</button>
+                            @endif
+                            <button type="button" class="btn btn-warning" data-bs-dismiss="modal">Kembali</button>
+                        </div>
+                    </div>
                     <div class="card">
                         <div class="card-header">
                             Rincian Kontrak
@@ -369,10 +382,12 @@
                                             <td>{{ $detail->header }}</td>
                                             <td>{{ $detail->subheader }}</td>
                                             <td>
-                                                <a href="javascript:void(0);"
-                                                    onclick="hapusRincian('{{ $detail->idtrdpo }}','{{ $detail->nilai }}')"
-                                                    class="btn btn-danger btn-sm"><i
-                                                        class="fadeIn animated bx bx-trash"></i></a>
+                                                @if ($cekKontrakAdendum == 0)
+                                                    <a href="javascript:void(0);"
+                                                        onclick="hapusRincian('{{ $detail->idtrdpo }}','{{ $detail->nilai }}')"
+                                                        class="btn btn-danger btn-sm"><i
+                                                            class="fadeIn animated bx bx-trash"></i></a>
+                                                @endif
                                             </td>
                                         </tr>
                                     @endforeach
@@ -380,10 +395,6 @@
                             </table>
                         </div>
                     </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-success" id="simpan_rincian">Simpan</button>
-                    <button type="button" class="btn btn-warning" data-bs-dismiss="modal">Kembali</button>
                 </div>
             </div>
         </div>
