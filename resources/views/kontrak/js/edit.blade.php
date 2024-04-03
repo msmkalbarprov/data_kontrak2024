@@ -11,7 +11,7 @@
             }
         });
 
-        let status_anggaran = "{{ $status_anggaran }}"
+        let status_anggaran = "{{ $kontrak->jns_ang }}"
 
         $('.select_modal').select2({
             dropdownParent: $('#modal_rincian .modal-content'),

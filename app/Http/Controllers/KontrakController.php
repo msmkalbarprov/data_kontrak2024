@@ -64,8 +64,8 @@ class KontrakController extends Controller
         return DataTables::of($users)
             ->addColumn('aksi', function ($row) {
                 $btn = '<a href="' . route("kontrak.edit", ['id' => Crypt::encrypt($row->idkontrak), 'kd_skpd' => Crypt::encrypt($row->kodeskpd)]) . '" class="btn btn-sm btn-warning" style="margin-right:4px"><i class="fadeIn animated bx bx-edit"></i></a>';
-                if ($row->cekAdendum == 0) {
-                    $btn .= '<a onclick="hapus(\'' . $row->idkontrak . '\',\'' . $row->kodeskpd . '\')" class="btn btn-sm btn-danger"><i class="fadeIn animated bx bx-trash"></i></a>';
+                if ($row->cekAdendum == 0 && $row->statusAdendum != '1') {
+                    $btn .= '<a onclick="hapus(\'' . $row->idkontrak . '\',\'' . $row->nomorkontrak . '\',\'' . $row->kodeskpd . '\')" class="btn btn-sm btn-danger"><i class="fadeIn animated bx bx-trash"></i></a>';
                 }
                 return $btn;
             })
@@ -161,6 +161,7 @@ class KontrakController extends Controller
                     'npwp' => $data['npwp'],
                     'urut' => $urut,
                     'jns_ang' => $data['status_anggaran'],
+                    'statusAdendum' => '0'
                 ]);
 
             $data['kontrak'] = json_decode($data['kontrak'], true);
@@ -181,7 +182,7 @@ class KontrakController extends Controller
                             'header' => $value['header'],
                             'subheader' => $value['sub_header'],
                             'uraianbarang' => $value['uraian'],
-                            'spek' => $value['spesifikasi'],
+                            'spek' => strval($value['spesifikasi']),
                             'harga' => floatval($value['harga']),
                             'volume1' => floatval($value['volume1']),
                             'volume2' => floatval($value['volume2']),
@@ -248,7 +249,7 @@ class KontrakController extends Controller
 
         $kd_sub_kegiatan = $detail_kontrak1->first()->kodesubkegiatan;
 
-        $status_anggaran = $kontrak->jns_ang;
+        $status_anggaran = status_anggaran();
 
         if ($status_anggaran == '0') {
             return redirect()
@@ -261,7 +262,7 @@ class KontrakController extends Controller
             ->where('adendum', '!=', '0')
             ->count();
 
-        return view('kontrak.edit', compact('daftar_rekening', 'tahun', 'kontrak', 'detail_kontrak', 'kd_sub_kegiatan', 'status_anggaran', 'cekKontrakAdendum'));
+        return view('kontrak.edit', compact('daftar_rekening', 'tahun', 'kontrak', 'detail_kontrak', 'kd_sub_kegiatan', 'cekKontrakAdendum'));
     }
 
     public function update(Request $request)
@@ -275,6 +276,29 @@ class KontrakController extends Controller
                 ->where(['idkontrak' => $data['id_kontrak'], 'kodeskpd' => $data['kd_skpd'], 'adendum' => '0'])
                 ->first()
                 ->nomorkontrak;
+
+            $cekKontrakAdendum = DB::table('trhkontrak')
+                ->where(['idkontrak' => $data['id_kontrak'], 'nomorkontraklalu' => $nomor_kontrak_lama, 'kodeskpd' => $data['kd_skpd']])
+                ->where('adendum', '!=', '0')
+                ->count();
+
+            if ($cekKontrakAdendum > 0) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Error, Kontrak telah diadendum!',
+                ], 400);
+            }
+
+            $cekNomorKontrak = DB::table('trhkontrak')
+                ->where(['nomorkontrak' => $data['no_kontrak'], 'kodeskpd' => $data['kd_skpd']])
+                ->count();
+
+            if (($nomor_kontrak_lama != $data['no_kontrak']) && $cekNomorKontrak > 0) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Error, Nomor kontrak telah ada!',
+                ], 400);
+            }
 
             DB::table('trhkontrak')
                 ->where(['idkontrak' => $data['id_kontrak'], 'kodeskpd' => $data['kd_skpd']])
@@ -294,12 +318,16 @@ class KontrakController extends Controller
             $data['kontrak'] = json_decode($data['kontrak'], true);
 
             DB::table('trdkontrak')
-                ->where(['idkontrak' => $data['id_kontrak'], 'nomorkontrak' => $nomor_kontrak_lama])
+                ->where(['idkontrak' => $data['id_kontrak'], 'nomorkontrak' => $nomor_kontrak_lama, 'kodeskpd' => $data['kd_skpd']])
                 ->delete();
+
+            $skpd = $this->connection->table('ms_skpd')
+                ->where(['kd_skpd' => $data['kd_skpd']])
+                ->first();
 
             if (isset($data['kontrak'])) {
                 DB::table('trdkontrak')
-                    ->insert(array_map(function ($value) use ($data) {
+                    ->insert(array_map(function ($value) use ($data, $skpd) {
                         return [
                             'idkontrak' => $data['id_kontrak'],
                             'nomorkontrak' => $data['no_kontrak'],
@@ -313,7 +341,7 @@ class KontrakController extends Controller
                             'header' => $value['header'],
                             'subheader' => $value['sub_header'],
                             'uraianbarang' => $value['uraian'],
-                            'spek' => $value['spesifikasi'],
+                            'spek' => strval($value['spesifikasi']),
                             'harga' => floatval($value['harga']),
                             'volume1' => floatval($value['volume1']),
                             'volume2' => floatval($value['volume2']),
@@ -330,6 +358,8 @@ class KontrakController extends Controller
                             'created_username' => Auth::user()->username,
                             'updated_at' => date('Y-m-d H:i:s'),
                             'updated_username' => Auth::user()->username,
+                            'kodeskpd' => $skpd->kd_skpd,
+                            'namaskpd' => $skpd->nm_skpd
                         ];
                     }, $data['kontrak']));
             }
@@ -351,6 +381,7 @@ class KontrakController extends Controller
     public function delete(Request $request)
     {
         $id = $request->id;
+        $nomorkontrak = $request->nomorkontrak;
         $kd_skpd = $request->kd_skpd;
 
         DB::beginTransaction();
@@ -370,11 +401,11 @@ class KontrakController extends Controller
 
 
             DB::table('trhkontrak')
-                ->where(['idkontrak' => $id, 'kodeskpd' => $kd_skpd])
+                ->where(['idkontrak' => $id, 'kodeskpd' => $kd_skpd, 'nomorkontrak' => $nomorkontrak])
                 ->delete();
 
             DB::table('trdkontrak')
-                ->where(['idkontrak' => $id, 'kodeskpd' => $kd_skpd])
+                ->where(['idkontrak' => $id, 'kodeskpd' => $kd_skpd, 'nomorkontrak' => $nomorkontrak])
                 ->delete();
 
             DB::commit();

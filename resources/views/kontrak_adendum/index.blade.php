@@ -85,7 +85,7 @@
             });
         });
 
-        function hapus(id, kd_skpd) {
+        function hapus(id, nomorkontrak, nomorkontraklalu, kd_skpd) {
             const swalWithBootstrapButtons = Swal.mixin({
                 customClass: {
                     confirmButton: "btn btn-success right-gap",
@@ -107,6 +107,8 @@
                         data: {
                             _token: '{{ csrf_token() }}',
                             id: id,
+                            nomorkontrak: nomorkontrak,
+                            nomorkontraklalu: nomorkontraklalu,
                             kd_skpd: kd_skpd
                         },
                         success: function(response) {
@@ -116,7 +118,7 @@
                                     text: "Data berhasil dihapus!",
                                     icon: "success"
                                 });
-                                let tabel = $('#kontrak').DataTable();
+                                let tabel = $('#kontrak_adendum').DataTable();
                                 tabel.ajax.reload();
                             } else {
                                 swalWithBootstrapButtons.fire({

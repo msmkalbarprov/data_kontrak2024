@@ -135,9 +135,11 @@ class DataController extends Controller
                 'a.kd_rek6' => $request->kd_rek6,
                 'a.jns_ang' => $request->status_anggaran,
                 'b.kd_barang' => $request->kd_barang,
+                'b.header' => $request->header,
+                'b.sub_header' => $request->sub_header,
             ])
-            ->where('b.header', 'LIKE', '%' . trim(Str::replace('[#]', '', $request->header)) . '%')
-            ->where('b.sub_header', 'LIKE', '%' . trim(Str::replace('[-]', '', $request->sub_header)) . '%')
+            // ->where('b.header', 'LIKE', '%' . trim(Str::replace('[#]', '', $request->header)) . '%')
+            // ->where('b.sub_header', 'LIKE', '%' . trim(Str::replace('[-]', '', $request->sub_header)) . '%')
             ->select('a.sumber', 'a.nm_sumber', 'b.volume1', 'b.volume2', 'b.volume3', 'b.volume4', 'b.satuan1', 'b.satuan2', 'b.satuan3', 'b.satuan4', 'b.harga', 'b.total', 'b.id', 'b.no_po', 'b.uraian', 'b.spesifikasi')
             ->get();
 

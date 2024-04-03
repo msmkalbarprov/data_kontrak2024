@@ -16,7 +16,7 @@
                     </ul>
                 </div>
             @endif
-            <h6 class="mb-0 text-uppercase">Edit Kontrak</h6>
+            <h6 class="mb-0 text-uppercase">Ubah Kontrak</h6>
             <hr />
             <div class="card">
                 <div class="card-body">

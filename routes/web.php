@@ -7,6 +7,7 @@ use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -59,7 +60,7 @@ Route::middleware('auth')->group(function () {
     Route::post('kontrak_adendum/load', [KontrakAdendumController::class, 'load'])->name('kontrak_adendum.load');
     Route::get('kontrak_adendum/create', [KontrakAdendumController::class, 'create'])->name('kontrak_adendum.create');
     Route::post('kontrak_adendum/store', [KontrakAdendumController::class, 'store'])->name('kontrak_adendum.store');
-    Route::get('kontrak_adendum/{id}/{kd_skpd}/edit', [KontrakAdendumController::class, 'edit'])->name('kontrak_adendum.edit');
+    Route::get('kontrak_adendum/{id}/{nomor}/{kd_skpd}/edit', [KontrakAdendumController::class, 'edit'])->name('kontrak_adendum.edit');
     Route::post('kontrak_adendum/update', [KontrakAdendumController::class, 'update'])->name('kontrak_adendum.update');
     Route::post('kontrak_adendum/delete', [KontrakAdendumController::class, 'delete'])->name('kontrak_adendum.delete');
 
@@ -69,6 +70,10 @@ Route::middleware('auth')->group(function () {
     Route::post('kode_barang', [DataController::class, 'kodeBarang'])->name('kode_barang');
     Route::post('sumber_dana', [DataController::class, 'sumberDana'])->name('sumber_dana');
     Route::post('detail_kontrak', [DataController::class, 'detailKontrak'])->name('detail_kontrak');
+    Route::post('data_adendum', [DataController::class, 'dataAdendum'])->name('data_adendum');
+    Route::post('daftarAnggaran', function (Request $request) {
+        return tipeAnggaran($request);
+    })->name('daftarAnggaran');
 });
 
 require __DIR__ . '/auth.php';

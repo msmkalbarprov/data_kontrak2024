@@ -58,7 +58,8 @@
                                         data-rekanan="{{ $kontrak_awal->rekanan }}"
                                         data-pimpinan="{{ $kontrak_awal->pimpinan }}"
                                         data-kodeskpd="{{ $kontrak_awal->kodeskpd }}"
-                                        data-idkontrak="{{ $kontrak_awal->idkontrak }}">
+                                        data-idkontrak="{{ $kontrak_awal->idkontrak }}"
+                                        data-jns_ang="{{ $kontrak_awal->jns_ang }}">
                                         {{ $kontrak_awal->nomorkontrak }}
                                         | {{ $kontrak_awal->tanggalkontrak }} | {{ rupiah($kontrak_awal->nilaikontrak) }}
                                     </option>
@@ -115,7 +116,7 @@
                     </div>
                     <div class="mb-3 text-end">
                         <button class="btn btn-primary" id="simpan">Simpan</button>
-                        <a href="{{ route('kontrak.index') }}" class="btn btn-warning">Kembali</a>
+                        <a href="{{ route('kontrak_adendum.index') }}" class="btn btn-warning">Kembali</a>
                     </div>
                 </div>
             </div>
@@ -138,6 +139,8 @@
                                 <th>Harga</th>
                                 <th>Total</th>
                                 <th>Aksi</th>
+                                <th>Header</th>
+                                <th>Sub Header</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -278,6 +281,12 @@
                                 id="total_detail_kontrak" style="background-color:white;border:none">
                         </div>
                     </div>
+                    <div class="mb-3 row">
+                        <div class="col-md-12 text-center">
+                            <button type="button" class="btn btn-success" id="simpan_rincian">Simpan</button>
+                            <button type="button" class="btn btn-warning" data-bs-dismiss="modal">Kembali</button>
+                        </div>
+                    </div>
                     <div class="card">
                         <div class="card-header">
                             Rincian Kontrak
@@ -317,10 +326,6 @@
                             </table>
                         </div>
                     </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-success" id="simpan_rincian">Simpan</button>
-                    <button type="button" class="btn btn-warning" data-bs-dismiss="modal">Kembali</button>
                 </div>
             </div>
         </div>

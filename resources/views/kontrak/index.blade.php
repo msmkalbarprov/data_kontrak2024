@@ -86,7 +86,7 @@
             });
         });
 
-        function hapus(id, kd_skpd) {
+        function hapus(id, nomorkontrak, kd_skpd) {
             const swalWithBootstrapButtons = Swal.mixin({
                 customClass: {
                     confirmButton: "btn btn-success right-gap",
@@ -108,6 +108,7 @@
                         data: {
                             _token: '{{ csrf_token() }}',
                             id: id,
+                            nomorkontrak: nomorkontrak,
                             kd_skpd: kd_skpd
                         },
                         success: function(response) {

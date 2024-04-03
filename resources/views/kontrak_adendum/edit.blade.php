@@ -16,43 +16,50 @@
                     </ul>
                 </div>
             @endif
-            <h6 class="mb-0 text-uppercase">Edit Kontrak</h6>
+            <h6 class="mb-0 text-uppercase">Ubah Kontrak Adendum</h6>
             <hr />
             <div class="card">
                 <div class="card-body">
                     <div class="mb-3">
                         <label class="form-label">Id Kontrak</label>
                         <input class="form-control" type="text" readonly disabled id="id_kontrak"
-                            value="{{ $kontrak->idkontrak }}">
+                            value="{{ $dataKontrak->idkontrak }}">
                     </div>
                     <div class="row mb-3">
                         <div class="col-6">
                             <label class="form-label">No. Kontrak</label>
                             <input class="form-control" type="text" id="no_kontrak"
-                                placeholder="Isi dengan nomor kontrak" autofocus value="{{ $kontrak->nomorkontrak }}">
+                                placeholder="Isi dengan nomor kontrak" autofocus value="{{ $dataKontrak->nomorkontrak }}">
                         </div>
                         <div class="col-6">
                             <label class="form-label">Tanggal Kontrak</label>
                             <input class="form-control" type="date" id="tgl_kontrak"
-                                value="{{ $kontrak->tanggalkontrak }}">
+                                value="{{ $dataKontrak->tanggalkontrak }}">
                         </div>
                     </div>
                     <div class="row mb-3">
                         <div class="col-6">
                             <label class="form-label">Kode SKPD/UNIT</label>
                             <input class="form-control" type="text" readonly disabled id="kd_skpd"
-                                value="{{ $kontrak->kodeskpd }}">
+                                value="{{ $dataKontrak->kodeskpd }}">
                         </div>
                         <div class="col-6">
                             <label class="form-label">Nama SKPD/UNIT</label>
                             <input class="form-control" type="text" readonly disabled id="nm_skpd"
-                                value="{{ $kontrak->namaskpd }}">
+                                value="{{ $dataKontrak->namaskpd }}">
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-12">
+                            <label class="form-label">Kontrak Awal</label>
+                            <input class="form-control" type="text" readonly disabled id="kontrak_awal"
+                                value="{{ $dataKontrak->nomorkontraklalu }}">
                         </div>
                     </div>
                     <div class="row mb-3">
                         <div class="col-12">
                             <label class="form-label">Nama Pekerjaan</label>
-                            <textarea class="form-control" id="nm_kerja" placeholder="Isi dengan nama pekerjaan">{{ $kontrak->pekerjaan }}</textarea>
+                            <textarea class="form-control" id="nm_kerja" placeholder="Isi dengan nama pekerjaan" readonly disabled>{{ $dataKontrak->pekerjaan }}</textarea>
                         </div>
                     </div>
                     <div class="row mb-3">
@@ -64,7 +71,7 @@
                                     <option value="{{ $rekening->nmrekan }}" data-rekening="{{ $rekening->rekening }}"
                                         data-bank="{{ $rekening->bank }}" data-nm_bank="{{ $rekening->nm_bank }}"
                                         data-npwp="{{ $rekening->npwp }}"
-                                        {{ $rekening->nmrekan == $kontrak->rekanan ? 'selected' : '' }}>
+                                        {{ $dataKontrak->rekanan == $rekening->nmrekan ? 'selected' : '' }}>
                                         {{ $rekening->nmrekan }} |
                                         {{ $rekening->rekening }} | {{ $rekening->nm_bank }} | {{ $rekening->npwp }}
                                     </option>
@@ -75,25 +82,22 @@
                     <div class="row mb-3">
                         <div class="col-6">
                             <label class="form-label">No. Rekening</label>
-                            <input class="form-control" type="text" id="no_rekening" readonly disabled
-                                value="{{ $kontrak->rekening }}">
+                            <input class="form-control" type="text" id="no_rekening" readonly disabled>
                         </div>
                         <div class="col-6">
                             <label class="form-label">NPWP</label>
-                            <input class="form-control" type="text" id="npwp" readonly disabled
-                                value="{{ $kontrak->npwp }}">
+                            <input class="form-control" type="text" id="npwp" readonly disabled>
                         </div>
                     </div>
                     <div class="row mb-3">
                         <div class="col-6">
                             <label class="form-label">Pimpinan</label>
                             <input class="form-control" type="text" id="pimpinan" placeholder="Isi dengan nama pimpinan"
-                                value="{{ $kontrak->pimpinan }}">
+                                readonly disabled value="{{ $dataKontrak->pimpinan }}">
                         </div>
                         <div class="col-1">
                             <label class="form-label">Bank</label>
-                            <input class="form-control" type="text" id="bank" readonly disabled
-                                value="{{ $kontrak->bank }}">
+                            <input class="form-control" type="text" id="bank" readonly disabled>
                         </div>
                         <div class="col-5">
                             <label class="form-label">Nama Bank</label>
@@ -101,8 +105,10 @@
                         </div>
                     </div>
                     <div class="mb-3 text-end">
-                        <button class="btn btn-primary" id="simpan">Simpan</button>
-                        <a href="{{ route('kontrak.index') }}" class="btn btn-warning">Kembali</a>
+                        @if ($cekKontrakAdendumSelanjutnya == 0)
+                            <button class="btn btn-primary" id="simpan">Simpan</button>
+                        @endif
+                        <a href="{{ route('kontrak_adendum.index') }}" class="btn btn-warning">Kembali</a>
                     </div>
                 </div>
             </div>
@@ -125,13 +131,15 @@
                                 <th>Harga</th>
                                 <th>Total</th>
                                 <th>Aksi</th>
+                                <th>Header</th>
+                                <th>Sub Header</th>
                             </tr>
                         </thead>
                         <tbody>
                             @php
                                 $total = 0;
                             @endphp
-                            @foreach ($detail_kontrak as $detail)
+                            @foreach ($detailKontrak as $detail)
                                 @php
                                     $cek = [$detail->volume1, $detail->volume2, $detail->volume3, $detail->volume4];
                                     $volume = array_reduce(
@@ -147,7 +155,6 @@
                                     $total += $detail->nilai;
                                 @endphp
                                 <tr>
-
                                     <td>{{ $detail->idtrdpo }}</td>
                                     <td>{{ $detail->kodesubkegiatan }}</td>
                                     <td>{{ $detail->kodeakun }}</td>
@@ -157,10 +164,15 @@
                                     <td>{{ rupiah($detail->harga) }}</td>
                                     <td>{{ rupiah($detail->nilai) }}</td>
                                     <td>
-                                        <a href="javascript:void(0);"
-                                            onclick="hapusRincian('{{ $detail->idtrdpo }}','{{ $detail->nilai }}')"
-                                            class="btn btn-danger btn-sm"><i class="fadeIn animated bx bx-trash"></i></a>
+                                        @if ($cekKontrakAdendumSelanjutnya == 0)
+                                            <a href="javascript:void(0);"
+                                                onclick="editRincian('{{ $detail->idtrdpo }}','{{ $detail->kodesubkegiatan }}','{{ $detail->kodeakun }}','{{ $detail->kodebarang }}','{{ $detail->kodesumberdana }}','{{ $detail->header }}','{{ $detail->subheader }}','{{ $detail->volume1 }}','{{ $detail->volume2 }}','{{ $detail->volume3 }}','{{ $detail->volume4 }}','editVolume')"
+                                                class="btn btn-warning btn-sm"><i
+                                                    class="fadeIn animated bx bx-edit"></i></a>
+                                        @endif
                                     </td>
+                                    <td>{{ $detail->header }}</td>
+                                    <td>{{ $detail->subheader }}</td>
                                 </tr>
                             @endforeach
                         </tbody>
@@ -301,6 +313,14 @@
                                 value="{{ rupiah($total) }}">
                         </div>
                     </div>
+                    <div class="mb-3 row">
+                        <div class="col-md-12 text-center">
+                            @if ($cekKontrakAdendumSelanjutnya == 0)
+                                <button type="button" class="btn btn-success" id="simpan_rincian">Simpan</button>
+                            @endif
+                            <button type="button" class="btn btn-warning" data-bs-dismiss="modal">Kembali</button>
+                        </div>
+                    </div>
                     <div class="card">
                         <div class="card-header">
                             Rincian Kontrak
@@ -336,15 +356,8 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @php
-                                        $total_detail = 0;
-                                    @endphp
-                                    @foreach ($detail_kontrak as $detail)
-                                        @php
-                                            $total_detail += $detail->nilai;
-                                        @endphp
+                                    @foreach ($detailKontrak as $detail)
                                         <tr>
-
                                             <td>{{ $detail->idtrdpo }}</td>
                                             <td>{{ $detail->kodesubkegiatan }}</td>
                                             <td>{{ $detail->namasubkegiatan }}</td>
@@ -369,10 +382,12 @@
                                             <td>{{ $detail->header }}</td>
                                             <td>{{ $detail->subheader }}</td>
                                             <td>
-                                                <a href="javascript:void(0);"
-                                                    onclick="hapusRincian('{{ $detail->idtrdpo }}','{{ $detail->nilai }}')"
-                                                    class="btn btn-danger btn-sm"><i
-                                                        class="fadeIn animated bx bx-trash"></i></a>
+                                                @if ($cekKontrakAdendumSelanjutnya == 0)
+                                                    <a href="javascript:void(0);"
+                                                        onclick="editRincian('{{ $detail->idtrdpo }}','{{ $detail->kodesubkegiatan }}','{{ $detail->kodeakun }}','{{ $detail->kodebarang }}','{{ $detail->kodesumberdana }}','{{ $detail->header }}','{{ $detail->subheader }}','{{ $detail->volume1 }}','{{ $detail->volume2 }}','{{ $detail->volume3 }}','{{ $detail->volume4 }}','editVolume')"
+                                                        class="btn btn-warning btn-sm"><i
+                                                            class="fadeIn animated bx bx-edit"></i></a>
+                                                @endif
                                             </td>
                                         </tr>
                                     @endforeach
@@ -381,14 +396,10 @@
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-success" id="simpan_rincian">Simpan</button>
-                    <button type="button" class="btn btn-warning" data-bs-dismiss="modal">Kembali</button>
-                </div>
             </div>
         </div>
     </div>
 @endsection
 @push('js')
-    @include('kontrak.js.edit')
+    @include('kontrak_adendum.js.edit')
 @endpush

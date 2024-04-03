@@ -128,5 +128,9 @@
             text: message,
         });
     }
+
+    function trim(n) {
+        return n.trim()
+    }
 </script>
 @stack('js')
