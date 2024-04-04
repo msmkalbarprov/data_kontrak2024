@@ -166,6 +166,15 @@ class KontrakController extends Controller
 
             $data['kontrak'] = json_decode($data['kontrak'], true);
 
+            $validationSumberDana = $this->cekNilaiSumber($data['kontrak'], $data['kd_skpd'], $data['status_anggaran']);
+
+            if ($validationSumberDana) {
+                return response()->json([
+                    'status' => false,
+                    'error' => $validationSumberDana,
+                ], 400);
+            }
+
             if (isset($data['kontrak'])) {
                 DB::table('trdkontrak')
                     ->insert(array_map(function ($value) use ($idkontrak, $data, $skpd) {
@@ -317,6 +326,15 @@ class KontrakController extends Controller
 
             $data['kontrak'] = json_decode($data['kontrak'], true);
 
+            $validationSumberDana = $this->cekNilaiSumber($data['kontrak'], $data['kd_skpd'], $data['status_anggaran']);
+
+            if ($validationSumberDana) {
+                return response()->json([
+                    'status' => false,
+                    'error' => $validationSumberDana,
+                ], 400);
+            }
+
             DB::table('trdkontrak')
                 ->where(['idkontrak' => $data['id_kontrak'], 'nomorkontrak' => $nomor_kontrak_lama, 'kodeskpd' => $data['kd_skpd']])
                 ->delete();
@@ -420,5 +438,53 @@ class KontrakController extends Controller
                 'message' => 'Data tidak berhasil dihapus'
             ], 400);
         }
+    }
+
+    public function cekNilaiSumber($request, $kd_skpd, $status_anggaran)
+    {
+        $message = '';
+
+        foreach ($request as $item) {
+            $sumber = $this->connection
+                ->table('trdpo as a')
+                ->join('trdpo_rinci as b', function ($join) {
+                    $join->on('a.jns_ang', '=', 'b.jns_ang');
+                    $join->on('a.no_trdrka', '=', 'b.no_trdrka');
+                    $join->on('a.header', '=', 'b.header');
+                })
+                ->where([
+                    'a.kd_skpd' => $kd_skpd,
+                    'a.kd_sub_kegiatan' => $item['kd_sub_kegiatan'],
+                    'a.kd_rek6' => $item['kd_rek6'],
+                    'a.jns_ang' => $status_anggaran,
+                    'b.kd_barang' => $item['kd_barang'],
+                    'b.header' => $item['header'],
+                    'b.sub_header' => $item['sub_header'],
+                ])
+                ->select('a.sumber', 'a.nm_sumber', 'b.volume1', 'b.volume2', 'b.volume3', 'b.volume4', 'b.satuan1', 'b.satuan2', 'b.satuan3', 'b.satuan4', 'b.harga', 'b.total', 'b.id', 'b.no_po', 'b.uraian', 'b.spesifikasi')
+                ->first();
+
+            if ($item['volume1'] > $sumber->volume1) {
+                $message .= "Input volume 1 melebihi anggaran volume 1, dengan Kode Barang : " . $item['kd_barang'] . " <br/> ";
+            }
+
+            if ($item['volume2'] > $sumber->volume2) {
+                $message .= "Input volume 2 melebihi anggaran volume 2, dengan Kode Barang : " . $item['kd_barang'] . " <br/> ";
+            }
+
+            if ($item['volume2'] > $sumber->volume2) {
+                $message .= "Input volume 3 melebihi anggaran volume 3, dengan Kode Barang : " . $item['kd_barang'] . " <br/> ";
+            }
+
+            if ($item['volume2'] > $sumber->volume2) {
+                $message .= "Input volume 4 melebihi anggaran volume 4, dengan Kode Barang : " . $item['kd_barang'] . " <br/> ";
+            }
+
+            if ($item['total'] > $sumber->total) {
+                $message .= "Total inputan melebihi total anggaran, dengan Kode Barang : " . $item['kd_barang'] . " <br/> ";
+            }
+        }
+
+        return $message;
     }
 }

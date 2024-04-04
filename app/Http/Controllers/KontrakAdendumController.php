@@ -59,10 +59,20 @@ class KontrakAdendumController extends Controller
         $recordsFiltered = $recordsTotal = $query->count();
         $users = $query->skip($skip)->take($pageLength)->get();
 
+
         return DataTables::of($users)
             ->addColumn('aksi', function ($row) {
+                $cekKontrakAdendumSelanjutnya = DB::table('trhkontrak')
+                    ->where(['idkontrak' => $row->idkontrak, 'kodeskpd' => $row->kodeskpd, 'nomorkontraklalu' => $row->nomorkontrak])
+                    ->where('adendum', '>', $row->adendum)
+                    ->count();
+
                 $btn = '<a href="' . route("kontrak_adendum.edit", ['id' => Crypt::encrypt($row->idkontrak), 'nomor' => Crypt::encrypt($row->nomorkontrak), 'kd_skpd' => Crypt::encrypt($row->kodeskpd)]) . '" class="btn btn-sm btn-warning" style="margin-right:4px"><i class="fadeIn animated bx bx-edit"></i></a>';
-                $btn .= '<a onclick="hapus(\'' . $row->idkontrak . '\',\'' . $row->nomorkontrak . '\',\'' . $row->nomorkontraklalu . '\',\'' . $row->kodeskpd . '\')" class="btn btn-sm btn-danger"><i class="fadeIn animated bx bx-trash"></i></a>';
+
+                if ($cekKontrakAdendumSelanjutnya == 0) {
+                    $btn .= '<a onclick="hapus(\'' . $row->idkontrak . '\',\'' . $row->nomorkontrak . '\',\'' . $row->nomorkontraklalu . '\',\'' . $row->kodeskpd . '\')" class="btn btn-sm btn-danger"><i class="fadeIn animated bx bx-trash"></i></a>';
+                }
+
                 return $btn;
             })
             ->rawColumns(['aksi'])
