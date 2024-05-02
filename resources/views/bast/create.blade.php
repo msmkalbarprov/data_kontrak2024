@@ -7,33 +7,56 @@
             </div>
         @endif
         <div class="col-xl-10 mx-auto">
-            <h6 class="mb-0 text-uppercase">Tambah Kontrak</h6>
+            <h6 class="mb-0 text-uppercase">Tambah BAST</h6>
             <hr />
             <div class="card">
                 <div class="card-body">
                     <div class="row mb-3">
                         <div class="col-12">
                             <label class="form-label">Jenis</label>
-                            <select class="form-select select_option" id="jenis">
-                                <option value="" selected>Silahkan Pilih</option>
-                                <option value="1">UP/GU</option>
-                                <option value="5">LS BARJAS</option>
+                            <select class="form-select select_option" id="jenis_kontrak">
+                                <option value="" disabled selected>Silahkan Pilih</option>
+                                <option value=" ">Tanpa Termin / Sekali Pembayaran</option>
+                                <option value="1">Konstruksi Dalam Pengerjaan</option>
+                                <option value="2">Uang Muka</option>
+                                <option value="3">Hutang Tahun Lalu</option>
+                                <option value="4">Perbulan</option>
+                                <option value="5">Bertahap</option>
+                                <option value="6">Berdasarkan Progres / Pengajuan Pekerjaan</option>
                             </select>
                         </div>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label">Id Kontrak</label>
-                        <input class="form-control" type="text" readonly disabled id="id_kontrak">
-                    </div>
                     <div class="row mb-3">
                         <div class="col-6">
-                            <label class="form-label">No. Kontrak</label>
-                            <input class="form-control" type="text" id="no_kontrak"
-                                placeholder="Isi dengan nomor kontrak" autofocus>
+                            <label class="form-label">No. Pesanan</label>
+                            <input class="form-control" type="text" id="no_pesanan"
+                                placeholder="Isi dengan nomor Pesanan" autofocus>
                         </div>
                         <div class="col-6">
-                            <label class="form-label">Tanggal Kontrak</label>
-                            <input class="form-control" type="date" id="tgl_kontrak">
+                            <label class="form-label">Tanggal Pesanan</label>
+                            <input class="form-control" type="date" id="tgl_pesanan">
+                        </div>
+                    </div>
+                    <div class="row mb-3" id="bast">
+                        <div class="col-6">
+                            <label class="form-label">No. BAST</label>
+                            <input class="form-control" type="text" id="no_bast" placeholder="Isi dengan nomor bast"
+                                autofocus>
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label">Tanggal BAST</label>
+                            <input class="form-control" type="date" id="tgl_bast">
+                        </div>
+                    </div>
+                    <div class="row mb-3" id="bap">
+                        <div class="col-6">
+                            <label class="form-label">No. BAP</label>
+                            <input class="form-control" type="text" id="no_bap" placeholder="Isi dengan nomor bap"
+                                autofocus>
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label">Tanggal BAP</label>
+                            <input class="form-control" type="date" id="tgl_bap">
                         </div>
                     </div>
                     <div class="row mb-3">
@@ -50,8 +73,29 @@
                     </div>
                     <div class="row mb-3">
                         <div class="col-12">
+                            <label class="form-label">Kontrak</label>
+                            <select class="form-select select_option" id="kontrak">
+                                <option value="" disabled selected>Silahkan Pilih</option>
+                                @foreach ($daftar_kontrak_awal as $kontrak_awal)
+                                    <option value="{{ $kontrak_awal->nomorkontrak }}"
+                                        data-pekerjaan="{{ $kontrak_awal->pekerjaan }}"
+                                        data-rekanan="{{ $kontrak_awal->rekanan }}"
+                                        data-pimpinan="{{ $kontrak_awal->pimpinan }}"
+                                        data-kodeskpd="{{ $kontrak_awal->kodeskpd }}"
+                                        data-id_kontrak="{{ $kontrak_awal->idkontrak }}"
+                                        data-jns_ang="{{ $kontrak_awal->jns_ang }}"
+                                        data-realisasi_fisik_lalu="{{ $kontrak_awal->realisasi_fisik_lalu }}">
+                                        {{ $kontrak_awal->nomorkontrak }}
+                                        | {{ $kontrak_awal->tanggalkontrak }} | {{ rupiah($kontrak_awal->nilaikontrak) }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-12">
                             <label class="form-label">Nama Pekerjaan</label>
-                            <textarea class="form-control" id="nm_kerja" placeholder="Isi dengan nama pekerjaan"></textarea>
+                            <textarea class="form-control" id="nm_kerja" placeholder="Isi dengan nama pekerjaan" readonly disabled></textarea>
                         </div>
                     </div>
                     <div class="row mb-3">
@@ -84,7 +128,7 @@
                         <div class="col-6">
                             <label class="form-label">Pimpinan</label>
                             <input class="form-control" type="text" id="pimpinan"
-                                placeholder="Isi dengan nama pimpinan">
+                                placeholder="Isi dengan nama pimpinan" readonly disabled>
                         </div>
                         <div class="col-1">
                             <label class="form-label">Bank</label>
@@ -95,16 +139,49 @@
                             <input class="form-control" type="text" id="nm_bank" readonly disabled>
                         </div>
                     </div>
+                    <div class="row mb-3">
+                        <div class="col-12">
+                            <label class="form-label">Status</label>
+                            <select class="form-select select_option" id="status_kontrak">
+                                <option value="" disabled selected>Silahkan Pilih</option>
+                                <option value="1">Selesai</option>
+                                <option value="2">Belum Selesai</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-4">
+                            <label class="form-label">Realisasi Fisik Lalu</label>
+                            <input type="text" class="form-control kanan" id="realisasi_fisik_lalu"
+                                pattern="^\$\d{1,3}(,\d{3})*(\.\d+)?$" data-type="currency" disabled readonly>
+                        </div>
+                        <div class="col-4">
+                            <label class="form-label">Realisasi Fisik</label>
+                            <input type="text" class="form-control kanan" id="realisasi_fisik"
+                                pattern="^\$\d{1,3}(,\d{3})*(\.\d+)?$" data-type="currency">
+                        </div>
+                        <div class="col-4">
+                            <label class="form-label">Total Realisasi Fisik</label>
+                            <input type="text" class="form-control kanan" id="total_realisasi_fisik"
+                                pattern="^\$\d{1,3}(,\d{3})*(\.\d+)?$" data-type="currency" disabled readonly>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-12">
+                            <label class="form-label">Keterangan</label>
+                            <textarea class="form-control" id="keterangan" placeholder="Isi dengan keterangan" rows="5"></textarea>
+                        </div>
+                    </div>
                     <div class="mb-3 text-end">
                         <button class="btn btn-primary" id="simpan">Simpan</button>
-                        <a href="{{ route('kontrak.index') }}" class="btn btn-warning">Kembali</a>
+                        <a href="{{ route('bast.index') }}" class="btn btn-warning">Kembali</a>
                     </div>
                 </div>
             </div>
 
             <div class="card">
                 <div class="card-header">
-                    Rincian Kontrak
+                    Rincian BAST
                     <button class="btn btn-success btn-md float-end" id="tambah_rincian">Tambah</button>
                 </div>
                 <div class="card-body table-responsive">
@@ -127,7 +204,7 @@
                     </table>
                     <div class="mb-2 mt-2 row">
                         <label class="col-md-8 col-form-label kanan">Total
-                            Rincian Kontrak</label>
+                            Rincian BAST</label>
                         <div class="col-md-4">
                             <input type="text" readonly class="form-control kanan" id="total_rincian_kontrak"
                                 style="background-color:white;border:none">
@@ -142,7 +219,7 @@
         <div class="modal-dialog modal-xl">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Tambah Rincian Kontrak</h5>
+                    <h5 class="modal-title">Tambah Rincian BAST</h5>
                 </div>
                 <div class="modal-body">
                     <div class="row mb-3">
@@ -179,60 +256,76 @@
                         </div>
                     </div>
                     <div class="row mb-3">
-                        <label class="form-label col-md-2">Volume 1</label>
+                        <label class="form-label col-md-1">Volume 1</label>
                         <div class="col-md-2">
                             <input class="form-control kanan" type="text" readonly disabled id="volume1">
                         </div>
-                        <label class="form-label col-md-2">Satuan 1</label>
+                        <label class="form-label col-md-1">Satuan 1</label>
                         <div class="col-md-2">
                             <input class="form-control" type="text" readonly disabled id="satuan1">
                         </div>
-                        <label class="form-label col-md-2">Input Volume 1</label>
+                        <label class="form-label col-md-1">Realisasi</label>
+                        <div class="col-md-2">
+                            <input class="form-control" type="text" readonly disabled id="realisasi_volume1">
+                        </div>
+                        <label class="form-label col-md-1">Input Volume 1</label>
                         <div class="col-md-2">
                             <input type="text" class="form-control kanan" id="input_volume1"
                                 pattern="^\$\d{1,3}(,\d{3})*(\.\d+)?$" data-type="currency">
                         </div>
                     </div>
                     <div class="row mb-3">
-                        <label class="form-label col-md-2">Volume 2</label>
+                        <label class="form-label col-md-1">Volume 2</label>
                         <div class="col-md-2">
                             <input class="form-control kanan" type="text" readonly disabled id="volume2">
                         </div>
-                        <label class="form-label col-md-2">Satuan 2</label>
+                        <label class="form-label col-md-1">Satuan 2</label>
                         <div class="col-md-2">
                             <input class="form-control" type="text" readonly disabled id="satuan2">
                         </div>
-                        <label class="form-label col-md-2">Input Volume 2</label>
+                        <label class="form-label col-md-1">Realisasi</label>
+                        <div class="col-md-2">
+                            <input class="form-control" type="text" readonly disabled id="realisasi_volume2">
+                        </div>
+                        <label class="form-label col-md-1">Input Volume 2</label>
                         <div class="col-md-2">
                             <input type="text" class="form-control kanan" id="input_volume2"
                                 pattern="^\$\d{1,3}(,\d{3})*(\.\d+)?$" data-type="currency">
                         </div>
                     </div>
                     <div class="row mb-3">
-                        <label class="form-label col-md-2">Volume 3</label>
+                        <label class="form-label col-md-1">Volume 3</label>
                         <div class="col-md-2">
                             <input class="form-control kanan" type="text" readonly disabled id="volume3">
                         </div>
-                        <label class="form-label col-md-2">Satuan 3</label>
+                        <label class="form-label col-md-1">Satuan 3</label>
                         <div class="col-md-2">
                             <input class="form-control" type="text" readonly disabled id="satuan3">
                         </div>
-                        <label class="form-label col-md-2">Input Volume 3</label>
+                        <label class="form-label col-md-1">Realisasi</label>
+                        <div class="col-md-2">
+                            <input class="form-control" type="text" readonly disabled id="realisasi_volume3">
+                        </div>
+                        <label class="form-label col-md-1">Input Volume 3</label>
                         <div class="col-md-2">
                             <input type="text" class="form-control kanan" id="input_volume3"
                                 pattern="^\$\d{1,3}(,\d{3})*(\.\d+)?$" data-type="currency">
                         </div>
                     </div>
                     <div class="row mb-3">
-                        <label class="form-label col-md-2">Volume 4</label>
+                        <label class="form-label col-md-1">Volume 4</label>
                         <div class="col-md-2">
                             <input class="form-control kanan" type="text" readonly disabled id="volume4">
                         </div>
-                        <label class="form-label col-md-2">Satuan 4</label>
+                        <label class="form-label col-md-1">Satuan 4</label>
                         <div class="col-md-2">
                             <input class="form-control" type="text" readonly disabled id="satuan4">
                         </div>
-                        <label class="form-label col-md-2">Input Volume 4</label>
+                        <label class="form-label col-md-1">Realisasi</label>
+                        <div class="col-md-2">
+                            <input class="form-control" type="text" readonly disabled id="realisasi_volume4">
+                        </div>
+                        <label class="form-label col-md-1">Input Volume 4</label>
                         <div class="col-md-2">
                             <input type="text" class="form-control kanan" id="input_volume4"
                                 pattern="^\$\d{1,3}(,\d{3})*(\.\d+)?$" data-type="currency">
@@ -254,7 +347,7 @@
                     </div>
                     <div class="mb-3 row">
                         <label class="col-md-9 col-form-label kanan">Total
-                            Rincian Kontrak</label>
+                            Rincian BAST</label>
                         <div class="col-md-3">
                             <input type="text" width="100%" class="form-control kanan" readonly
                                 id="total_detail_kontrak" style="background-color:white;border:none">
@@ -268,7 +361,7 @@
                     </div>
                     <div class="card">
                         <div class="card-header">
-                            Rincian Kontrak
+                            Rincian BAST
                         </div>
                         <div class="card-body table-responsive">
                             <table class="table align-middle mb-0" id="detail_kontrak" style="width: 100%">
@@ -311,5 +404,5 @@
     </div>
 @endsection
 @push('js')
-    @include('kontrak.js.create')
+    @include('bast.js.create')
 @endpush

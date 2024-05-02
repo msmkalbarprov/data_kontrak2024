@@ -15,13 +15,13 @@
             <div class="offcanvas-body">
                 <ul class="navbar-nav align-items-center flex-grow-1">
                     <li class="nav-item dropdown">
-                        <a class="nav-link" href="{{ route('akses.index') }}">
+                        <a class="nav-link" href="{{ route('dashboard') }}">
                             <div class="menu-title d-flex align-items-center">Dashboard</div>
                         </a>
                     </li>
                     @php
-                        $menu_tipe1 = \App\Models\Permission::where('parent', '')->get();
-                        $menu_tipe2 = \App\Models\Permission::where('parent', '!=', '')->get();
+                        $menu_tipe1 = filter_menu();
+                        $menu_tipe2 = sub_menu();
                     @endphp
                     @foreach ($menu_tipe1 as $tipe1)
                         <li class="nav-item dropdown">

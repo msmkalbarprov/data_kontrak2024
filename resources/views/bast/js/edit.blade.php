@@ -13,8 +13,6 @@
 
         let status_anggaran = "{{ $kontrak->jns_ang }}"
 
-        $('#jenis').prop('disabled', true);
-
         $('.select_modal').select2({
             dropdownParent: $('#modal_rincian .modal-content'),
             theme: 'bootstrap-5',
@@ -442,7 +440,6 @@
         });
 
         $('#simpan').on('click', function() {
-            let jenis = $('#jenis').val();
             let id_kontrak = $('#id_kontrak').val();
             let no_kontrak = $('#no_kontrak').val();
             let tgl_kontrak = $('#tgl_kontrak').val();
@@ -564,21 +561,6 @@
                 return
             }
 
-            if (!jenis) {
-                swalAlert('Jenis harus dipilih!');
-                return
-            }
-
-            if (jenis == 1 && total_rincian_kontrak > 15000000) {
-                swalAlert('Kontrak tidak boleh melebihi 15 juta, jika UP/GU!');
-                return
-            }
-
-            if (!status_anggaran) {
-                swalAlert('Status anggaran tidak boleh kosong!');
-                return
-            }
-
             let kontrak = JSON.stringify(kontrak1);
 
             let data = {
@@ -594,8 +576,6 @@
                 pimpinan,
                 total_rincian_kontrak,
                 kontrak,
-                status_anggaran,
-                jenis
             };
 
             Swal.fire({

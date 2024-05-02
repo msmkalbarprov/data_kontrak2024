@@ -105,7 +105,7 @@
                         </div>
                     </div>
                     <div class="mb-3 text-end">
-                        @if ($cekKontrakAdendumSelanjutnya == 0)
+                        @if ($cekKontrakAdendumSelanjutnya == 0 && $cekBast == 0)
                             <button class="btn btn-primary" id="simpan">Simpan</button>
                         @endif
                         <a href="{{ route('kontrak_adendum.index') }}" class="btn btn-warning">Kembali</a>
@@ -116,7 +116,9 @@
             <div class="card">
                 <div class="card-header">
                     Rincian Kontrak
-                    <button class="btn btn-success btn-md float-end" id="tambah_rincian">Tambah</button>
+                    @if ($cekKontrakAdendumSelanjutnya == 0 && $cekBast == 0)
+                        <button class="btn btn-success btn-md float-end" id="tambah_rincian">Tambah</button>
+                    @endif
                 </div>
                 <div class="card-body table-responsive">
                     <table class="table align-middle mb-0" id="rincian_kontrak" style="width: 100%">
@@ -164,7 +166,7 @@
                                     <td>{{ rupiah($detail->harga) }}</td>
                                     <td>{{ rupiah($detail->nilai) }}</td>
                                     <td>
-                                        @if ($cekKontrakAdendumSelanjutnya == 0)
+                                        @if ($cekKontrakAdendumSelanjutnya == 0 && $cekBast == 0)
                                             <a href="javascript:void(0);"
                                                 onclick="editRincian('{{ $detail->idtrdpo }}','{{ $detail->kodesubkegiatan }}','{{ $detail->kodeakun }}','{{ $detail->kodebarang }}','{{ $detail->kodesumberdana }}','{{ $detail->header }}','{{ $detail->subheader }}','{{ $detail->volume1 }}','{{ $detail->volume2 }}','{{ $detail->volume3 }}','{{ $detail->volume4 }}','editVolume')"
                                                 class="btn btn-warning btn-sm"><i

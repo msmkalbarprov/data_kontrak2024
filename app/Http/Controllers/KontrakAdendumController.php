@@ -37,7 +37,10 @@ class KontrakAdendumController extends Controller
         $orderBy = $request->order[0]['dir'] ?? 'desc';
 
         // get data from products table
-        $query = DB::table('trhkontrak')
+        $query = DB::table('trhkontrak as a')
+            ->selectRaw("a.*")
+            ->selectRaw("(select count(*) from trhbast c where c.nomorkontrak=a.nomorkontrak and c.idkontrak=a.idkontrak and c.kodeskpd=a.kodeskpd) as total_bast")
+            ->where(['a.kodeskpd' => Auth::user()->kd_skpd])
             ->where(function ($query) {
                 $query->where('adendum', '!=', '0');
             });
@@ -69,7 +72,7 @@ class KontrakAdendumController extends Controller
 
                 $btn = '<a href="' . route("kontrak_adendum.edit", ['id' => Crypt::encrypt($row->idkontrak), 'nomor' => Crypt::encrypt($row->nomorkontrak), 'kd_skpd' => Crypt::encrypt($row->kodeskpd)]) . '" class="btn btn-sm btn-warning" style="margin-right:4px"><i class="fadeIn animated bx bx-edit"></i></a>';
 
-                if ($cekKontrakAdendumSelanjutnya == 0) {
+                if ($cekKontrakAdendumSelanjutnya == 0 || $row->total_bast == 0) {
                     $btn .= '<a onclick="hapus(\'' . $row->idkontrak . '\',\'' . $row->nomorkontrak . '\',\'' . $row->nomorkontraklalu . '\',\'' . $row->kodeskpd . '\')" class="btn btn-sm btn-danger"><i class="fadeIn animated bx bx-trash"></i></a>';
                 }
 
@@ -138,6 +141,13 @@ class KontrakAdendumController extends Controller
                 ], 400);
             }
 
+            if ($data['jenis'] == 1 && floatval($data['total_rincian_kontrak']) > 15000000) {
+                return response()->json([
+                    'status' => false,
+                    'error' => 'Error, Nilai melebihi 15 juta untuk Kontrak UP/GU!',
+                ], 400);
+            }
+
             DB::table('trhkontrak')
                 ->insert([
                     'idkontrak' => $dataKontrakLama->idkontrak,
@@ -156,7 +166,10 @@ class KontrakAdendumController extends Controller
                     'npwp' => $dataKontrakLama->npwp,
                     'urut' => $dataKontrakLama->urut,
                     'jns_ang' => $data['status_anggaran'],
-                    'statusAdendum' => '0'
+                    'statusAdendum' => '0',
+                    'created_at' => date('Y-m-d H:i:s'),
+                    'created_username' => Auth::user()->username,
+                    'jenisspp' => $data['jenis']
                 ]);
 
             $data['kontrak'] = json_decode($data['kontrak'], true);
@@ -199,10 +212,6 @@ class KontrakAdendumController extends Controller
                             'nilai' => floatval($value['total']),
                             'kodesumberdana' => $value['sumber'],
                             'namasumberdana' => $value['nm_sumber'],
-                            'created_at' => date('Y-m-d H:i:s'),
-                            'created_username' => Auth::user()->username,
-                            'updated_at' => date('Y-m-d H:i:s'),
-                            'updated_username' => Auth::user()->username,
                             'kodeskpd' => $dataKontrakLama->kodeskpd,
                             'namaskpd' => $dataKontrakLama->namaskpd,
                         ];
@@ -267,70 +276,17 @@ class KontrakAdendumController extends Controller
             ->where('adendum', '>', $dataKontrak->adendum)
             ->count();
 
+        $cekBast = DB::table('trhbast')
+            ->where(['nomorkontrak' => $dataKontrak->nomorkontrak, 'kodeskpd' => $kd_skpd, 'idkontrak' => $id])
+            ->count();
+
         if ($status_anggaran == '0') {
             return redirect()
                 ->route('kontrak_adendum.index')
                 ->with('message', 'Anggaran belum disahkan, hubungi Anggaran!');;
         }
 
-        return view('kontrak_adendum.edit', compact('daftar_rekening', 'tahun', 'dataKontrak', 'detailKontrak', 'kd_sub_kegiatan', 'cekKontrakAdendumSelanjutnya'));
-    }
-
-    public function delete(Request $request)
-    {
-        $id = $request->id;
-        $nomorkontrak = $request->nomorkontrak;
-        $nomorkontraklalu = $request->nomorkontraklalu;
-        $kd_skpd = $request->kd_skpd;
-
-        DB::beginTransaction();
-
-        try {
-            $dataKontrak = DB::table('trhkontrak')
-                ->where(['idkontrak' => $id, 'nomorkontrak' => $nomorkontrak, 'kodeskpd' => $kd_skpd])
-                ->first();
-
-            $cekKontrakAdendumSelanjutnya = DB::table('trhkontrak')
-                ->where(['idkontrak' => $id, 'kodeskpd' => $kd_skpd, 'nomorkontraklalu' => $nomorkontrak])
-                ->where('adendum', '>', $dataKontrak->adendum)
-                ->count();
-
-            if ($cekKontrakAdendumSelanjutnya > 0) {
-                return response()->json([
-                    'status' => false,
-                    'message' => 'Kontrak telah diadendum, tidak bisa dihapus!'
-                ], 400);
-            }
-
-            DB::table('trhkontrak')
-                ->where(['idkontrak' => $id, 'kodeskpd' => $kd_skpd, 'nomorkontrak' => $nomorkontrak])
-                ->delete();
-
-            DB::table('trdkontrak')
-                ->where(['idkontrak' => $id, 'kodeskpd' => $kd_skpd, 'nomorkontrak' => $nomorkontrak])
-                ->delete();
-
-            DB::table('trhkontrak')
-                ->where(['nomorkontrak' => $nomorkontraklalu, 'idkontrak' => $id, 'kodeskpd' => $kd_skpd])
-                ->update(
-                    [
-                        'statusAdendum' => '0'
-                    ]
-                );
-
-            DB::commit();
-            return response()->json([
-                'status' => true,
-                'message' => 'Data berhasil dihapus'
-            ], 200);
-        } catch (Exception $e) {
-            DB::rollBack();
-            return response()->json([
-                'status' => false,
-                'message' => 'Data tidak berhasil dihapus',
-                'e' => $e->getMessage()
-            ], 400);
-        }
+        return view('kontrak_adendum.edit', compact('daftar_rekening', 'tahun', 'dataKontrak', 'detailKontrak', 'kd_sub_kegiatan', 'cekKontrakAdendumSelanjutnya', 'cekBast'));
     }
 
     public function update(Request $request)
@@ -364,6 +320,13 @@ class KontrakAdendumController extends Controller
                 return response()->json([
                     'status' => false,
                     'error' => 'Error, Nomor kontrak telah ada!',
+                ], 400);
+            }
+
+            if ($data['jenis'] == 1 && floatval($data['total_rincian_kontrak']) > 15000000) {
+                return response()->json([
+                    'status' => false,
+                    'error' => 'Error, Nilai melebihi 15 juta untuk Kontrak UP/GU!',
                 ], 400);
             }
 
@@ -419,10 +382,6 @@ class KontrakAdendumController extends Controller
                             'nilai' => floatval($value['total']),
                             'kodesumberdana' => $value['sumber'],
                             'namasumberdana' => $value['nm_sumber'],
-                            'created_at' => date('Y-m-d H:i:s'),
-                            'created_username' => Auth::user()->username,
-                            'updated_at' => date('Y-m-d H:i:s'),
-                            'updated_username' => Auth::user()->username,
                             'kodeskpd' => $dataKontrakLama->kodeskpd,
                             'namaskpd' => $dataKontrakLama->namaskpd,
                         ];
@@ -439,6 +398,63 @@ class KontrakAdendumController extends Controller
             return response()->json([
                 'status' => false,
                 'error' => 'Error, Data tidak berhasil ditambahkan!',
+                'e' => $e->getMessage()
+            ], 400);
+        }
+    }
+
+    public function delete(Request $request)
+    {
+        $id = $request->id;
+        $nomorkontrak = $request->nomorkontrak;
+        $nomorkontraklalu = $request->nomorkontraklalu;
+        $kd_skpd = $request->kd_skpd;
+
+        DB::beginTransaction();
+
+        try {
+            $dataKontrak = DB::table('trhkontrak')
+                ->where(['idkontrak' => $id, 'nomorkontrak' => $nomorkontrak, 'kodeskpd' => $kd_skpd])
+                ->first();
+
+            $cekKontrakAdendumSelanjutnya = DB::table('trhkontrak')
+                ->where(['idkontrak' => $id, 'kodeskpd' => $kd_skpd, 'nomorkontraklalu' => $nomorkontrak])
+                ->where('adendum', '>', $dataKontrak->adendum)
+                ->count();
+
+            if ($cekKontrakAdendumSelanjutnya > 0) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Kontrak telah diadendum, tidak bisa dihapus!'
+                ], 400);
+            }
+
+            DB::table('trhkontrak')
+                ->where(['idkontrak' => $id, 'kodeskpd' => $kd_skpd, 'nomorkontrak' => $nomorkontrak])
+                ->delete();
+
+            DB::table('trdkontrak')
+                ->where(['idkontrak' => $id, 'kodeskpd' => $kd_skpd, 'nomorkontrak' => $nomorkontrak])
+                ->delete();
+
+            DB::table('trhkontrak')
+                ->where(['nomorkontrak' => $nomorkontraklalu, 'idkontrak' => $id, 'kodeskpd' => $kd_skpd])
+                ->update(
+                    [
+                        'statusAdendum' => '0'
+                    ]
+                );
+
+            DB::commit();
+            return response()->json([
+                'status' => true,
+                'message' => 'Data berhasil dihapus'
+            ], 200);
+        } catch (Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => false,
+                'message' => 'Data tidak berhasil dihapus',
                 'e' => $e->getMessage()
             ], 400);
         }

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\BastController;
 use App\Http\Controllers\DataController;
 use App\Http\Controllers\KontrakAdendumController;
 use App\Http\Controllers\KontrakController;
@@ -22,7 +23,7 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    return view('welcome');
+    return view('auth.login2');
 });
 
 Route::get('/dashboard', function () {
@@ -64,7 +65,18 @@ Route::middleware('auth')->group(function () {
     Route::post('kontrak_adendum/update', [KontrakAdendumController::class, 'update'])->name('kontrak_adendum.update');
     Route::post('kontrak_adendum/delete', [KontrakAdendumController::class, 'delete'])->name('kontrak_adendum.delete');
 
-    // DATA
+    // BAST
+    Route::get('bast', [BastController::class, 'index'])->name('bast.index');
+    Route::post('bast/load', [BastController::class, 'load'])->name('bast.load');
+    Route::get('bast/create', [BastController::class, 'create'])->name('bast.create');
+    Route::post('bast/store', [BastController::class, 'store'])->name('bast.store');
+    Route::get('bast/{nomorpesanan}/{nomorbapbast}/{kd_skpd}/{idkontrak}/edit', [BastController::class, 'edit'])->name('bast.edit');
+    Route::post('bast/update', [BastController::class, 'update'])->name('bast.update');
+    Route::post('bast/delete', [BastController::class, 'delete'])->name('bast.delete');
+
+    Route::post('cek_rincian_bast', [BastController::class, 'cekRincianBast'])->name('cek_rincian_bast');
+
+    // DATA KONTRAK
     Route::post('kode_sub_kegiatan', [DataController::class, 'kodeSubKegiatan'])->name('kode_sub_kegiatan');
     Route::post('rekening', [DataController::class, 'rekening'])->name('rekening');
     Route::post('kode_barang', [DataController::class, 'kodeBarang'])->name('kode_barang');
@@ -74,6 +86,13 @@ Route::middleware('auth')->group(function () {
     Route::post('daftarAnggaran', function (Request $request) {
         return tipeAnggaran($request);
     })->name('daftarAnggaran');
+
+    // DATA BAST/BAP/PESANAN
+    Route::post('kegiatan_bast', [DataController::class, 'kegiatanBast'])->name('kegiatan_bast');
+    Route::post('rekening_bast', [DataController::class, 'rekeningBast'])->name('rekening_bast');
+    Route::post('barang_bast', [DataController::class, 'barangBast'])->name('barang_bast');
+    Route::post('sumber_bast', [DataController::class, 'sumberBast'])->name('sumber_bast');
+    Route::post('realisasi_bast', [DataController::class, 'realisasiBast'])->name('realisasi_bast');
 });
 
 require __DIR__ . '/auth.php';

@@ -438,6 +438,7 @@
         });
 
         $('#simpan').on('click', function() {
+            let jenis = $('#jenis').val();
             let id_kontrak = $('#id_kontrak').val();
             let no_kontrak = $('#no_kontrak').val();
             let tgl_kontrak = $('#tgl_kontrak').val();
@@ -457,11 +458,6 @@
             let tahun_anggaran = "{{ $tahun }}";
 
             let tahun_input = tgl_kontrak.substring(0, 4);
-
-            // if (!id_kontrak) {
-            //     swalAlert('ID Kontrak harus diisi');
-            //     return
-            // }
 
             if (!no_kontrak) {
                 swalAlert('No Kontrak harus diisi');
@@ -565,6 +561,16 @@
                 return
             }
 
+            if (!jenis) {
+                swalAlert('Jenis harus dipilih!');
+                return
+            }
+
+            if (jenis == 1 && total_rincian_kontrak > 15000000) {
+                swalAlert('Kontrak tidak boleh melebihi 15 juta, jika UP/GU!');
+                return
+            }
+
             let kontrak = JSON.stringify(kontrak1);
 
             let data = {
@@ -580,7 +586,8 @@
                 pimpinan,
                 total_rincian_kontrak,
                 kontrak,
-                status_anggaran
+                status_anggaran,
+                jenis
             };
 
             Swal.fire({

@@ -206,4 +206,151 @@ class DataController extends Controller
             'sumber' => $this->cariSumber($request),
         ]);
     }
+
+    // Cari Kegiatan BAST/BAP/PESANAN
+    public function kegiatanBast(Request $request)
+    {
+        $kd_skpd = Auth::user()->kd_skpd;
+        $kontrak = $request->kontrak;
+        $status_anggaran = $request->status_anggaran;
+
+        $data = $this
+            ->connection
+            ->table('simakda_2024.dbo.trskpd as a')
+            ->join('simakda_2024.dbo.ms_sub_kegiatan as b', 'a.kd_sub_kegiatan', '=', 'b.kd_sub_kegiatan')
+            ->where(['a.kd_skpd' => $kd_skpd, 'a.status_sub_kegiatan' => '1', 'b.jns_sub_kegiatan' => '5', 'a.jns_ang' => $status_anggaran])
+            ->whereRaw("a.kd_sub_kegiatan IN (SELECT c.kodesubkegiatan from data_kontrak.dbo.trdkontrak c inner join data_kontrak.dbo.trhkontrak d on c.idkontrak=d.idkontrak and c.nomorkontrak=d.nomorkontrak and c.kodeskpd=d.kodeskpd where d.nomorkontrak=? and d.kodeskpd=?)", [$kontrak, $kd_skpd])
+            ->select('a.kd_sub_kegiatan', 'b.nm_sub_kegiatan', 'a.kd_program', DB::raw("(SELECT nm_program FROM simakda_2024.dbo.ms_program WHERE kd_program=a.kd_program) as nm_program"), 'a.total')
+            ->get();
+
+        return response()->json($data);
+    }
+
+    // Cari Rekening BAST/BAP/PESANAN
+    public function rekeningBast(Request $request)
+    {
+        $kd_sub_kegiatan = $request->kd_sub_kegiatan;
+        $kd_skpd = Auth::user()->kd_skpd;
+        $jns_ang = $request->status_anggaran;
+        $kontrak = $request->kontrak;
+
+        $daftar_rekening = $this->connection->select("SELECT a.kd_rek6,a.nm_rek6,e.map_lo,
+                      (SELECT SUM(nilai) FROM
+                        (SELECT
+                            SUM (c.nilai) as nilai
+                        FROM
+                            simakda_2024.dbo.trdtransout c
+                        LEFT JOIN simakda_2024.dbo.trhtransout d ON c.no_bukti = d.no_bukti
+                        AND c.kd_skpd = d.kd_skpd
+                        WHERE
+                            c.kd_sub_kegiatan = a.kd_sub_kegiatan
+                        AND d.kd_skpd = a.kd_skpd
+                        AND c.kd_rek6 = a.kd_rek6
+                        AND d.jns_spp='1'
+                        UNION ALL
+                        SELECT SUM(x.nilai) as nilai FROM simakda_2024.dbo.trdspp x
+                        INNER JOIN simakda_2024.dbo.trhspp y
+                        ON x.no_spp=y.no_spp AND x.kd_skpd=y.kd_skpd
+                        WHERE
+                            x.kd_sub_kegiatan = a.kd_sub_kegiatan
+                        AND x.kd_skpd = a.kd_skpd
+                        AND x.kd_rek6 = a.kd_rek6
+                        AND y.jns_spp IN ('3','4','5','6')
+                        AND (sp2d_batal IS NULL or sp2d_batal ='' or sp2d_batal='0')
+
+                        UNION ALL
+                        SELECT SUM(nilai) as nilai FROM simakda_2024.dbo.trdtagih t
+                        INNER JOIN simakda_2024.dbo.trhtagih u
+                        ON t.no_bukti=u.no_bukti AND t.kd_skpd=u.kd_skpd
+                        WHERE
+                        t.kd_sub_kegiatan = a.kd_sub_kegiatan
+                        AND u.kd_skpd = a.kd_skpd
+                        AND t.kd_rek = a.kd_rek6
+                        AND u.no_bukti
+                        NOT IN (select no_tagih FROM simakda_2024.dbo.trhspp WHERE kd_skpd=? )
+
+                        -- tambahan tampungan
+                        UNION ALL
+                        SELECT SUM(nilai) as nilai FROM simakda_2024.dbo.tb_transaksi
+                        WHERE
+                        kd_sub_kegiatan = a.kd_sub_kegiatan
+                        AND kd_skpd = a.kd_skpd
+                        AND kd_rek6 = a.kd_rek6
+                        -- tambahan tampungan
+                        )r) AS lalu,
+                    0 AS sp2d,a.nilai AS anggaran
+                      FROM simakda_2024.dbo.trdrka a LEFT JOIN simakda_2024.dbo.ms_rek6 e ON a.kd_rek6=e.kd_rek6
+                      WHERE a.kd_sub_kegiatan= ? AND jns_ang=? AND a.kd_skpd = ? and a.status_aktif='1' and (left(a.kd_rek6,2)=? or left(a.kd_rek6,4)=? and a.kd_rek6 in (SELECT c.kodeakun from data_kontrak.dbo.trdkontrak c inner join data_kontrak.dbo.trhkontrak d on c.idkontrak=d.idkontrak and c.nomorkontrak=d.nomorkontrak and c.kodeskpd=d.kodeskpd where d.nomorkontrak=? and d.kodeskpd=?))", [$kd_skpd, $kd_sub_kegiatan, $jns_ang, $kd_skpd, '52', '5102', $kontrak, $kd_skpd]);
+
+        return response()->json($daftar_rekening);
+    }
+
+    // Cari Kode Barang BAST/BAP/PESANAN
+    public function barangBast(Request $request)
+    {
+        $kd_skpd = Auth::user()->kd_skpd;
+        $kd_sub_kegiatan = $request->kd_sub_kegiatan;
+        $kd_rek6 = $request->kd_rek6;
+        $jns_ang = $request->status_anggaran;
+        $kontrak = $request->kontrak;
+
+        $data = $this->connection
+            ->table('simakda_2024.dbo.trdpo_rinci as a')
+            ->where(['a.kd_skpd' => $kd_skpd, 'a.kd_sub_kegiatan' => $kd_sub_kegiatan, 'a.kd_rek6' => $kd_rek6, 'a.jns_ang' => $jns_ang])
+            ->whereRaw("a.kd_barang IN (SELECT c.kodebarang from data_kontrak.dbo.trdkontrak c inner join data_kontrak.dbo.trhkontrak d on c.idkontrak=d.idkontrak and c.nomorkontrak=d.nomorkontrak and c.kodeskpd=d.kodeskpd where d.nomorkontrak=? and d.kodeskpd=? and a.header=c.header and a.sub_header=c.subheader)", [$kontrak, $kd_skpd])
+            ->select('a.kd_barang', 'a.header', 'a.sub_header', 'a.uraian')
+            ->get();
+
+        return response()->json($data);
+    }
+
+    // Cari Sumber Dana BAST/BAP/PESANAN
+    public function sumberBast(Request $request)
+    {
+        $data = DB::table('trdkontrak as a')
+            ->join('trhkontrak as b', function ($join) {
+                $join->on('a.idkontrak', '=', 'b.idkontrak');
+                $join->on('a.nomorkontrak', '=', 'b.nomorkontrak');
+                $join->on('a.kodeskpd', '=', 'b.kodeskpd');
+            })
+            ->where([
+                'a.kodeskpd' => Auth::user()->kd_skpd,
+                'a.kodesubkegiatan' => $request->kd_sub_kegiatan,
+                'a.kodeakun' => $request->kd_rek6,
+                'a.kodebarang' => $request->kd_barang,
+                'a.header' => $request->header,
+                'a.subheader' => $request->sub_header,
+                'a.nomorkontrak' => $request->kontrak,
+                'b.jns_ang' => $request->status_anggaran
+            ])
+            ->select('a.kodesumberdana as sumber', 'a.namasumberdana as nm_sumber', 'a.volume1', 'a.volume2', 'a.volume3', 'a.volume4', 'a.satuan1', 'a.satuan2', 'a.satuan3', 'a.satuan4', 'a.harga', 'a.nilai as total', 'a.idtrdpo as id', 'a.nomorpo as no_po', 'a.uraianbarang as uraian', 'a.spek as spesifikasi')
+            ->get();
+
+        return response()->json($data);
+    }
+
+    public function realisasiBast(Request $request)
+    {
+        $data = DB::table('trdbapbast as a')
+            ->join('trhbast as b', function ($join) {
+                $join->on('a.nomorpesanan', '=', 'b.nomorpesanan');
+                $join->on('a.nomorbapbast', '=', 'b.nomorbapbast');
+                $join->on('a.kodeskpd', '=', 'b.kodeskpd');
+            })
+            ->where([
+                'a.kodeskpd' => Auth::user()->kd_skpd,
+                'a.kodesubkegiatan' => $request->kd_sub_kegiatan,
+                'a.kodeakun' => $request->kd_rek6,
+                'a.kodebarang' => $request->kd_barang,
+                'a.header' => $request->header,
+                'a.subheader' => $request->sub_header,
+                'a.kodesumberdana' => $request->sumber,
+                'b.idkontrak' => $request->id_kontrak,
+                'b.nomorkontrak' => $request->kontrak
+            ])
+            ->selectRaw("ISNULL(sum(volume1),0) as volume1,ISNULL(sum(volume2),0) as volume2,ISNULL(sum(volume3),0) as volume3,ISNULL(sum(volume4),0) as volume4")
+            ->first();
+
+        return response()->json($data);
+    }
 }

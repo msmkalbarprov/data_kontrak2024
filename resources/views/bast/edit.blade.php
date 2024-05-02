@@ -1,57 +1,58 @@
 @extends('template.app')
 @section('konten')
     <div class="row">
-        @if (session()->has('message'))
-            <div class="alert alert-success">
-                {{ session()->get('message') }}
-            </div>
-        @endif
         <div class="col-xl-10 mx-auto">
-            <h6 class="mb-0 text-uppercase">Tambah Kontrak</h6>
+            @if (session('message'))
+                <div class="alert alert-danger">
+                    {{ session('message') }}
+                </div>
+            @endif
+            @if ($errors->any())
+                <div class="alert alert-danger">
+                    <ul>
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+            <h6 class="mb-0 text-uppercase">Ubah Kontrak</h6>
             <hr />
             <div class="card">
                 <div class="card-body">
-                    <div class="row mb-3">
-                        <div class="col-12">
-                            <label class="form-label">Jenis</label>
-                            <select class="form-select select_option" id="jenis">
-                                <option value="" selected>Silahkan Pilih</option>
-                                <option value="1">UP/GU</option>
-                                <option value="5">LS BARJAS</option>
-                            </select>
-                        </div>
-                    </div>
                     <div class="mb-3">
                         <label class="form-label">Id Kontrak</label>
-                        <input class="form-control" type="text" readonly disabled id="id_kontrak">
+                        <input class="form-control" type="text" readonly disabled id="id_kontrak"
+                            value="{{ $kontrak->idkontrak }}">
                     </div>
                     <div class="row mb-3">
                         <div class="col-6">
                             <label class="form-label">No. Kontrak</label>
                             <input class="form-control" type="text" id="no_kontrak"
-                                placeholder="Isi dengan nomor kontrak" autofocus>
+                                placeholder="Isi dengan nomor kontrak" autofocus value="{{ $kontrak->nomorkontrak }}">
                         </div>
                         <div class="col-6">
                             <label class="form-label">Tanggal Kontrak</label>
-                            <input class="form-control" type="date" id="tgl_kontrak">
+                            <input class="form-control" type="date" id="tgl_kontrak"
+                                value="{{ $kontrak->tanggalkontrak }}">
                         </div>
                     </div>
                     <div class="row mb-3">
                         <div class="col-6">
                             <label class="form-label">Kode SKPD/UNIT</label>
                             <input class="form-control" type="text" readonly disabled id="kd_skpd"
-                                value="{{ $skpd->kd_skpd }}">
+                                value="{{ $kontrak->kodeskpd }}">
                         </div>
                         <div class="col-6">
                             <label class="form-label">Nama SKPD/UNIT</label>
                             <input class="form-control" type="text" readonly disabled id="nm_skpd"
-                                value="{{ $skpd->nm_skpd }}">
+                                value="{{ $kontrak->namaskpd }}">
                         </div>
                     </div>
                     <div class="row mb-3">
                         <div class="col-12">
                             <label class="form-label">Nama Pekerjaan</label>
-                            <textarea class="form-control" id="nm_kerja" placeholder="Isi dengan nama pekerjaan"></textarea>
+                            <textarea class="form-control" id="nm_kerja" placeholder="Isi dengan nama pekerjaan">{{ $kontrak->pekerjaan }}</textarea>
                         </div>
                     </div>
                     <div class="row mb-3">
@@ -62,7 +63,8 @@
                                 @foreach ($daftar_rekening as $rekening)
                                     <option value="{{ $rekening->nmrekan }}" data-rekening="{{ $rekening->rekening }}"
                                         data-bank="{{ $rekening->bank }}" data-nm_bank="{{ $rekening->nm_bank }}"
-                                        data-npwp="{{ $rekening->npwp }}">
+                                        data-npwp="{{ $rekening->npwp }}"
+                                        {{ $rekening->nmrekan == $kontrak->rekanan ? 'selected' : '' }}>
                                         {{ $rekening->nmrekan }} |
                                         {{ $rekening->rekening }} | {{ $rekening->nm_bank }} | {{ $rekening->npwp }}
                                     </option>
@@ -73,22 +75,25 @@
                     <div class="row mb-3">
                         <div class="col-6">
                             <label class="form-label">No. Rekening</label>
-                            <input class="form-control" type="text" id="no_rekening" readonly disabled>
+                            <input class="form-control" type="text" id="no_rekening" readonly disabled
+                                value="{{ $kontrak->rekening }}">
                         </div>
                         <div class="col-6">
                             <label class="form-label">NPWP</label>
-                            <input class="form-control" type="text" id="npwp" readonly disabled>
+                            <input class="form-control" type="text" id="npwp" readonly disabled
+                                value="{{ $kontrak->npwp }}">
                         </div>
                     </div>
                     <div class="row mb-3">
                         <div class="col-6">
                             <label class="form-label">Pimpinan</label>
-                            <input class="form-control" type="text" id="pimpinan"
-                                placeholder="Isi dengan nama pimpinan">
+                            <input class="form-control" type="text" id="pimpinan" placeholder="Isi dengan nama pimpinan"
+                                value="{{ $kontrak->pimpinan }}">
                         </div>
                         <div class="col-1">
                             <label class="form-label">Bank</label>
-                            <input class="form-control" type="text" id="bank" readonly disabled>
+                            <input class="form-control" type="text" id="bank" readonly disabled
+                                value="{{ $kontrak->bank }}">
                         </div>
                         <div class="col-5">
                             <label class="form-label">Nama Bank</label>
@@ -96,7 +101,9 @@
                         </div>
                     </div>
                     <div class="mb-3 text-end">
-                        <button class="btn btn-primary" id="simpan">Simpan</button>
+                        @if ($cekKontrakAdendum == 0)
+                            <button class="btn btn-primary" id="simpan">Simpan</button>
+                        @endif
                         <a href="{{ route('kontrak.index') }}" class="btn btn-warning">Kembali</a>
                     </div>
                 </div>
@@ -123,6 +130,44 @@
                             </tr>
                         </thead>
                         <tbody>
+                            @php
+                                $total = 0;
+                            @endphp
+                            @foreach ($detail_kontrak as $detail)
+                                @php
+                                    $cek = [$detail->volume1, $detail->volume2, $detail->volume3, $detail->volume4];
+                                    $volume = array_reduce(
+                                        $cek,
+                                        function ($prev, $current) {
+                                            if ($current != 0) {
+                                                $prev *= $current;
+                                            }
+                                            return $prev;
+                                        },
+                                        1,
+                                    );
+                                    $total += $detail->nilai;
+                                @endphp
+                                <tr>
+
+                                    <td>{{ $detail->idtrdpo }}</td>
+                                    <td>{{ $detail->kodesubkegiatan }}</td>
+                                    <td>{{ $detail->kodeakun }}</td>
+                                    <td>{{ $detail->kodebarang }}</td>
+                                    <td>{{ $detail->kodesumberdana }}</td>
+                                    <td>{{ rupiah($volume) }}</td>
+                                    <td>{{ rupiah($detail->harga) }}</td>
+                                    <td>{{ rupiah($detail->nilai) }}</td>
+                                    <td>
+                                        @if ($cekKontrakAdendum == 0)
+                                            <a href="javascript:void(0);"
+                                                onclick="hapusRincian('{{ $detail->idtrdpo }}','{{ $detail->nilai }}')"
+                                                class="btn btn-danger btn-sm"><i
+                                                    class="fadeIn animated bx bx-trash"></i></a>
+                                        @endif
+                                    </td>
+                                </tr>
+                            @endforeach
                         </tbody>
                     </table>
                     <div class="mb-2 mt-2 row">
@@ -130,7 +175,7 @@
                             Rincian Kontrak</label>
                         <div class="col-md-4">
                             <input type="text" readonly class="form-control kanan" id="total_rincian_kontrak"
-                                style="background-color:white;border:none">
+                                style="background-color:white;border:none" value="{{ rupiah($total) }}">
                         </div>
                     </div>
                 </div>
@@ -257,12 +302,15 @@
                             Rincian Kontrak</label>
                         <div class="col-md-3">
                             <input type="text" width="100%" class="form-control kanan" readonly
-                                id="total_detail_kontrak" style="background-color:white;border:none">
+                                id="total_detail_kontrak" style="background-color:white;border:none"
+                                value="{{ rupiah($total) }}">
                         </div>
                     </div>
                     <div class="mb-3 row">
                         <div class="col-md-12 text-center">
-                            <button type="button" class="btn btn-success" id="simpan_rincian">Simpan</button>
+                            @if ($cekKontrakAdendum == 0)
+                                <button type="button" class="btn btn-success" id="simpan_rincian">Simpan</button>
+                            @endif
                             <button type="button" class="btn btn-warning" data-bs-dismiss="modal">Kembali</button>
                         </div>
                     </div>
@@ -301,6 +349,48 @@
                                     </tr>
                                 </thead>
                                 <tbody>
+                                    @php
+                                        $total_detail = 0;
+                                    @endphp
+                                    @foreach ($detail_kontrak as $detail)
+                                        @php
+                                            $total_detail += $detail->nilai;
+                                        @endphp
+                                        <tr>
+
+                                            <td>{{ $detail->idtrdpo }}</td>
+                                            <td>{{ $detail->kodesubkegiatan }}</td>
+                                            <td>{{ $detail->namasubkegiatan }}</td>
+                                            <td>{{ $detail->kodeakun }}</td>
+                                            <td>{{ $detail->namaakun }}</td>
+                                            <td>{{ $detail->kodebarang }}</td>
+                                            <td>{{ $detail->uraianbarang }}</td>
+                                            <td>{{ $detail->kodesumberdana }}</td>
+                                            <td>{{ $detail->namasumberdana }}</td>
+                                            <td>{{ $detail->spek }}</td>
+                                            <td>{{ rupiah($detail->volume1) }}</td>
+                                            <td>{{ rupiah($detail->volume2) }}</td>
+                                            <td>{{ rupiah($detail->volume3) }}</td>
+                                            <td>{{ rupiah($detail->volume4) }}</td>
+                                            <td>{{ $detail->satuan1 }}</td>
+                                            <td>{{ $detail->satuan2 }}</td>
+                                            <td>{{ $detail->satuan3 }}</td>
+                                            <td>{{ $detail->satuan4 }}</td>
+                                            <td>{{ rupiah($detail->harga) }}</td>
+                                            <td>{{ rupiah($detail->nilai) }}</td>
+                                            <td>{{ $detail->nomorpo }}</td>
+                                            <td>{{ $detail->header }}</td>
+                                            <td>{{ $detail->subheader }}</td>
+                                            <td>
+                                                @if ($cekKontrakAdendum == 0)
+                                                    <a href="javascript:void(0);"
+                                                        onclick="hapusRincian('{{ $detail->idtrdpo }}','{{ $detail->nilai }}')"
+                                                        class="btn btn-danger btn-sm"><i
+                                                            class="fadeIn animated bx bx-trash"></i></a>
+                                                @endif
+                                            </td>
+                                        </tr>
+                                    @endforeach
                                 </tbody>
                             </table>
                         </div>
@@ -311,5 +401,5 @@
     </div>
 @endsection
 @push('js')
-    @include('kontrak.js.create')
+    @include('kontrak.js.edit')
 @endpush

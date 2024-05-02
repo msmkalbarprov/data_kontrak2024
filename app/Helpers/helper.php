@@ -52,3 +52,49 @@ function tipeAnggaran($request)
 
     return $idAnggaran <= $idAnggaranKontrak ? 1 : 0;
 }
+
+function namaAnggaran($request)
+{
+    $data = DB::connection('simakda')
+        ->table('tb_status_anggaran')
+        ->select('nama')
+        ->where(['kode' => $request])
+        ->first();
+
+    return $data->nama;
+}
+
+function filter_menu()
+{
+    $id = Auth::user()->id;
+
+    $hak_akses = DB::table('users as a')
+        ->join('model_has_roles as b', 'a.id', '=', 'b.model_id')
+        ->join('roles as c', 'b.role_id', '=', 'c.uuid')
+        ->join('role_has_permissions as d', 'c.uuid', '=', 'd.role_id')
+        ->join('permissions as e', 'd.permission_id', '=', 'e.uuid')
+        ->select('e.*')
+        ->where(['a.id' => $id, 'e.parent' => ''])
+        ->orderBy('e.uuid')
+        ->get();
+
+    return $hak_akses;
+}
+
+function sub_menu()
+{
+    $id = Auth::user()->id;
+
+    $hak_akses = DB::table('users as a')
+        ->join('model_has_roles as b', 'a.id', '=', 'b.model_id')
+        ->join('roles as c', 'b.role_id', '=', 'c.uuid')
+        ->join('role_has_permissions as d', 'c.uuid', '=', 'd.role_id')
+        ->join('permissions as e', 'd.permission_id', '=', 'e.uuid')
+        ->select('e.*')
+        ->where(['a.id' => $id])
+        ->where('e.parent', '!=', '')
+        ->orderBy('e.uuid')
+        ->get();
+
+    return $hak_akses;
+}

@@ -20,6 +20,16 @@
             <hr />
             <div class="card">
                 <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-12">
+                            <label class="form-label">Jenis</label>
+                            <select class="form-select select_option" id="jenis">
+                                <option value="" selected>Silahkan Pilih</option>
+                                <option value="1" {{ $kontrak->jenisspp == 1 ? 'selected' : '' }}>UP/GU</option>
+                                <option value="5" {{ $kontrak->jenisspp == 5 ? 'selected' : '' }}>LS BARJAS</option>
+                            </select>
+                        </div>
+                    </div>
                     <div class="mb-3">
                         <label class="form-label">Id Kontrak</label>
                         <input class="form-control" type="text" readonly disabled id="id_kontrak"
@@ -101,7 +111,7 @@
                         </div>
                     </div>
                     <div class="mb-3 text-end">
-                        @if ($cekKontrakAdendum == 0)
+                        @if ($cekKontrakAdendum == 0 && $cekBast == 0)
                             <button class="btn btn-primary" id="simpan">Simpan</button>
                         @endif
                         <a href="{{ route('kontrak.index') }}" class="btn btn-warning">Kembali</a>
@@ -112,7 +122,9 @@
             <div class="card">
                 <div class="card-header">
                     Rincian Kontrak
-                    <button class="btn btn-success btn-md float-end" id="tambah_rincian">Tambah</button>
+                    @if ($cekKontrakAdendum == 0 && $cekBast == 0)
+                        <button class="btn btn-success btn-md float-end" id="tambah_rincian">Tambah</button>
+                    @endif
                 </div>
                 <div class="card-body table-responsive">
                     <table class="table align-middle mb-0" id="rincian_kontrak" style="width: 100%">
@@ -159,7 +171,7 @@
                                     <td>{{ rupiah($detail->harga) }}</td>
                                     <td>{{ rupiah($detail->nilai) }}</td>
                                     <td>
-                                        @if ($cekKontrakAdendum == 0)
+                                        @if ($cekKontrakAdendum == 0 && $cekBast == 0)
                                             <a href="javascript:void(0);"
                                                 onclick="hapusRincian('{{ $detail->idtrdpo }}','{{ $detail->nilai }}')"
                                                 class="btn btn-danger btn-sm"><i
