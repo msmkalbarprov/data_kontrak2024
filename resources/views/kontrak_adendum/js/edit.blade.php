@@ -26,6 +26,7 @@
         });
 
         $('#rekanan').prop('disabled', true)
+        $('#jenis').prop('disabled', true)
 
         let rincian_kontrak = $('#rincian_kontrak').DataTable({
             processing: true,
@@ -420,6 +421,7 @@
         });
 
         $('#simpan').on('click', function() {
+            let jenis = $('#jenis').val();
             let id_kontrak = $('#id_kontrak').val();
             let no_kontrak = $('#no_kontrak').val();
             let tgl_kontrak = $('#tgl_kontrak').val();
@@ -552,6 +554,16 @@
                 return
             }
 
+            if (!jenis) {
+                swalAlert('Jenis harus dipilih!');
+                return
+            }
+
+            if (jenis == 1 && total_rincian_kontrak > 15000000) {
+                swalAlert('Kontrak tidak boleh melebihi 15 juta, jika UP/GU!');
+                return
+            }
+
             let kontrak = JSON.stringify(kontrak1);
 
             let nomorKontrakTersimpan = "{{ $dataKontrak->nomorkontrak }}"
@@ -573,7 +585,8 @@
                 kontrak_awal,
                 nomorKontrakTersimpan,
                 idKontrak,
-                status_anggaran
+                status_anggaran,
+                jenis
             };
 
             Swal.fire({

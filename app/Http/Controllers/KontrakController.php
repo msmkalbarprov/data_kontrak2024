@@ -433,6 +433,17 @@ class KontrakController extends Controller
                 ], 400);
             }
 
+            $cekBast = DB::table('trhbast')
+                ->where(['nomorkontrak' => $nomorkontrak, 'kodeskpd' => $kd_skpd, 'idkontrak' => $id])
+                ->count();
+
+            if ($cekBast > 0) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Kontrak telah ada di BAP/BAST, tidak bisa dihapus!'
+                ], 400);
+            }
+
 
             DB::table('trhkontrak')
                 ->where(['idkontrak' => $id, 'kodeskpd' => $kd_skpd, 'nomorkontrak' => $nomorkontrak])

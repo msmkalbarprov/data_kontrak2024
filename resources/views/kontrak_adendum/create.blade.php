@@ -69,7 +69,8 @@
                                         data-pimpinan="{{ $kontrak_awal->pimpinan }}"
                                         data-kodeskpd="{{ $kontrak_awal->kodeskpd }}"
                                         data-idkontrak="{{ $kontrak_awal->idkontrak }}"
-                                        data-jns_ang="{{ $kontrak_awal->jns_ang }}">
+                                        data-jns_ang="{{ $kontrak_awal->jns_ang }}"
+                                        data-jenisspp="{{ $kontrak_awal->jenisspp }}">
                                         {{ $kontrak_awal->nomorkontrak }}
                                         | {{ $kontrak_awal->tanggalkontrak }} | {{ rupiah($kontrak_awal->nilaikontrak) }}
                                     </option>

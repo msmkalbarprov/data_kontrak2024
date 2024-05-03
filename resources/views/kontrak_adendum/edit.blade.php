@@ -20,6 +20,17 @@
             <hr />
             <div class="card">
                 <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-12">
+                            <label class="form-label">Jenis</label>
+                            <select class="form-select select_option" id="jenis">
+                                <option value="" selected>Silahkan Pilih</option>
+                                <option value="1" {{ $dataKontrak->jenisspp == 1 ? 'selected' : '' }}>UP/GU</option>
+                                <option value="5" {{ $dataKontrak->jenisspp == 5 ? 'selected' : '' }}>LS BARJAS
+                                </option>
+                            </select>
+                        </div>
+                    </div>
                     <div class="mb-3">
                         <label class="form-label">Id Kontrak</label>
                         <input class="form-control" type="text" readonly disabled id="id_kontrak"

@@ -21,6 +21,7 @@
         });
 
         $('#rekanan').prop('disabled', true)
+        $('#jenis').prop('disabled', true)
 
         let rincian_kontrak = $('#rincian_kontrak').DataTable({
             processing: true,
@@ -192,6 +193,7 @@
             let kodeskpd = $(this).find(':selected').data('kodeskpd');
             let idkontrak = $(this).find(':selected').data('idkontrak');
             let jns_ang = $(this).find(':selected').data('jns_ang');
+            let jenisspp = $(this).find(':selected').data('jenisspp');
 
             let tipeAnggaran = '';
 
@@ -222,6 +224,7 @@
             $('#rekanan').val(rekanan).change();
             $('#pimpinan').val(pimpinan);
             $('#id_kontrak').val(idkontrak);
+            $('#jenis').val(jenisspp).change();
 
             $('#no_rekening').val($('#rekanan').find(':selected').data('rekening'));
             $('#npwp').val($('#rekanan').find(':selected').data('npwp'));
@@ -244,8 +247,6 @@
                 },
                 error: function(data) {
                     let errors = data.responseJSON
-
-
                 },
                 complete: function() {
                     $("#overlay").fadeOut(100);

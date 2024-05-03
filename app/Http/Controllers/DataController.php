@@ -321,7 +321,6 @@ class DataController extends Controller
                 'a.header' => $request->header,
                 'a.subheader' => $request->sub_header,
                 'a.nomorkontrak' => $request->kontrak,
-                'b.jns_ang' => $request->status_anggaran
             ])
             ->select('a.kodesumberdana as sumber', 'a.namasumberdana as nm_sumber', 'a.volume1', 'a.volume2', 'a.volume3', 'a.volume4', 'a.satuan1', 'a.satuan2', 'a.satuan3', 'a.satuan4', 'a.harga', 'a.nilai as total', 'a.idtrdpo as id', 'a.nomorpo as no_po', 'a.uraianbarang as uraian', 'a.spek as spesifikasi')
             ->get();
@@ -345,8 +344,7 @@ class DataController extends Controller
                 'a.header' => $request->header,
                 'a.subheader' => $request->sub_header,
                 'a.kodesumberdana' => $request->sumber,
-                'b.idkontrak' => $request->id_kontrak,
-                'b.nomorkontrak' => $request->kontrak
+                // 'b.idkontrak' => $request->id_kontrak,
             ])
             ->selectRaw("ISNULL(sum(volume1),0) as volume1,ISNULL(sum(volume2),0) as volume2,ISNULL(sum(volume3),0) as volume3,ISNULL(sum(volume4),0) as volume4")
             ->first();

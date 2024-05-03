@@ -72,7 +72,7 @@ class KontrakAdendumController extends Controller
 
                 $btn = '<a href="' . route("kontrak_adendum.edit", ['id' => Crypt::encrypt($row->idkontrak), 'nomor' => Crypt::encrypt($row->nomorkontrak), 'kd_skpd' => Crypt::encrypt($row->kodeskpd)]) . '" class="btn btn-sm btn-warning" style="margin-right:4px"><i class="fadeIn animated bx bx-edit"></i></a>';
 
-                if ($cekKontrakAdendumSelanjutnya == 0 || $row->total_bast == 0) {
+                if ($cekKontrakAdendumSelanjutnya == 0 && $row->total_bast == 0) {
                     $btn .= '<a onclick="hapus(\'' . $row->idkontrak . '\',\'' . $row->nomorkontrak . '\',\'' . $row->nomorkontraklalu . '\',\'' . $row->kodeskpd . '\')" class="btn btn-sm btn-danger"><i class="fadeIn animated bx bx-trash"></i></a>';
                 }
 
@@ -169,7 +169,7 @@ class KontrakAdendumController extends Controller
                     'statusAdendum' => '0',
                     'created_at' => date('Y-m-d H:i:s'),
                     'created_username' => Auth::user()->username,
-                    'jenisspp' => $data['jenis']
+                    'jenisspp' => $dataKontrakLama->jenisspp,
                 ]);
 
             $data['kontrak'] = json_decode($data['kontrak'], true);
@@ -429,6 +429,17 @@ class KontrakAdendumController extends Controller
                 ], 400);
             }
 
+            $cekBast = DB::table('trhbast')
+                ->where(['nomorkontrak' => $nomorkontrak, 'kodeskpd' => $kd_skpd, 'idkontrak' => $id])
+                ->count();
+
+            if ($cekBast > 0) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Kontrak telah ada di BAP/BAST, tidak bisa dihapus!'
+                ], 400);
+            }
+
             DB::table('trhkontrak')
                 ->where(['idkontrak' => $id, 'kodeskpd' => $kd_skpd, 'nomorkontrak' => $nomorkontrak])
                 ->delete();
@@ -480,6 +491,7 @@ class KontrakAdendumController extends Controller
                     'b.kd_barang' => $item['kd_barang'],
                     'b.header' => $item['header'],
                     'b.sub_header' => $item['sub_header'],
+                    'a.sumber' => $item['sumber'],
                 ])
                 ->select('a.sumber', 'a.nm_sumber', 'b.volume1', 'b.volume2', 'b.volume3', 'b.volume4', 'b.satuan1', 'b.satuan2', 'b.satuan3', 'b.satuan4', 'b.harga', 'b.total', 'b.id', 'b.no_po', 'b.uraian', 'b.spesifikasi')
                 ->first();
