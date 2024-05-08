@@ -17,6 +17,9 @@ $(function () {
     // 	$(".wrapper").addClass("toggled");
     // });
 
+    $("html").attr("class", sessionStorage.getItem("theme"));
+    $(".dark-mode-icon i").attr("class", sessionStorage.getItem("icon"));
+
     $(function () {
         for (
             var e = window.location,
@@ -36,9 +39,15 @@ $(function () {
             if ($(".dark-mode-icon i").attr("class") == "bx bx-sun") {
                 $(".dark-mode-icon i").attr("class", "bx bx-moon");
                 $("html").attr("class", "light-theme");
+
+                sessionStorage.setItem("theme", "light-theme");
+                sessionStorage.setItem("icon", "bx bx-moon");
             } else {
                 $(".dark-mode-icon i").attr("class", "bx bx-sun");
                 $("html").attr("class", "dark-theme");
+
+                sessionStorage.setItem("theme", "dark-theme");
+                sessionStorage.setItem("icon", "bx bx-sun");
             }
         }),
         // toggle menu button

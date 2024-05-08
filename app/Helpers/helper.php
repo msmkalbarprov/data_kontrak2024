@@ -98,3 +98,36 @@ function sub_menu()
 
     return $hak_akses;
 }
+
+function namaSubKegiatan($kd_sub_kegiatan)
+{
+    $data = DB::connection('simakda')
+        ->table('ms_sub_kegiatan')
+        ->where(['kd_sub_kegiatan' => $kd_sub_kegiatan])
+        ->first()
+        ->nm_sub_kegiatan;
+
+    return $data;
+}
+
+function namaRekening($rekening)
+{
+    $data = DB::connection('simakda')
+        ->table('ms_rek6')
+        ->where(['kd_rek6' => $rekening])
+        ->first()
+        ->nm_rek6;
+
+    return $data;
+}
+
+function namaSumber($sumber)
+{
+    $data = DB::connection('simakda')
+        ->table('sumber_dana')
+        ->where('kd_sumber_dana1', $sumber)
+        ->first()
+        ->nm_sumber_dana1;
+
+    return $data;
+}

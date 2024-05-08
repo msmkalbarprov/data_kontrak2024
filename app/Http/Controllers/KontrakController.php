@@ -92,7 +92,7 @@ class KontrakController extends Controller
 
         $tahun = $this->tahun;
 
-        $status_anggaran = status_anggaran();
+        $status_anggaran = 'M';
 
         if ($status_anggaran == '0') {
             return redirect()
@@ -517,11 +517,11 @@ class KontrakController extends Controller
                 $message .= "Input volume 2 melebihi anggaran volume 2, dengan Kode Barang : " . $item['kd_barang'] . " <br/> ";
             }
 
-            if ($item['volume2'] > $sumber->volume2) {
+            if ($item['volume3'] > $sumber->volume3) {
                 $message .= "Input volume 3 melebihi anggaran volume 3, dengan Kode Barang : " . $item['kd_barang'] . " <br/> ";
             }
 
-            if ($item['volume2'] > $sumber->volume2) {
+            if ($item['volume4'] > $sumber->volume4) {
                 $message .= "Input volume 4 melebihi anggaran volume 4, dengan Kode Barang : " . $item['kd_barang'] . " <br/> ";
             }
 
@@ -542,7 +542,7 @@ class KontrakController extends Controller
                 $message .= "Input volume 3 melebihi sisa anggaran volume 3 : " . rupiah($sumber->volume3 - $realisasiKontrak->volume3) . ". Jenis Anggaran : " . namaAnggaran($status_anggaran) . " <br/> ";
             }
 
-            if (floatval($item['volume4']) > ($sumber->volume3 - $realisasiKontrak->volume3)) {
+            if (floatval($item['volume4']) > ($sumber->volume4 - $realisasiKontrak->volume4)) {
                 $message .= "Input volume 4 melebihi sisa anggaran volume 4 : " . rupiah($sumber->volume4 - $realisasiKontrak->volume4) . ". Jenis Anggaran : " . namaAnggaran($status_anggaran) . " <br/> ";
             }
             // PROTEKSI REALISASI TERHADAP ANGGARAN SAAT INI (AKHIR)

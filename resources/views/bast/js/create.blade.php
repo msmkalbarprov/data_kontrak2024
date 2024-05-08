@@ -190,29 +190,77 @@
         });
 
         $('#kontrak').on('select2:select', function() {
-            $('#nm_kerja').val($(this).find(':selected').data('pekerjaan'));
-            $('#rekanan').val($(this).find(':selected').data('rekanan')).change();
-            $('#pimpinan').val($(this).find(':selected').data('pimpinan'));
+            $('#nm_kerja').val(null);
+            $('#rekanan').val(null).change();
+            $('#pimpinan').val(null);
 
-            $('#no_rekening').val($('#rekanan').find(':selected').data('rekening'));
-            $('#npwp').val($('#rekanan').find(':selected').data('npwp'));
-            $('#bank').val($('#rekanan').find(':selected').data('bank'));
-            $('#nm_bank').val($('#rekanan').find(':selected').data('nm_bank'));
+            $('#no_rekening').val(null);
+            $('#npwp').val(null);
+            $('#bank').val(null);
+            $('#nm_bank').val(null);
 
-            let realisasi_fisik_lalu = parseFloat($(this).find(':selected').data(
-                'realisasi_fisik_lalu'))
-            let realisasi_fisik = angka($('#realisasi_fisik').val());
+            $('#realisasi_fisik_lalu').val(null);
 
-            $('#realisasi_fisik_lalu').val(new Intl.NumberFormat('id-ID', {
-                minimumFractionDigits: 2
-            }).format(realisasi_fisik_lalu));
-
-            $('#total_realisasi_fisik').val(new Intl.NumberFormat('id-ID', {
-                minimumFractionDigits: 2
-            }).format(realisasi_fisik_lalu + realisasi_fisik));
+            $('#total_realisasi_fisik').val(null);
 
             rincian_kontrak.clear().draw();
             detail_kontrak.clear().draw();
+
+            let kontrak = $(this).find(':selected');
+
+            $.ajax({
+                url: "{{ route('cek_kontrak') }}",
+                type: "POST",
+                dataType: 'json',
+                data: {
+                    "_token": "{{ csrf_token() }}",
+                    kontrak: this.value
+                },
+                beforeSend: function() {
+                    $("#overlay").fadeIn(100);
+                },
+                success: function(response) {
+                    $('#nm_kerja').val(kontrak.data('pekerjaan'));
+                    $('#rekanan').val(kontrak.data('rekanan')).change();
+                    $('#pimpinan').val(kontrak.data('pimpinan'));
+
+                    $('#no_rekening').val($('#rekanan').find(':selected').data('rekening'));
+                    $('#npwp').val($('#rekanan').find(':selected').data('npwp'));
+                    $('#bank').val($('#rekanan').find(':selected').data('bank'));
+                    $('#nm_bank').val($('#rekanan').find(':selected').data('nm_bank'));
+
+                    let realisasi_fisik_lalu = parseFloat(kontrak.data(
+                        'realisasi_fisik_lalu'))
+                    let realisasi_fisik = angka($('#realisasi_fisik').val());
+
+                    $('#realisasi_fisik_lalu').val(new Intl.NumberFormat('id-ID', {
+                        minimumFractionDigits: 2
+                    }).format(realisasi_fisik_lalu));
+
+                    $('#total_realisasi_fisik').val(new Intl.NumberFormat('id-ID', {
+                        minimumFractionDigits: 2
+                    }).format(realisasi_fisik_lalu + realisasi_fisik));
+
+                    rincian_kontrak.clear().draw();
+                    detail_kontrak.clear().draw();
+                },
+                error: function(data) {
+                    $("#overlay").fadeOut(100);
+                    let errors = data.responseJSON;
+
+                    Swal.fire({
+                        title: "Error!",
+                        html: errors.error,
+                        icon: "error"
+                    });
+
+                    $('#kontrak').val(null).change();
+                    return;
+                },
+                complete: function(data) {
+                    $("#overlay").fadeOut(100);
+                }
+            });
         });
 
         $('#rekanan').on('select2:select', function() {

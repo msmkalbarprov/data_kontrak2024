@@ -351,4 +351,91 @@ class DataController extends Controller
 
         return response()->json($data);
     }
+
+    // CEK KONTRAK KETIKA DIPILIH UNTUK MEMBUAT BAST
+    public function cekKontrak(Request $request)
+    {
+        $rincianKontrak = DB::table('trdkontrak as a')
+            ->join('trhkontrak as b', function ($join) {
+                $join->on('a.idkontrak', '=', 'b.idkontrak');
+                $join->on('a.nomorkontrak', '=', 'b.nomorkontrak');
+                $join->on('a.kodeskpd', '=', 'b.kodeskpd');
+            })
+            ->where([
+                'a.kodeskpd' => Auth::user()->kd_skpd,
+                'a.nomorkontrak' => $request->kontrak,
+            ])
+            ->select('a.*')
+            ->get();
+
+        foreach ($rincianKontrak as $rincian) {
+            $dataKontrak = DB::table('trdkontrak as a')
+                ->join('trhkontrak as b', function ($join) {
+                    $join->on('a.idkontrak', '=', 'b.idkontrak');
+                    $join->on('a.nomorkontrak', '=', 'b.nomorkontrak');
+                    $join->on('a.kodeskpd', '=', 'b.kodeskpd');
+                })
+                ->where([
+                    'a.kodeskpd' => $rincian->kodeskpd,
+                    'a.kodesubkegiatan' => $rincian->kodesubkegiatan,
+                    'a.kodeakun' => $rincian->kodeakun,
+                    'a.kodebarang' => $rincian->kodebarang,
+                    'a.header' => $rincian->header,
+                    'a.subheader' => $rincian->subheader,
+                    'a.nomorkontrak' => $rincian->nomorkontrak,
+                ])
+                ->select('a.kodesumberdana as sumber', 'a.namasumberdana as nm_sumber', 'a.volume1', 'a.volume2', 'a.volume3', 'a.volume4', 'a.satuan1', 'a.satuan2', 'a.satuan3', 'a.satuan4', 'a.harga', 'a.nilai as total', 'a.idtrdpo as id', 'a.nomorpo as no_po', 'a.uraianbarang as uraian', 'a.spek as spesifikasi')
+                ->first();
+
+            $dataAnggaranSaatIni = $this->connection
+                ->table('trdpo as a')
+                ->join('trdpo_rinci as b', function ($join) {
+                    $join->on('a.jns_ang', '=', 'b.jns_ang');
+                    $join->on('a.no_trdrka', '=', 'b.no_trdrka');
+                    $join->on('a.header', '=', 'b.header');
+                })
+                ->where([
+                    'a.kd_skpd' => $rincian->kodeskpd,
+                    'a.kd_sub_kegiatan' => $rincian->kodesubkegiatan,
+                    'a.kd_rek6' => $rincian->kodeakun,
+                    'a.jns_ang' => status_anggaran(),
+                    'b.kd_barang' => $rincian->kodebarang,
+                    'b.header' => $rincian->header,
+                    'b.sub_header' => $rincian->subheader,
+                ])
+                ->select('a.sumber', 'a.nm_sumber', 'b.volume1', 'b.volume2', 'b.volume3', 'b.volume4', 'b.satuan1', 'b.satuan2', 'b.satuan3', 'b.satuan4', 'b.harga', 'b.total', 'b.id', 'b.no_po', 'b.uraian', 'b.spesifikasi')
+                ->first();
+
+            $message = '';
+
+            // PROTEKSI NILAI KONTRAK MELEBIHI ANGGARAN SELANJUTNYA (AWAL)
+            if (floatval($dataKontrak->volume1) > ($dataAnggaranSaatIni->volume1)) {
+                $message .= "Input volume 1 melebihi anggaran kontrak volume 1 : " . rupiah($dataAnggaranSaatIni->volume1) . ". Jenis Anggaran : " . namaAnggaran(status_anggaran()) . " <br/> ";
+            }
+
+            if (floatval($dataKontrak->volume2) > ($dataAnggaranSaatIni->volume2)) {
+                $message .= "Input volume 2 melebihi anggaran kontrak volume 2 : " . rupiah($dataAnggaranSaatIni->volume2) . ". Jenis Anggaran : " . namaAnggaran(status_anggaran()) . " <br/> ";
+            }
+
+            if (floatval($dataKontrak->volume3) > ($dataAnggaranSaatIni->volume3)) {
+                $message .= "Input volume 3 melebihi anggaran kontrak volume 3 : " . rupiah($dataAnggaranSaatIni->volume3) . ". Jenis Anggaran : " . namaAnggaran(status_anggaran()) . " <br/> ";
+            }
+
+            if (floatval($dataKontrak->volume4) > ($dataAnggaranSaatIni->volume4)) {
+                $message .= "Input volume 4 melebihi anggaran kontrak volume 4 : " . rupiah($dataAnggaranSaatIni->volume4) . ". Jenis Anggaran : " . namaAnggaran(status_anggaran()) . " <br/> ";
+            }
+            // PROTEKSI NILAI KONTRAK MELEBIHI ANGGARAN SELANJUTNYA (AKHIR)
+        }
+
+        if ($message == '') {
+            return response()->json([
+                'status' => true
+            ], 200);
+        } else {
+            return response()->json([
+                'status' => false,
+                'error' => $message
+            ], 400);
+        }
+    }
 }

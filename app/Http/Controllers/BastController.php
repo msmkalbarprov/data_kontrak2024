@@ -62,9 +62,9 @@ class BastController extends Controller
 
         return DataTables::of($users)
             ->addColumn('aksi', function ($row) {
-                $btn = '<a href="' . route("bast.edit", ['nomorpesanan' => Crypt::encrypt($row->nomorpesanan), 'nomorbapbast' => Crypt::encrypt($row->nomorbapbast), 'kd_skpd' => Crypt::encrypt($row->kodeskpd), 'idkontrak' => Crypt::encrypt($row->idkontrak)]) . '" class="btn btn-sm btn-warning" style="margin-right:4px"><i class="fadeIn animated bx bx-edit"></i></a>';
+                $btn = '<a href="' . route("bast.edit", ['nomorpesanan' => Crypt::encrypt($row->nomorpesanan), 'nomorbapbast' => Crypt::encrypt($row->nomorbapbast), 'kd_skpd' => Crypt::encrypt($row->kodeskpd), 'idkontrak' => Crypt::encrypt($row->idkontrak), 'nomorkontrak' => Crypt::encrypt($row->nomorkontrak)]) . '" class="btn btn-sm btn-warning" style="margin-right:4px"><i class="fadeIn animated bx bx-edit"></i></a>';
 
-                $btn .= '<a onclick="hapus(\'' . $row->nomorpesanan . '\',\'' . $row->nomorbapbast . '\',\'' . $row->idkontrak . '\',\'' . $row->kodeskpd . '\')" class="btn btn-sm btn-danger"><i class="fadeIn animated bx bx-trash"></i></a>';
+                $btn .= '<a onclick="hapus(\'' . $row->nomorpesanan . '\',\'' . $row->nomorbapbast . '\',\'' . $row->idkontrak . '\',\'' . $row->nomorkontrak . '\',\'' . $row->kodeskpd . '\')" class="btn btn-sm btn-danger"><i class="fadeIn animated bx bx-trash"></i></a>';
 
                 return $btn;
             })
@@ -213,6 +213,8 @@ class BastController extends Controller
                             'satuan4' => $value['satuan4'],
                             'nilai' => floatval($value['total']),
                             'kodesumberdana' => $value['sumber'],
+                            'idkontrak' => $data['id_kontrak'],
+                            'nomorkontrak' => $data['no_kontrak'],
                         ];
                     }, $data['kontrak']));
             }
@@ -232,6 +234,192 @@ class BastController extends Controller
         }
     }
 
+    public function edit($nomorpesanan, $nomorbapbast, $kd_skpd, $idkontrak, $nomorkontrak)
+    {
+        $nomorpesanan = Crypt::decrypt($nomorpesanan);
+        $nomorbapbast = Crypt::decrypt($nomorbapbast);
+        $kd_skpd = Crypt::decrypt($kd_skpd);
+        $idkontrak = Crypt::decrypt($idkontrak);
+        $nomorkontrak = Crypt::decrypt($nomorkontrak);
+
+        $daftar_rekening = $this->connection
+            ->table('ms_rekening_bank_online')
+            ->select('rekening', 'bank', 'nm_bank', 'npwp', 'nmrekan')
+            ->where(['kd_skpd' => Auth::user()->kd_skpd])
+            ->get();
+
+        $skpd = $this->connection
+            ->table('ms_skpd')
+            ->select('kd_skpd', 'nm_skpd')
+            ->where(['kd_skpd' => Auth::user()->kd_skpd])
+            ->first();
+
+        $tahun = $this->tahun;
+
+        $status_anggaran = status_anggaran();
+
+        $daftar_kontrak_awal = DB::table('trhkontrak as a')
+            ->selectRaw("a.*,(select isnull(sum(realisasifisik),0) from trhbast where a.idkontrak=idkontrak and a.kodeskpd=kodeskpd and idkontrak!=? and nomorkontrak!=?) as realisasi_fisik_lalu", [$idkontrak, $nomorkontrak])
+            ->where(['a.kodeskpd' => $kd_skpd, 'a.idkontrak' => $idkontrak, 'a.nomorkontrak' => $nomorkontrak])
+            ->get();
+
+        $dataBast = DB::table('trhbast')
+            ->where(['nomorpesanan' => $nomorpesanan, 'nomorbapbast' => $nomorbapbast, 'idkontrak' => $idkontrak, 'kodeskpd' => $kd_skpd, 'nomorkontrak' => $nomorkontrak])
+            ->first();
+
+        $detailBast = DB::table('trdbapbast as a')
+            ->join('trhbast as b', function ($join) {
+                $join->on('a.nomorpesanan', '=', 'b.nomorpesanan');
+                $join->on('a.nomorbapbast', '=', 'b.nomorbapbast');
+                $join->on('a.kodeskpd', '=', 'b.kodeskpd');
+                $join->on('a.idkontrak', '=', 'b.idkontrak');
+                $join->on('a.nomorkontrak', '=', 'b.nomorkontrak');
+            })
+            ->select('a.*')
+            ->where(['b.nomorpesanan' => $nomorpesanan, 'b.nomorbapbast' => $nomorbapbast, 'b.idkontrak' => $idkontrak, 'b.nomorkontrak' => $nomorkontrak, 'b.kodeskpd' => $kd_skpd])
+            ->get();
+
+        if ($status_anggaran == '0') {
+            return redirect()
+                ->route('bast.index')
+                ->with('message', 'Anggaran belum disahkan, hubungi Anggaran!');;
+        }
+
+        return view('bast.edit', compact('daftar_rekening', 'skpd', 'tahun', 'status_anggaran', 'daftar_kontrak_awal', 'dataBast', 'detailBast'));
+    }
+
+    public function update(Request $request)
+    {
+        $data = $request->data;
+
+        DB::beginTransaction();
+
+        try {
+            $nomor = $data['jenis_kontrak'] == 2 ? $data['no_bap'] : $data['no_bast'];
+            $tanggal = $data['jenis_kontrak'] == 2 ? $data['tgl_bap'] : $data['tgl_bast'];
+
+            $cekNomorBapBast = DB::table('trhbast')
+                ->where(['nomorbapbast' => $nomor, 'kodeskpd' => $data['kd_skpd']])
+                ->count();
+
+            if (($data['nomorBastTersimpan'] != $nomor) && $cekNomorBapBast > 0) {
+                return response()->json([
+                    'status' => false,
+                    'error' => 'Error, Nomor BAP/BAST telah ada!',
+                ], 400);
+            }
+
+            DB::table('trhbast')
+                ->where([
+                    'nomorbapbast' => $data['nomorBastTersimpan'],
+                    'kodeskpd' => $data['kd_skpd'],
+                    'idkontrak' => $data['id_kontrak'],
+                    'nomorkontrak' => $data['no_kontrak']
+                ])
+                ->update([
+                    'nomorpesanan' => $data['no_pesanan'],
+                    'tanggalpesanan' => $data['tgl_pesanan'],
+                    'nomorbapbast' => $nomor,
+                    'tanggalbapbast' => $tanggal,
+                    'statuspekerjaan' => strval($data['status_kontrak']),
+                    'jenis' => strval($data['jenis_kontrak']),
+                    'keterangan' => $data['keterangan'],
+                    'realisasifisik' => floatval($data['realisasi_fisik']),
+                    'nilai' => floatval($data['total_rincian_kontrak']),
+                ]);
+
+            $data['kontrak'] = json_decode($data['kontrak'], true);
+
+            foreach ($data['kontrak'] as $kontrak) {
+                $validasiSumberKontrak = $this->validasiSumberKontrak($kontrak, $data['anggaran_kontrak'], $data['no_kontrak'], $data['id_kontrak']);
+
+                if ($validasiSumberKontrak != '') {
+                    return response()->json([
+                        'status' => false,
+                        'error' => $validasiSumberKontrak,
+                        'tipe' => 'Error, Validasi Anggaran Kontrak'
+                    ], 400);
+                }
+
+                $validasiSumberAnggaranSaatIni = $this->validasiSumberAnggaran($kontrak, $data['status_anggaran']);
+
+                if ($validasiSumberAnggaranSaatIni != '') {
+                    return response()->json([
+                        'status' => false,
+                        'error' => $validasiSumberAnggaranSaatIni,
+                        'tipe' => 'Error, Validasi Anggaran Saat Ini'
+                    ], 400);
+                }
+
+                $validasiRealisasi = $this->validasiRealisasi($kontrak, $data['no_kontrak'], $data['id_kontrak']);
+
+                if ($validasiRealisasi != '') {
+                    return response()->json([
+                        'status' => false,
+                        'error' => $validasiRealisasi,
+                        'tipe' => 'Error, Validasi Realisasi'
+                    ], 400);
+                }
+            }
+
+            DB::table('trdbapbast')
+                ->where([
+                    'idkontrak' => $data['id_kontrak'],
+                    'nomorbapbast' => $data['nomorBastTersimpan'],
+                    'kodeskpd' => $data['kd_skpd'],
+                    'nomorkontrak' => $data['no_kontrak'],
+                    'nomorpesanan' => $data['nomorPesananTersimpan']
+                ])
+                ->delete();
+
+            if (isset($data['kontrak'])) {
+                DB::table('trdbapbast')
+                    ->insert(array_map(function ($value) use ($data, $nomor) {
+                        return [
+                            'nomorpesanan' => $data['no_pesanan'],
+                            'nomorbapbast' => $nomor,
+                            'kodeskpd' => $data['kd_skpd'],
+                            'kodesubkegiatan' => $value['kd_sub_kegiatan'],
+                            'kodeakun' => $value['kd_rek6'],
+                            'kodebarang' => $value['kd_barang'],
+                            'idtrdpo' => $value['id'],
+                            'nomorpo' => $value['no_po'],
+                            'header' => $value['header'],
+                            'subheader' => $value['sub_header'],
+                            'uraianbarang' => $value['uraian'],
+                            'spek' => strval($value['spesifikasi']),
+                            'harga' => floatval($value['harga']),
+                            'volume1' => floatval($value['input_volume1']),
+                            'volume2' => floatval($value['input_volume2']),
+                            'volume3' => floatval($value['input_volume3']),
+                            'volume4' => floatval($value['input_volume4']),
+                            'satuan1' => $value['satuan1'],
+                            'satuan2' => $value['satuan2'],
+                            'satuan3' => $value['satuan3'],
+                            'satuan4' => $value['satuan4'],
+                            'nilai' => floatval($value['total']),
+                            'kodesumberdana' => $value['sumber'],
+                            'idkontrak' => $data['id_kontrak'],
+                            'nomorkontrak' => $data['no_kontrak'],
+                        ];
+                    }, $data['kontrak']));
+            }
+
+            DB::commit();
+            return response()->json([
+                'status' => true,
+                'message' => 'Data berhasil diupdate!'
+            ], 200);
+        } catch (Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => false,
+                'error' => 'Error, Data tidak berhasil diupdate!',
+                'e' => $e->getMessage()
+            ], 400);
+        }
+    }
+
     public function delete(Request $request)
     {
         $idkontrak = $request->idkontrak;
@@ -242,25 +430,22 @@ class BastController extends Controller
         DB::beginTransaction();
 
         try {
-            $cekKontrakAdendum = DB::table('trhkontrak')
-                ->where(['idkontrak' => $id, 'kodeskpd' => $kd_skpd])
-                ->where('adendum', '!=', '0')
-                ->count();
-
-            if ($cekKontrakAdendum > 0) {
-                return response()->json([
-                    'status' => false,
-                    'message' => 'Kontrak telah diadendum, tidak bisa dihapus!'
-                ], 400);
-            }
-
-
-            DB::table('trhkontrak')
-                ->where(['idkontrak' => $id, 'kodeskpd' => $kd_skpd, 'nomorkontrak' => $nomorkontrak])
+            DB::table('trhbast')
+                ->where([
+                    'idkontrak' => $idkontrak,
+                    'kodeskpd' => $kd_skpd,
+                    'nomorpesanan' => $nomorpesanan,
+                    'nomorbapbast' => $nomorbapbast
+                ])
                 ->delete();
 
-            DB::table('trdkontrak')
-                ->where(['idkontrak' => $id, 'kodeskpd' => $kd_skpd, 'nomorkontrak' => $nomorkontrak])
+            DB::table('trdbapbast')
+                ->where([
+                    'idkontrak' => $idkontrak,
+                    'kodeskpd' => $kd_skpd,
+                    'nomorpesanan' => $nomorpesanan,
+                    'nomorbapbast' => $nomorbapbast
+                ])
                 ->delete();
 
             DB::commit();
@@ -271,6 +456,7 @@ class BastController extends Controller
         } catch (Exception $e) {
             DB::rollBack();
             return response()->json([
+                'e' => $e->getMessage(),
                 'status' => false,
                 'message' => 'Data tidak berhasil dihapus'
             ], 400);
@@ -451,6 +637,7 @@ class BastController extends Controller
                 'a.subheader' => $data['sub_header'],
                 'a.kodesumberdana' => $data['sumber'],
             ])
+            ->where('b.idkontrak', '!=', $id_kontrak)
             ->selectRaw("ISNULL(sum(volume1),0) as volume1,ISNULL(sum(volume2),0) as volume2,ISNULL(sum(volume3),0) as volume3,ISNULL(sum(volume4),0) as volume4")
             ->first();
 
@@ -488,7 +675,7 @@ class BastController extends Controller
             $message .= "Input volume 3 melebihi sisa anggaran kontrak volume 3 : " . rupiah($dataKontrak->volume3 - $realisasiKontrak->volume3) . " <br/> ";
         }
 
-        if (floatval($data['input_volume4']) > ($dataKontrak->volume3 - $realisasiKontrak->volume3)) {
+        if (floatval($data['input_volume4']) > ($dataKontrak->volume4 - $realisasiKontrak->volume4)) {
             $message .= "Input volume 4 melebihi sisa anggaran kontrak volume 4 : " . rupiah($dataKontrak->volume4 - $realisasiKontrak->volume4) . " <br/> ";
         }
         // PROTEKSI REALISASI TERHADAP NOMOR KONTRAK (AKHIR)
@@ -506,7 +693,7 @@ class BastController extends Controller
             $message .= "Input volume 3 melebihi sisa anggaran volume 3 : " . rupiah($dataAnggaranSaatIni->volume3 - $realisasiKontrak->volume3) . ". Jenis Anggaran : " . namaAnggaran(status_anggaran()) . " <br/> ";
         }
 
-        if (floatval($data['input_volume4']) > ($dataAnggaranSaatIni->volume3 - $realisasiKontrak->volume3)) {
+        if (floatval($data['input_volume4']) > ($dataAnggaranSaatIni->volume4 - $realisasiKontrak->volume4)) {
             $message .= "Input volume 4 melebihi sisa anggaran volume 4 : " . rupiah($dataAnggaranSaatIni->volume4 - $realisasiKontrak->volume4) . ". Jenis Anggaran : " . namaAnggaran(status_anggaran()) . " <br/> ";
         }
         // PROTEKSI REALISASI TERHADAP ANGGARAN SAAT INI (AKHIR)

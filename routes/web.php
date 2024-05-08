@@ -24,7 +24,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return view('auth.login2');
-});
+})->middleware('guest')->name('home');
 
 Route::get('/dashboard', function () {
     return view('dashboard');
@@ -70,7 +70,7 @@ Route::middleware('auth')->group(function () {
     Route::post('bast/load', [BastController::class, 'load'])->name('bast.load');
     Route::get('bast/create', [BastController::class, 'create'])->name('bast.create');
     Route::post('bast/store', [BastController::class, 'store'])->name('bast.store');
-    Route::get('bast/{nomorpesanan}/{nomorbapbast}/{kd_skpd}/{idkontrak}/edit', [BastController::class, 'edit'])->name('bast.edit');
+    Route::get('bast/{nomorpesanan}/{nomorbapbast}/{kd_skpd}/{idkontrak}/{nomorkontrak}/edit', [BastController::class, 'edit'])->name('bast.edit');
     Route::post('bast/update', [BastController::class, 'update'])->name('bast.update');
     Route::post('bast/delete', [BastController::class, 'delete'])->name('bast.delete');
 
@@ -83,6 +83,7 @@ Route::middleware('auth')->group(function () {
     Route::post('sumber_dana', [DataController::class, 'sumberDana'])->name('sumber_dana');
     Route::post('detail_kontrak', [DataController::class, 'detailKontrak'])->name('detail_kontrak');
     Route::post('data_adendum', [DataController::class, 'dataAdendum'])->name('data_adendum');
+    Route::post('cek_kontrak', [DataController::class, 'cekKontrak'])->name('cek_kontrak');
     Route::post('daftarAnggaran', function (Request $request) {
         return tipeAnggaran($request);
     })->name('daftarAnggaran');
@@ -94,5 +95,9 @@ Route::middleware('auth')->group(function () {
     Route::post('sumber_bast', [DataController::class, 'sumberBast'])->name('sumber_bast');
     Route::post('realisasi_bast', [DataController::class, 'realisasiBast'])->name('realisasi_bast');
 });
+
+Route::get('/{any}', function () {
+    return view('template.404');
+})->where('any', '.*');
 
 require __DIR__ . '/auth.php';

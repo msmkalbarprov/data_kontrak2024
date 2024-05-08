@@ -496,6 +496,24 @@ class KontrakAdendumController extends Controller
                 ->select('a.sumber', 'a.nm_sumber', 'b.volume1', 'b.volume2', 'b.volume3', 'b.volume4', 'b.satuan1', 'b.satuan2', 'b.satuan3', 'b.satuan4', 'b.harga', 'b.total', 'b.id', 'b.no_po', 'b.uraian', 'b.spesifikasi')
                 ->first();
 
+            $realisasiKontrak = DB::table('trdbapbast as a')
+                ->join('trhbast as b', function ($join) {
+                    $join->on('a.nomorpesanan', '=', 'b.nomorpesanan');
+                    $join->on('a.nomorbapbast', '=', 'b.nomorbapbast');
+                    $join->on('a.kodeskpd', '=', 'b.kodeskpd');
+                })
+                ->where([
+                    'a.kodeskpd' => $kd_skpd,
+                    'a.kodesubkegiatan' => $item['kd_sub_kegiatan'],
+                    'a.kodeakun' => $item['kd_rek6'],
+                    'a.kodebarang' => $item['kd_barang'],
+                    'a.header' => $item['header'],
+                    'a.subheader' => $item['sub_header'],
+                    'a.kodesumberdana' => $item['sumber'],
+                ])
+                ->selectRaw("ISNULL(sum(volume1),0) as volume1,ISNULL(sum(volume2),0) as volume2,ISNULL(sum(volume3),0) as volume3,ISNULL(sum(volume4),0) as volume4")
+                ->first();
+
             if ($item['volume1'] > $sumber->volume1) {
                 $message .= "Input volume 1 melebihi anggaran volume 1, dengan Kode Barang : " . $item['kd_barang'] . " <br/> ";
             }
@@ -504,17 +522,35 @@ class KontrakAdendumController extends Controller
                 $message .= "Input volume 2 melebihi anggaran volume 2, dengan Kode Barang : " . $item['kd_barang'] . " <br/> ";
             }
 
-            if ($item['volume2'] > $sumber->volume2) {
+            if ($item['volume3'] > $sumber->volume3) {
                 $message .= "Input volume 3 melebihi anggaran volume 3, dengan Kode Barang : " . $item['kd_barang'] . " <br/> ";
             }
 
-            if ($item['volume2'] > $sumber->volume2) {
+            if ($item['volume4'] > $sumber->volume4) {
                 $message .= "Input volume 4 melebihi anggaran volume 4, dengan Kode Barang : " . $item['kd_barang'] . " <br/> ";
             }
 
             if ($item['total'] > $sumber->total) {
                 $message .= "Total inputan melebihi total anggaran, dengan Kode Barang : " . $item['kd_barang'] . " <br/> ";
             }
+
+            // PROTEKSI REALISASI TERHADAP ANGGARAN SAAT INI (AKHIR)
+            if (floatval($item['volume1']) > ($sumber->volume1 - $realisasiKontrak->volume1)) {
+                $message .= "Input volume 1 melebihi sisa anggaran volume 1 : " . rupiah($sumber->volume1 - $realisasiKontrak->volume1) . ". Jenis Anggaran : " . namaAnggaran($status_anggaran) . " <br/> ";
+            }
+
+            if (floatval($item['volume2']) > ($sumber->volume2 - $realisasiKontrak->volume2)) {
+                $message .= "Input volume 2 melebihi sisa anggaran volume 2 : " . rupiah($sumber->volume2 - $realisasiKontrak->volume2) . ". Jenis Anggaran : " . namaAnggaran($status_anggaran) . " <br/> ";
+            }
+
+            if (floatval($item['volume3']) > ($sumber->volume3 - $realisasiKontrak->volume3)) {
+                $message .= "Input volume 3 melebihi sisa anggaran volume 3 : " . rupiah($sumber->volume3 - $realisasiKontrak->volume3) . ". Jenis Anggaran : " . namaAnggaran($status_anggaran) . " <br/> ";
+            }
+
+            if (floatval($item['volume4']) > ($sumber->volume4 - $realisasiKontrak->volume4)) {
+                $message .= "Input volume 4 melebihi sisa anggaran volume 4 : " . rupiah($sumber->volume4 - $realisasiKontrak->volume4) . ". Jenis Anggaran : " . namaAnggaran($status_anggaran) . " <br/> ";
+            }
+            // PROTEKSI REALISASI TERHADAP ANGGARAN SAAT INI (AKHIR)
         }
 
         return $message;
