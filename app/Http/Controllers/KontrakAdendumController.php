@@ -120,6 +120,8 @@ class KontrakAdendumController extends Controller
         DB::beginTransaction();
 
         try {
+            $nomorKontrak = $data['tipe'] == 1 ? $data['no_kontrak'] : $data['no_pesanan'];
+
             $dataKontrakLama = DB::table('trhkontrak')
                 ->where(['nomorkontrak' => $data['kontrak_awal'], 'kodeskpd' => $data['kd_skpd'], 'idkontrak' => $data['id_kontrak']])
                 ->first();
@@ -131,7 +133,7 @@ class KontrakAdendumController extends Controller
                 ->adendum;
 
             $cekNomorKontrak = DB::table('trhkontrak')
-                ->where(['nomorkontrak' => $data['no_kontrak'], 'kodeskpd' => $data['kd_skpd']])
+                ->where(['nomorkontrak' => $nomorKontrak, 'kodeskpd' => $data['kd_skpd']])
                 ->count();
 
             if ($cekNomorKontrak > 0) {
@@ -151,7 +153,8 @@ class KontrakAdendumController extends Controller
             DB::table('trhkontrak')
                 ->insert([
                     'idkontrak' => $dataKontrakLama->idkontrak,
-                    'nomorkontrak' => $data['no_kontrak'],
+                    'nomorkontrak' => $nomorKontrak,
+                    'nomorpesanan' => $data['no_pesanan'],
                     'tanggalkontrak' => $data['tgl_kontrak'],
                     'adendum' => $adendum,
                     'nomorkontraklalu' => $data['kontrak_awal'],
@@ -159,17 +162,24 @@ class KontrakAdendumController extends Controller
                     'kodeskpd' => $dataKontrakLama->kodeskpd,
                     'namaskpd' => $dataKontrakLama->namaskpd,
                     'pekerjaan' => $dataKontrakLama->pekerjaan,
-                    'rekanan' => $dataKontrakLama->rekanan,
-                    'pimpinan' => $dataKontrakLama->pimpinan,
-                    'rekening' => $dataKontrakLama->rekening,
-                    'bank' => $dataKontrakLama->bank,
-                    'npwp' => $dataKontrakLama->npwp,
+                    // 'rekanan' => $dataKontrakLama->rekanan,
+                    // 'pimpinan' => $dataKontrakLama->pimpinan,
+                    // 'rekening' => $dataKontrakLama->rekening,
+                    // 'bank' => $dataKontrakLama->bank,
+                    // 'npwp' => $dataKontrakLama->npwp,
                     'urut' => $dataKontrakLama->urut,
                     'jns_ang' => $data['status_anggaran'],
                     'statusAdendum' => '0',
                     'created_at' => date('Y-m-d H:i:s'),
                     'created_username' => Auth::user()->username,
                     'jenisspp' => $dataKontrakLama->jenisspp,
+                    'tipe' => $dataKontrakLama->tipe,
+                    'pihakketiga' => $dataKontrakLama->pihakketiga,
+                    'namaperusahaan' => $dataKontrakLama->namaperusahaan,
+                    'alamatperusahaan' => $dataKontrakLama->alamatperusahaan,
+                    'tanggalawal' => $dataKontrakLama->tanggalawal,
+                    'tanggalakhir' => $dataKontrakLama->tanggalakhir,
+                    'ketentuansanksi' => $dataKontrakLama->ketentuansanksi,
                 ]);
 
             $data['kontrak'] = json_decode($data['kontrak'], true);
@@ -185,10 +195,10 @@ class KontrakAdendumController extends Controller
 
             if (isset($data['kontrak'])) {
                 DB::table('trdkontrak')
-                    ->insert(array_map(function ($value) use ($dataKontrakLama, $data) {
+                    ->insert(array_map(function ($value) use ($dataKontrakLama, $nomorKontrak) {
                         return [
                             'idkontrak' => $dataKontrakLama->idkontrak,
-                            'nomorkontrak' => $data['no_kontrak'],
+                            'nomorkontrak' => $nomorKontrak,
                             'kodesubkegiatan' => $value['kd_sub_kegiatan'],
                             'namasubkegiatan' => $value['nm_sub_kegiatan'],
                             'kodeakun' => $value['kd_rek6'],
@@ -296,6 +306,8 @@ class KontrakAdendumController extends Controller
         DB::beginTransaction();
 
         try {
+            $nomorKontrak = $data['tipe'] == 1 ? $data['no_kontrak'] : $data['no_pesanan'];
+
             $dataKontrakLama = DB::table('trhkontrak')
                 ->where(['idkontrak' => $data['idKontrak'], 'nomorkontrak' => $data['nomorKontrakTersimpan'], 'kodeskpd' => $data['kd_skpd']])
                 ->first();
@@ -313,10 +325,10 @@ class KontrakAdendumController extends Controller
             }
 
             $cekNomorKontrak = DB::table('trhkontrak')
-                ->where(['nomorkontrak' => $data['no_kontrak'], 'kodeskpd' => $data['kd_skpd']])
+                ->where(['nomorkontrak' => $nomorKontrak, 'kodeskpd' => $data['kd_skpd']])
                 ->count();
 
-            if (($data['nomorKontrakTersimpan'] != $data['no_kontrak']) && $cekNomorKontrak > 0) {
+            if (($data['nomorKontrakTersimpan'] != $nomorKontrak) && $cekNomorKontrak > 0) {
                 return response()->json([
                     'status' => false,
                     'error' => 'Error, Nomor kontrak telah ada!',
@@ -333,7 +345,8 @@ class KontrakAdendumController extends Controller
             DB::table('trhkontrak')
                 ->where(['idkontrak' => $dataKontrakLama->idkontrak, 'nomorkontrak' => $dataKontrakLama->nomorkontrak, 'kodeskpd' => $dataKontrakLama->kodeskpd])
                 ->update([
-                    'nomorkontrak' => $data['no_kontrak'],
+                    'nomorkontrak' => $nomorKontrak,
+                    'nomorpesanan' => $data['no_pesanan'],
                     'tanggalkontrak' => $data['tgl_kontrak'],
                     'nilaikontrak' => floatval($data['total_rincian_kontrak']),
                 ]);
@@ -355,10 +368,10 @@ class KontrakAdendumController extends Controller
 
             if (isset($data['kontrak'])) {
                 DB::table('trdkontrak')
-                    ->insert(array_map(function ($value) use ($dataKontrakLama, $data) {
+                    ->insert(array_map(function ($value) use ($dataKontrakLama, $nomorKontrak) {
                         return [
                             'idkontrak' => $dataKontrakLama->idkontrak,
-                            'nomorkontrak' => $data['no_kontrak'],
+                            'nomorkontrak' => $nomorKontrak,
                             'kodesubkegiatan' => $value['kd_sub_kegiatan'],
                             'namasubkegiatan' => $value['nm_sub_kegiatan'],
                             'kodeakun' => $value['kd_rek6'],

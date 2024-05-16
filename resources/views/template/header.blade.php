@@ -6,7 +6,7 @@
                     <img src="{{ asset('template/assets/images/logo-icon.png') }}" class="logo-icon" alt="logo icon">
                 </div>
                 <div class="">
-                    <h4 class="logo-text">Rocker</h4>
+                    <h4 class="logo-text">Data Kontrak</h4>
                 </div>
             </div>
             <div class="mobile-toggle-menu d-block d-lg-none" data-bs-toggle="offcanvas"

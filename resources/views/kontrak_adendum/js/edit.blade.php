@@ -27,6 +27,23 @@
 
         $('#rekanan').prop('disabled', true)
         $('#jenis').prop('disabled', true)
+        $('#tipe').prop('disabled', true)
+
+        let tipe = "{{ $dataKontrak->tipe }}";
+
+        // TIPE 1 -> KONTRAK, TIPE 2 -> PESANAN
+        // KALAU KONTRAK, WAJIB ISI NOMOR KONTRAK DAN NOMOR PESANAN
+        // KALAU PESANAN, HANYA ISI NOMOR PESANAN TANPA NOMOR KONTRAK
+
+        if (tipe == 1) {
+            $('.kontrak').show();
+            $('#pesanan').show();
+        } else {
+            $('.kontrak').hide();
+            $('#pesanan').show();
+
+            $('#no_kontrak').val(null)
+        }
 
         let rincian_kontrak = $('#rincian_kontrak').DataTable({
             processing: true,
@@ -424,18 +441,29 @@
             let jenis = $('#jenis').val();
             let id_kontrak = $('#id_kontrak').val();
             let no_kontrak = $('#no_kontrak').val();
+            let no_pesanan = $('#no_pesanan').val();
             let tgl_kontrak = $('#tgl_kontrak').val();
             let kd_skpd = $('#kd_skpd').val();
             let nm_kerja = $('#nm_kerja').val();
             let kontrak_awal = $('#kontrak_awal').val();
 
-            let rekanan = $('#rekanan').val();
-            let rekening = $('#rekanan').find(':selected').data('rekening');
-            let bank = $('#rekanan').find(':selected').data('bank');
-            let nm_bank = $('#rekanan').find(':selected').data('nm_bank');
-            let npwp = $('#rekanan').find(':selected').data('npwp');
+            // let rekanan = $('#rekanan').val();
+            // let rekening = $('#rekanan').find(':selected').data('rekening');
+            // let bank = $('#rekanan').find(':selected').data('bank');
+            // let nm_bank = $('#rekanan').find(':selected').data('nm_bank');
+            // let npwp = $('#rekanan').find(':selected').data('npwp');
 
-            let pimpinan = $('#pimpinan').val();
+            // let pimpinan = $('#pimpinan').val();
+
+            let tipe = $('#tipe').val();
+
+            let pihak_ketiga = $('#pihak_ketiga').val();
+            let nama_perusahaan = $('#nama_perusahaan').val();
+            let alamat_perusahaan = $('#alamat_perusahaan').val();
+
+            let tanggal_awal = $('#tanggal_awal').val();
+            let tanggal_akhir = $('#tanggal_akhir').val();
+            let sanksi = $('#sanksi').val();
 
             let total_rincian_kontrak = rupiah($('#total_rincian_kontrak').val());
 
@@ -447,10 +475,10 @@
                 return
             }
 
-            if (!no_kontrak) {
-                swalAlert('No Kontrak harus diisi');
-                return
-            }
+            // if (!no_kontrak) {
+            //     swalAlert('No Kontrak harus diisi');
+            //     return
+            // }
 
             if (!kontrak_awal) {
                 swalAlert('Nomor Kontrak Awal harus diisi');
@@ -477,28 +505,83 @@
                 return
             }
 
-            if (!rekanan) {
-                swalAlert('Rekanan harus diisi');
+            // if (!rekanan) {
+            //     swalAlert('Rekanan harus diisi');
+            //     return
+            // }
+
+            // if (!rekening) {
+            //     swalAlert('Rekening harus diisi');
+            //     return
+            // }
+
+            // if (!bank) {
+            //     swalAlert('Bank harus diisi');
+            //     return
+            // }
+
+            // if (!npwp) {
+            //     swalAlert('NPWP harus diisi');
+            //     return
+            // }
+
+            // if (!pimpinan) {
+            //     swalAlert('Pimpinan harus diisi');
+            //     return
+            // }
+
+            if (!tipe) {
+                swalAlert('Tipe harus dipilih');
                 return
             }
 
-            if (!rekening) {
-                swalAlert('Rekening harus diisi');
+            if ((tipe == 1 && !no_kontrak) || (tipe == 1 && !no_pesanan)) {
+                swalAlert('Jika pilih kontrak, wajib isi nomor kontrak dan nomor pesanan')
                 return
             }
 
-            if (!bank) {
-                swalAlert('Bank harus diisi');
+            if (tipe == 2 && !no_pesanan) {
+                swalAlert('Jika pilih pesanan, wajib isi nomor pesanan')
                 return
             }
 
-            if (!npwp) {
-                swalAlert('NPWP harus diisi');
+            if (!pihak_ketiga) {
+                swalAlert('Pihak ketiga harus diisi');
                 return
             }
 
-            if (!pimpinan) {
-                swalAlert('Pimpinan harus diisi');
+            if (!nama_perusahaan) {
+                swalAlert('Nama perusahaan harus diisi');
+                return
+            }
+
+            if (!alamat_perusahaan) {
+                swalAlert('Alamat perusahaan harus diisi');
+                return
+            }
+
+            if (alamat_perusahaan.length > 1000) {
+                swalAlert('Alamat perusahaan tidak boleh lebih dari 1000 karakter');
+                return
+            }
+
+            if (!tanggal_awal && !tanggal_akhir) {
+                swalAlert('Tanggal awal dan tanggal akhir harus diisi');
+                return
+            }
+
+            if (tanggal_awal > tanggal_akhir) {
+                swalAlert('Tanggal Awal tidak boleh lebih besar dari tanggal akhir');
+                return
+            }
+
+            if (!sanksi) {
+                swalAlert('Ketentuan sanksi harus diisi');
+                return
+            }
+
+            if (sanksi.length > 1000) {
+                swalAlert('Ketentuan sanksi tidak boleh lebih dari 1000 karakter');
                 return
             }
 
@@ -575,18 +658,26 @@
                 tgl_kontrak,
                 kd_skpd,
                 nm_kerja,
-                rekanan,
-                rekening,
-                bank,
-                npwp,
-                pimpinan,
+                // rekanan,
+                // rekening,
+                // bank,
+                // npwp,
+                // pimpinan,
                 total_rincian_kontrak,
                 kontrak,
                 kontrak_awal,
                 nomorKontrakTersimpan,
                 idKontrak,
                 status_anggaran,
-                jenis
+                jenis,
+                tipe,
+                no_pesanan,
+                pihak_ketiga,
+                nama_perusahaan,
+                alamat_perusahaan,
+                tanggal_awal,
+                tanggal_akhir,
+                sanksi
             };
 
             Swal.fire({

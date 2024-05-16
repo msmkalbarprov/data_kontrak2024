@@ -24,7 +24,7 @@
                         <div class="col-12">
                             <label class="form-label">Jenis</label>
                             <select class="form-select select_option" id="jenis">
-                                <option value="" selected>Silahkan Pilih</option>
+                                <option value="" selected selected>Silahkan Pilih</option>
                                 <option value="1" {{ $kontrak->jenisspp == 1 ? 'selected' : '' }}>UP/GU</option>
                                 <option value="5" {{ $kontrak->jenisspp == 5 ? 'selected' : '' }}>LS BARJAS</option>
                             </select>
@@ -36,9 +36,26 @@
                             value="{{ $kontrak->idkontrak }}">
                     </div>
                     <div class="row mb-3">
+                        <div class="col-12">
+                            <label class="form-label">Tipe</label>
+                            <select class="form-select select_option" id="tipe">
+                                <option value="" selected selected>Silahkan Pilih</option>
+                                <option value="1" {{ $kontrak->tipe == 1 ? 'selected' : '' }}>KONTRAK</option>
+                                <option value="2" {{ $kontrak->tipe == 2 ? 'selected' : '' }}>PESANAN</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row mb-3" id="pesanan">
+                        <div class="col-12">
+                            <label class="form-label">No. Pesanan</label>
+                            <input class="form-control" type="text" id="no_pesanan"
+                                placeholder="Isi dengan nomor pesanan" autofocus value="{{ $kontrak->nomorpesanan }}">
+                        </div>
+                    </div>
+                    <div class="row mb-3">
                         <div class="col-6">
-                            <label class="form-label">No. Kontrak</label>
-                            <input class="form-control" type="text" id="no_kontrak"
+                            <label class="form-label kontrak">No. Kontrak</label>
+                            <input class="form-control kontrak" type="text" id="no_kontrak"
                                 placeholder="Isi dengan nomor kontrak" autofocus value="{{ $kontrak->nomorkontrak }}">
                         </div>
                         <div class="col-6">
@@ -65,7 +82,7 @@
                             <textarea class="form-control" id="nm_kerja" placeholder="Isi dengan nama pekerjaan">{{ $kontrak->pekerjaan }}</textarea>
                         </div>
                     </div>
-                    <div class="row mb-3">
+                    {{-- <div class="row mb-3">
                         <div class="col-12">
                             <label class="form-label">(Rekanan) Nama Pemilik Rekening</label>
                             <select class="form-select select_option" id="rekanan">
@@ -108,6 +125,40 @@
                         <div class="col-5">
                             <label class="form-label">Nama Bank</label>
                             <input class="form-control" type="text" id="nm_bank" readonly disabled>
+                        </div>
+                    </div> --}}
+                    <div class="row mb-3">
+                        <div class="col-6">
+                            <label class="form-label">Nama Pihak Ketiga</label>
+                            <input class="form-control" type="text" id="pihak_ketiga"
+                                placeholder="Isi dengan nama pihak ketiga" value="{{ $kontrak->pihakketiga }}">
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label">Nama Perusahaan</label>
+                            <input class="form-control" type="text" id="nama_perusahaan"
+                                placeholder="Isi dengan nama perusahaan" value="{{ $kontrak->namaperusahaan }}">
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-12">
+                            <label class="form-label">Alamat Perusahaan</label>
+                            <textarea class="form-control" id="alamat_perusahaan" placeholder="Isi dengan alamat perusahaan">{{ $kontrak->alamatperusahaan }}</textarea>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-6">
+                            <label class="form-label">Tanggal Awal</label>
+                            <input class="form-control" type="date" id="tanggal_awal">
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label">Tanggal Akhir</label>
+                            <input class="form-control" type="date" id="tanggal_akhir">
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-12">
+                            <label class="form-label">Ketentuan Sanksi</label>
+                            <textarea class="form-control" id="sanksi" placeholder="Isi dengan ketentuan sanksi"></textarea>
                         </div>
                     </div>
                     <div class="mb-3 text-end">

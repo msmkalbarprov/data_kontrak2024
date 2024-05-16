@@ -22,6 +22,10 @@
 
         $('#rekanan').prop('disabled', true)
         $('#jenis').prop('disabled', true)
+        $('#tipe').prop('disabled', true)
+
+        $('.kontrak').hide();
+        $('#pesanan').hide();
 
         let rincian_kontrak = $('#rincian_kontrak').DataTable({
             processing: true,
@@ -188,12 +192,19 @@
 
         $('#kontrak_awal').on('select2:select', function() {
             let pekerjaan = $(this).find(':selected').data('pekerjaan');
-            let rekanan = $(this).find(':selected').data('rekanan');
-            let pimpinan = $(this).find(':selected').data('pimpinan');
+            // let rekanan = $(this).find(':selected').data('rekanan');
+            // let pimpinan = $(this).find(':selected').data('pimpinan');
             let kodeskpd = $(this).find(':selected').data('kodeskpd');
             let idkontrak = $(this).find(':selected').data('idkontrak');
             let jns_ang = $(this).find(':selected').data('jns_ang');
             let jenisspp = $(this).find(':selected').data('jenisspp');
+            let tipe = $(this).find(':selected').data('tipe');
+            let pihakketiga = $(this).find(':selected').data('pihakketiga');
+            let namaperusahaan = $(this).find(':selected').data('namaperusahaan');
+            let alamatperusahaan = $(this).find(':selected').data('alamatperusahaan');
+            let tanggalawal = $(this).find(':selected').data('tanggalawal');
+            let tanggalakhir = $(this).find(':selected').data('tanggalakhir');
+            let ketentuansanksi = $(this).find(':selected').data('ketentuansanksi');
 
             let tipeAnggaran = '';
 
@@ -221,15 +232,33 @@
             }
 
             $('#nm_kerja').val(pekerjaan);
-            $('#rekanan').val(rekanan).change();
-            $('#pimpinan').val(pimpinan);
+            // $('#rekanan').val(rekanan).change();
+            // $('#pimpinan').val(pimpinan);
             $('#id_kontrak').val(idkontrak);
             $('#jenis').val(jenisspp).change();
+            $('#tipe').val(tipe).change();
 
-            $('#no_rekening').val($('#rekanan').find(':selected').data('rekening'));
-            $('#npwp').val($('#rekanan').find(':selected').data('npwp'));
-            $('#bank').val($('#rekanan').find(':selected').data('bank'));
-            $('#nm_bank').val($('#rekanan').find(':selected').data('nm_bank'));
+            $('#pihak_ketiga').val(pihakketiga);
+            $('#nama_perusahaan').val(namaperusahaan);
+            $('#alamat_perusahaan').val(alamatperusahaan);
+            $('#tanggal_awal').val(tanggalawal);
+            $('#tanggal_akhir').val(tanggalakhir);
+            $('#sanksi').val(ketentuansanksi);
+
+            if (tipe == 1) {
+                $('.kontrak').show();
+                $('#pesanan').show();
+            } else {
+                $('.kontrak').hide();
+                $('#pesanan').show();
+
+                $('#no_kontrak').val(null);
+            }
+
+            // $('#no_rekening').val($('#rekanan').find(':selected').data('rekening'));
+            // $('#npwp').val($('#rekanan').find(':selected').data('npwp'));
+            // $('#bank').val($('#rekanan').find(':selected').data('bank'));
+            // $('#nm_bank').val($('#rekanan').find(':selected').data('nm_bank'));
 
             $.ajax({
                 url: "{{ route('detail_kontrak') }}",
@@ -539,14 +568,25 @@
             let kd_skpd = $('#kd_skpd').val();
             let nm_kerja = $('#nm_kerja').val();
             let kontrak_awal = $('#kontrak_awal').val();
+            let no_pesanan = $('#no_pesanan').val();
+            // let rekanan = $('#rekanan').val();
+            // let rekening = $('#rekanan').find(':selected').data('rekening');
+            // let bank = $('#rekanan').find(':selected').data('bank');
+            // let nm_bank = $('#rekanan').find(':selected').data('nm_bank');
+            // let npwp = $('#rekanan').find(':selected').data('npwp');
 
-            let rekanan = $('#rekanan').val();
-            let rekening = $('#rekanan').find(':selected').data('rekening');
-            let bank = $('#rekanan').find(':selected').data('bank');
-            let nm_bank = $('#rekanan').find(':selected').data('nm_bank');
-            let npwp = $('#rekanan').find(':selected').data('npwp');
+            // let pimpinan = $('#pimpinan').val();
 
-            let pimpinan = $('#pimpinan').val();
+            let tipe = $('#tipe').val();
+
+            let pihak_ketiga = $('#pihak_ketiga').val();
+            let nama_perusahaan = $('#nama_perusahaan').val();
+            let alamat_perusahaan = $('#alamat_perusahaan').val();
+
+            let tanggal_awal = $('#tanggal_awal').val();
+            let tanggal_akhir = $('#tanggal_akhir').val();
+            let sanksi = $('#sanksi').val();
+
 
             let total_rincian_kontrak = rupiah($('#total_rincian_kontrak').val());
 
@@ -558,10 +598,10 @@
                 return
             }
 
-            if (!no_kontrak) {
-                swalAlert('No Kontrak harus diisi');
-                return
-            }
+            // if (!no_kontrak) {
+            //     swalAlert('No Kontrak harus diisi');
+            //     return
+            // }
 
             if (!kontrak_awal) {
                 swalAlert('Nomor Kontrak Awal harus diisi');
@@ -588,30 +628,30 @@
                 return
             }
 
-            if (!rekanan) {
-                swalAlert('Rekanan harus diisi');
-                return
-            }
+            // if (!rekanan) {
+            //     swalAlert('Rekanan harus diisi');
+            //     return
+            // }
 
-            if (!rekening) {
-                swalAlert('Rekening harus diisi');
-                return
-            }
+            // if (!rekening) {
+            //     swalAlert('Rekening harus diisi');
+            //     return
+            // }
 
-            if (!bank) {
-                swalAlert('Bank harus diisi');
-                return
-            }
+            // if (!bank) {
+            //     swalAlert('Bank harus diisi');
+            //     return
+            // }
 
-            if (!npwp) {
-                swalAlert('NPWP harus diisi');
-                return
-            }
+            // if (!npwp) {
+            //     swalAlert('NPWP harus diisi');
+            //     return
+            // }
 
-            if (!pimpinan) {
-                swalAlert('Pimpinan harus diisi');
-                return
-            }
+            // if (!pimpinan) {
+            //     swalAlert('Pimpinan harus diisi');
+            //     return
+            // }
 
             if (total_rincian_kontrak == 0) {
                 swalAlert('Total Rincian Kontrak tidak boleh NOL')
@@ -620,6 +660,61 @@
 
             if (!status_anggaran) {
                 swalAlert('Status Anggaran tidak ada!');
+                return
+            }
+
+            if (!tipe) {
+                swalAlert('Tipe harus dipilih');
+                return
+            }
+
+            if ((tipe == 1 && !no_kontrak) || (tipe == 1 && !no_pesanan)) {
+                swalAlert('Jika pilih kontrak, wajib isi nomor kontrak dan nomor pesanan')
+                return
+            }
+
+            if (tipe == 2 && !no_pesanan) {
+                swalAlert('Jika pilih pesanan, wajib isi nomor pesanan')
+                return
+            }
+
+            if (!pihak_ketiga) {
+                swalAlert('Pihak ketiga harus diisi');
+                return
+            }
+
+            if (!nama_perusahaan) {
+                swalAlert('Nama perusahaan harus diisi');
+                return
+            }
+
+            if (!alamat_perusahaan) {
+                swalAlert('Alamat perusahaan harus diisi');
+                return
+            }
+
+            if (alamat_perusahaan.length > 1000) {
+                swalAlert('Alamat perusahaan tidak boleh lebih dari 1000 karakter');
+                return
+            }
+
+            if (!tanggal_awal && !tanggal_akhir) {
+                swalAlert('Tanggal awal dan tanggal akhir harus diisi');
+                return
+            }
+
+            if (tanggal_awal > tanggal_akhir) {
+                swalAlert('Tanggal Awal tidak boleh lebih besar dari tanggal akhir');
+                return
+            }
+
+            if (!sanksi) {
+                swalAlert('Ketentuan sanksi harus diisi');
+                return
+            }
+
+            if (sanksi.length > 1000) {
+                swalAlert('Ketentuan sanksi tidak boleh lebih dari 1000 karakter');
                 return
             }
 
@@ -683,16 +778,25 @@
                 tgl_kontrak,
                 kd_skpd,
                 nm_kerja,
-                rekanan,
-                rekening,
-                bank,
-                npwp,
-                pimpinan,
+                // rekanan,
+                // rekening,
+                // bank,
+                // npwp,
+                // pimpinan,
                 total_rincian_kontrak,
                 kontrak,
                 kontrak_awal,
                 status_anggaran,
-                jenis
+                jenis,
+                jenis,
+                tipe,
+                no_pesanan,
+                pihak_ketiga,
+                nama_perusahaan,
+                alamat_perusahaan,
+                tanggal_awal,
+                tanggal_akhir,
+                sanksi
             };
 
             Swal.fire({
@@ -994,8 +1098,6 @@
             let total_detail_kontrak = rupiah($('#total_detail_kontrak').val());
             let total_rincian_kontrak = rupiah($('#total_rincian_kontrak').val());
 
-
-            console.log(item);
             $.each(item, function(index, data) {
                 let cek = [data.volume1, data.volume2, data.volume3, data.volume4];
 

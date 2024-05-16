@@ -78,11 +78,11 @@ class KontrakController extends Controller
 
     public function create()
     {
-        $daftar_rekening = $this->connection
-            ->table('ms_rekening_bank_online')
-            ->select('rekening', 'bank', 'nm_bank', 'npwp', 'nmrekan')
-            ->where(['kd_skpd' => Auth::user()->kd_skpd])
-            ->get();
+        // $daftar_rekening = $this->connection
+        //     ->table('ms_rekening_bank_online')
+        //     ->select('rekening', 'bank', 'nm_bank', 'npwp', 'nmrekan')
+        //     ->where(['kd_skpd' => Auth::user()->kd_skpd])
+        //     ->get();
 
         $skpd = $this->connection
             ->table('ms_skpd')
@@ -99,8 +99,8 @@ class KontrakController extends Controller
                 ->route('kontrak.index')
                 ->with('message', 'Anggaran belum disahkan, hubungi Anggaran!');;
         }
-        // return $status_anggaran;
-        return view('kontrak.create', compact('daftar_rekening', 'skpd', 'tahun', 'status_anggaran'));
+
+        return view('kontrak.create', compact('skpd', 'tahun', 'status_anggaran'));
     }
 
     public function store(Request $request)
@@ -110,6 +110,8 @@ class KontrakController extends Controller
         DB::beginTransaction();
 
         try {
+            $nomorKontrak = $data['tipe'] == 1 ? $data['no_kontrak'] : $data['no_pesanan'];
+
             $skpd = $this->connection
                 ->table('ms_skpd')
                 ->select('kd_skpd', 'nm_skpd')
@@ -136,7 +138,7 @@ class KontrakController extends Controller
             }
 
             $cekNomorKontrak = DB::table('trhkontrak')
-                ->where(['nomorkontrak' => $data['no_kontrak'], 'kodeskpd' => $skpd->kd_skpd])
+                ->where(['nomorkontrak' => $nomorKontrak, 'kodeskpd' => $skpd->kd_skpd])
                 ->count();
 
             if ($cekNomorKontrak > 0) {
@@ -156,25 +158,33 @@ class KontrakController extends Controller
             DB::table('trhkontrak')
                 ->insert([
                     'idkontrak' => $idkontrak,
-                    'nomorkontrak' => $data['no_kontrak'],
+                    'nomorkontrak' => $nomorKontrak,
+                    'nomorpesanan' => $data['no_pesanan'],
                     'tanggalkontrak' => $data['tgl_kontrak'],
                     'adendum' => '0',
-                    'nomorkontraklalu' => $data['no_kontrak'],
+                    'nomorkontraklalu' => $nomorKontrak,
                     'nilaikontrak' => floatval($data['total_rincian_kontrak']),
                     'kodeskpd' => $skpd->kd_skpd,
                     'namaskpd' => $skpd->nm_skpd,
                     'pekerjaan' => $data['nm_kerja'],
-                    'rekanan' => $data['rekanan'],
-                    'pimpinan' => $data['pimpinan'],
-                    'rekening' => $data['rekening'],
-                    'bank' => $data['bank'],
-                    'npwp' => $data['npwp'],
+                    // 'rekanan' => $data['rekanan'],
+                    // 'pimpinan' => $data['pimpinan'],
+                    // 'rekening' => $data['rekening'],
+                    // 'bank' => $data['bank'],
+                    // 'npwp' => $data['npwp'],
                     'urut' => $urut,
                     'jns_ang' => $data['status_anggaran'],
                     'statusAdendum' => '0',
                     'created_at' => date('Y-m-d H:i:s'),
                     'created_username' => Auth::user()->username,
-                    'jenisspp' => $data['jenis']
+                    'jenisspp' => $data['jenis'],
+                    'tipe' => $data['tipe'],
+                    'pihakketiga' => $data['pihak_ketiga'],
+                    'namaperusahaan' => $data['nama_perusahaan'],
+                    'alamatperusahaan' => $data['alamat_perusahaan'],
+                    'tanggalawal' => $data['tanggal_awal'],
+                    'tanggalakhir' => $data['tanggal_akhir'],
+                    'ketentuansanksi' => $data['sanksi'],
                 ]);
 
             $data['kontrak'] = json_decode($data['kontrak'], true);
@@ -190,10 +200,10 @@ class KontrakController extends Controller
 
             if (isset($data['kontrak'])) {
                 DB::table('trdkontrak')
-                    ->insert(array_map(function ($value) use ($idkontrak, $data, $skpd) {
+                    ->insert(array_map(function ($value) use ($idkontrak, $skpd, $nomorKontrak) {
                         return [
                             'idkontrak' => $idkontrak,
-                            'nomorkontrak' => $data['no_kontrak'],
+                            'nomorkontrak' => $nomorKontrak,
                             'kodesubkegiatan' => $value['kd_sub_kegiatan'],
                             'namasubkegiatan' => $value['nm_sub_kegiatan'],
                             'kodeakun' => $value['kd_rek6'],
@@ -243,11 +253,11 @@ class KontrakController extends Controller
         $id = Crypt::decrypt($id);
         $kd_skpd = Crypt::decrypt($kd_skpd);
 
-        $daftar_rekening = $this->connection
-            ->table('ms_rekening_bank_online')
-            ->select('rekening', 'bank', 'nm_bank', 'npwp', 'nmrekan')
-            ->where(['kd_skpd' => $kd_skpd])
-            ->get();
+        // $daftar_rekening = $this->connection
+        //     ->table('ms_rekening_bank_online')
+        //     ->select('rekening', 'bank', 'nm_bank', 'npwp', 'nmrekan')
+        //     ->where(['kd_skpd' => $kd_skpd])
+        //     ->get();
 
         $kontrak = DB::table('trhkontrak')
             ->where(['idkontrak' => $id, 'kodeskpd' => $kd_skpd, 'adendum' => '0'])
@@ -284,7 +294,7 @@ class KontrakController extends Controller
             ->where(['nomorkontrak' => $kontrak->nomorkontrak, 'kodeskpd' => $kd_skpd, 'idkontrak' => $id])
             ->count();
 
-        return view('kontrak.edit', compact('daftar_rekening', 'tahun', 'kontrak', 'detail_kontrak', 'kd_sub_kegiatan', 'cekKontrakAdendum', 'cekBast'));
+        return view('kontrak.edit', compact('tahun', 'kontrak', 'detail_kontrak', 'kd_sub_kegiatan', 'cekKontrakAdendum', 'cekBast'));
     }
 
     public function update(Request $request)
@@ -294,6 +304,8 @@ class KontrakController extends Controller
         DB::beginTransaction();
 
         try {
+            $nomorKontrak = $data['tipe'] == 1 ? $data['no_kontrak'] : $data['no_pesanan'];
+
             $nomor_kontrak_lama = DB::table('trhkontrak')
                 ->where(['idkontrak' => $data['id_kontrak'], 'kodeskpd' => $data['kd_skpd'], 'adendum' => '0'])
                 ->first()
@@ -312,10 +324,10 @@ class KontrakController extends Controller
             }
 
             $cekNomorKontrak = DB::table('trhkontrak')
-                ->where(['nomorkontrak' => $data['no_kontrak'], 'kodeskpd' => $data['kd_skpd']])
+                ->where(['nomorkontrak' => $nomorKontrak, 'kodeskpd' => $data['kd_skpd']])
                 ->count();
 
-            if (($nomor_kontrak_lama != $data['no_kontrak']) && $cekNomorKontrak > 0) {
+            if (($nomor_kontrak_lama != $nomorKontrak) && $cekNomorKontrak > 0) {
                 return response()->json([
                     'status' => false,
                     'message' => 'Error, Nomor kontrak telah ada!',
@@ -332,16 +344,25 @@ class KontrakController extends Controller
             DB::table('trhkontrak')
                 ->where(['idkontrak' => $data['id_kontrak'], 'kodeskpd' => $data['kd_skpd']])
                 ->update([
-                    'nomorkontrak' => $data['no_kontrak'],
+                    'nomorkontrak' => $nomorKontrak,
                     'tanggalkontrak' => $data['tgl_kontrak'],
-                    'nomorkontraklalu' => $data['no_kontrak'],
+                    'nomorkontraklalu' => $nomorKontrak,
+                    'nomorpesanan' => $data['no_pesanan'],
                     'nilaikontrak' => floatval($data['total_rincian_kontrak']),
                     'pekerjaan' => $data['nm_kerja'],
-                    'rekanan' => $data['rekanan'],
-                    'pimpinan' => $data['pimpinan'],
-                    'rekening' => $data['rekening'],
-                    'bank' => $data['bank'],
-                    'npwp' => $data['npwp'],
+                    // 'rekanan' => $data['rekanan'],
+                    // 'pimpinan' => $data['pimpinan'],
+                    // 'rekening' => $data['rekening'],
+                    // 'bank' => $data['bank'],
+                    // 'npwp' => $data['npwp'],
+                    'pihakketiga' => $data['pihak_ketiga'],
+                    'namaperusahaan' => $data['nama_perusahaan'],
+                    'alamatperusahaan' => $data['alamat_perusahaan'],
+                    'jenisspp' => $data['jenis'],
+                    'tipe' => $data['tipe'],
+                    'tanggalawal' => $data['tanggal_awal'],
+                    'tanggalakhir' => $data['tanggal_akhir'],
+                    'ketentuansanksi' => $data['sanksi'],
                 ]);
 
             $data['kontrak'] = json_decode($data['kontrak'], true);
@@ -365,10 +386,10 @@ class KontrakController extends Controller
 
             if (isset($data['kontrak'])) {
                 DB::table('trdkontrak')
-                    ->insert(array_map(function ($value) use ($data, $skpd) {
+                    ->insert(array_map(function ($value) use ($data, $skpd, $nomorKontrak) {
                         return [
                             'idkontrak' => $data['id_kontrak'],
-                            'nomorkontrak' => $data['no_kontrak'],
+                            'nomorkontrak' => $nomorKontrak,
                             'kodesubkegiatan' => $value['kd_sub_kegiatan'],
                             'namasubkegiatan' => $value['nm_sub_kegiatan'],
                             'kodeakun' => $value['kd_rek6'],

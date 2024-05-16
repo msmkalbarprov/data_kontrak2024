@@ -22,6 +22,13 @@
                 <div class="card-body">
                     <div class="row mb-3">
                         <div class="col-12">
+                            <label class="form-label">Kontrak Awal</label>
+                            <input class="form-control" type="text" readonly disabled id="kontrak_awal"
+                                value="{{ $dataKontrak->nomorkontraklalu }}">
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-12">
                             <label class="form-label">Jenis</label>
                             <select class="form-select select_option" id="jenis">
                                 <option value="" selected>Silahkan Pilih</option>
@@ -37,9 +44,26 @@
                             value="{{ $dataKontrak->idkontrak }}">
                     </div>
                     <div class="row mb-3">
+                        <div class="col-12">
+                            <label class="form-label">Tipe</label>
+                            <select class="form-select select_option" id="tipe">
+                                <option value="" selected disabled>Silahkan Pilih</option>
+                                <option value="1" {{ $dataKontrak->tipe == 1 ? 'selected' : '' }}>KONTRAK</option>
+                                <option value="2" {{ $dataKontrak->tipe == 2 ? 'selected' : '' }}>PESANAN</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row mb-3" id="pesanan">
+                        <div class="col-12">
+                            <label class="form-label">No. Pesanan</label>
+                            <input class="form-control" type="text" id="no_pesanan"
+                                placeholder="Isi dengan nomor pesanan" autofocus value="{{ $dataKontrak->nomorpesanan }}">
+                        </div>
+                    </div>
+                    <div class="row mb-3">
                         <div class="col-6">
-                            <label class="form-label">No. Kontrak</label>
-                            <input class="form-control" type="text" id="no_kontrak"
+                            <label class="form-label kontrak">No. Kontrak</label>
+                            <input class="form-control kontrak" type="text" id="no_kontrak"
                                 placeholder="Isi dengan nomor kontrak" autofocus value="{{ $dataKontrak->nomorkontrak }}">
                         </div>
                         <div class="col-6">
@@ -62,18 +86,11 @@
                     </div>
                     <div class="row mb-3">
                         <div class="col-12">
-                            <label class="form-label">Kontrak Awal</label>
-                            <input class="form-control" type="text" readonly disabled id="kontrak_awal"
-                                value="{{ $dataKontrak->nomorkontraklalu }}">
-                        </div>
-                    </div>
-                    <div class="row mb-3">
-                        <div class="col-12">
                             <label class="form-label">Nama Pekerjaan</label>
                             <textarea class="form-control" id="nm_kerja" placeholder="Isi dengan nama pekerjaan" readonly disabled>{{ $dataKontrak->pekerjaan }}</textarea>
                         </div>
                     </div>
-                    <div class="row mb-3">
+                    {{-- <div class="row mb-3">
                         <div class="col-12">
                             <label class="form-label">(Rekanan) Nama Pemilik Rekening</label>
                             <select class="form-select select_option" id="rekanan">
@@ -113,6 +130,44 @@
                         <div class="col-5">
                             <label class="form-label">Nama Bank</label>
                             <input class="form-control" type="text" id="nm_bank" readonly disabled>
+                        </div>
+                    </div> --}}
+                    <div class="row mb-3">
+                        <div class="col-6">
+                            <label class="form-label">Nama Pihak Ketiga</label>
+                            <input class="form-control" type="text" id="pihak_ketiga"
+                                placeholder="Isi dengan nama pihak ketiga" readonly disabled
+                                value="{{ $dataKontrak->pihakketiga }}">
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label">Nama Perusahaan</label>
+                            <input class="form-control" type="text" id="nama_perusahaan"
+                                placeholder="Isi dengan nama perusahaan" readonly disabled
+                                value="{{ $dataKontrak->namaperusahaan }}">
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-12">
+                            <label class="form-label">Alamat Perusahaan</label>
+                            <textarea class="form-control" id="alamat_perusahaan" placeholder="Isi dengan alamat perusahaan" readonly disabled>{{ $dataKontrak->alamatperusahaan }}</textarea>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-6">
+                            <label class="form-label">Tanggal Awal</label>
+                            <input class="form-control" type="date" id="tanggal_awal" readonly disabled
+                                value="{{ $dataKontrak->tanggalawal }}">
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label">Tanggal Akhir</label>
+                            <input class="form-control" type="date" id="tanggal_akhir" readonly disabled
+                                value="{{ $dataKontrak->tanggalakhir }}">
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-12">
+                            <label class="form-label">Ketentuan Sanksi</label>
+                            <textarea class="form-control" id="sanksi" placeholder="Isi dengan ketentuan sanksi" readonly disabled>{{ $dataKontrak->ketentuansanksi }}</textarea>
                         </div>
                     </div>
                     <div class="mb-3 text-end">
