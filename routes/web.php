@@ -70,7 +70,7 @@ Route::middleware('auth')->group(function () {
     Route::post('bast/load', [BastController::class, 'load'])->name('bast.load');
     Route::get('bast/create', [BastController::class, 'create'])->name('bast.create');
     Route::post('bast/store', [BastController::class, 'store'])->name('bast.store');
-    Route::get('bast/{nomorpesanan}/{nomorbapbast}/{kd_skpd}/{idkontrak}/{nomorkontrak}/edit', [BastController::class, 'edit'])->name('bast.edit');
+    Route::get('bast/{nomorbapbast}/{kd_skpd}/{idkontrak}/{nomorkontrak}/edit', [BastController::class, 'edit'])->name('bast.edit');
     Route::post('bast/update', [BastController::class, 'update'])->name('bast.update');
     Route::post('bast/delete', [BastController::class, 'delete'])->name('bast.delete');
 

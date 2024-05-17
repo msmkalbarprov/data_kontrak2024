@@ -332,7 +332,6 @@ class DataController extends Controller
     {
         $data = DB::table('trdbapbast as a')
             ->join('trhbast as b', function ($join) {
-                $join->on('a.nomorpesanan', '=', 'b.nomorpesanan');
                 $join->on('a.nomorbapbast', '=', 'b.nomorbapbast');
                 $join->on('a.kodeskpd', '=', 'b.kodeskpd');
             })
@@ -344,7 +343,6 @@ class DataController extends Controller
                 'a.header' => $request->header,
                 'a.subheader' => $request->sub_header,
                 'a.kodesumberdana' => $request->sumber,
-                // 'b.idkontrak' => $request->id_kontrak,
             ])
             ->selectRaw("ISNULL(sum(volume1),0) as volume1,ISNULL(sum(volume2),0) as volume2,ISNULL(sum(volume3),0) as volume3,ISNULL(sum(volume4),0) as volume4")
             ->first();

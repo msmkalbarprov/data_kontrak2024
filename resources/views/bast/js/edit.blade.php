@@ -33,13 +33,19 @@
         const nomorPesananTersimpan = "{{ $dataBast->nomorpesanan }}";
 
         $('#nm_kerja').val($('#kontrak').find(':selected').data('pekerjaan'));
-        $('#rekanan').val($('#kontrak').find(':selected').data('rekanan')).change();
-        $('#pimpinan').val($('#kontrak').find(':selected').data('pimpinan'));
+        $('#pihak_ketiga').val($('#kontrak').find(':selected').data('pihakketiga'));
+        $('#nama_perusahaan').val($('#kontrak').find(':selected').data('namaperusahaan'));
+        $('#alamat_perusahaan').val($('#kontrak').find(':selected').data('alamatperusahaan'));
+        $('#tanggal_awal').val($('#kontrak').find(':selected').data('tanggalawal'));
+        $('#tanggal_akhir').val($('#kontrak').find(':selected').data('tanggalakhir'));
+        $('#sanksi').val($('#kontrak').find(':selected').data('ketentuansanksi'));
+        // $('#rekanan').val($('#kontrak').find(':selected').data('rekanan')).change();
+        // $('#pimpinan').val($('#kontrak').find(':selected').data('pimpinan'));
 
-        $('#no_rekening').val($('#rekanan').find(':selected').data('rekening'));
-        $('#npwp').val($('#rekanan').find(':selected').data('npwp'));
-        $('#bank').val($('#rekanan').find(':selected').data('bank'));
-        $('#nm_bank').val($('#rekanan').find(':selected').data('nm_bank'));
+        // $('#no_rekening').val($('#rekanan').find(':selected').data('rekening'));
+        // $('#npwp').val($('#rekanan').find(':selected').data('npwp'));
+        // $('#bank').val($('#rekanan').find(':selected').data('bank'));
+        // $('#nm_bank').val($('#rekanan').find(':selected').data('nm_bank'));
 
         let realisasi_fisik_lalu = parseFloat($('#kontrak').find(':selected').data(
             'realisasi_fisik_lalu'))
@@ -472,7 +478,7 @@
                             $("#overlay").fadeIn(100);
                         },
                         success: function(response) {
-                            simpanRincian(data)
+                            simpanRincian(data, response)
                             bersihkan()
 
                             Swal.fire({
@@ -503,8 +509,8 @@
 
         $('#simpan').on('click', function() {
             let jenis_kontrak = $('#jenis_kontrak').val();
-            let no_pesanan = $('#no_pesanan').val();
-            let tgl_pesanan = $('#tgl_pesanan').val();
+            // let no_pesanan = $('#no_pesanan').val();
+            // let tgl_pesanan = $('#tgl_pesanan').val();
             let no_bast = $('#no_bast').val();
             let tgl_bast = $('#tgl_bast').val();
             let no_bap = $('#no_bap').val();
@@ -534,15 +540,15 @@
                 return
             }
 
-            if (!no_pesanan) {
-                swalAlert('No Pesanan harus diisi!');
-                return
-            }
+            // if (!no_pesanan) {
+            //     swalAlert('No Pesanan harus diisi!');
+            //     return
+            // }
 
-            if (!tgl_pesanan) {
-                swalAlert('Tanggal Pesanan harus diisi!');
-                return
-            }
+            // if (!tgl_pesanan) {
+            //     swalAlert('Tanggal Pesanan harus diisi!');
+            //     return
+            // }
 
             if (jenis_kontrak == 2) {
                 if (!no_bap) {
@@ -671,8 +677,8 @@
                 jenis_kontrak,
                 no_kontrak,
                 id_kontrak,
-                no_pesanan,
-                tgl_pesanan,
+                // no_pesanan,
+                // tgl_pesanan,
                 no_bap,
                 tgl_bap,
                 no_bast,
@@ -985,7 +991,7 @@
             $('#total').val(null)
         }
 
-        function simpanRincian(data) {
+        function simpanRincian(data, response) {
             let cek = [data.input_volume1, data.input_volume2, data.input_volume3, data.input_volume4];
 
             let volume = cek.reduce((prev, current) => {
@@ -1064,6 +1070,12 @@
             $('#total_rincian_kontrak').val(new Intl.NumberFormat('id-ID', {
                 minimumFractionDigits: 2
             }).format(total_rincian_kontrak + total));
+
+            if (parseFloat(total_detail_kontrak + total) == parseFloat(response.sisaKontrak)) {
+                $('#status_kontrak').val('1').change();
+            } else {
+                $('#status_kontrak').val('2').change();
+            }
         }
     });
 

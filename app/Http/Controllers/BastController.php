@@ -46,7 +46,6 @@ class BastController extends Controller
         $search = $request->search;
         $query = $query->where(function ($query) use ($search) {
             $query->orWhere('nomorbapbast', 'like', "%" . $search . "%");
-            $query->orWhere('nomorpesanan', 'like', "%" . $search . "%");
         });
 
         $orderByName = 'nomorbapbast';
@@ -62,9 +61,9 @@ class BastController extends Controller
 
         return DataTables::of($users)
             ->addColumn('aksi', function ($row) {
-                $btn = '<a href="' . route("bast.edit", ['nomorpesanan' => Crypt::encrypt($row->nomorpesanan), 'nomorbapbast' => Crypt::encrypt($row->nomorbapbast), 'kd_skpd' => Crypt::encrypt($row->kodeskpd), 'idkontrak' => Crypt::encrypt($row->idkontrak), 'nomorkontrak' => Crypt::encrypt($row->nomorkontrak)]) . '" class="btn btn-sm btn-warning" style="margin-right:4px"><i class="fadeIn animated bx bx-edit"></i></a>';
+                $btn = '<a href="' . route("bast.edit", ['nomorbapbast' => Crypt::encrypt($row->nomorbapbast), 'kd_skpd' => Crypt::encrypt($row->kodeskpd), 'idkontrak' => Crypt::encrypt($row->idkontrak), 'nomorkontrak' => Crypt::encrypt($row->nomorkontrak)]) . '" class="btn btn-sm btn-warning" style="margin-right:4px"><i class="fadeIn animated bx bx-edit"></i></a>';
 
-                $btn .= '<a onclick="hapus(\'' . $row->nomorpesanan . '\',\'' . $row->nomorbapbast . '\',\'' . $row->idkontrak . '\',\'' . $row->nomorkontrak . '\',\'' . $row->kodeskpd . '\')" class="btn btn-sm btn-danger"><i class="fadeIn animated bx bx-trash"></i></a>';
+                $btn .= '<a onclick="hapus(\'' . $row->nomorbapbast . '\',\'' . $row->idkontrak . '\',\'' . $row->nomorkontrak . '\',\'' . $row->kodeskpd . '\')" class="btn btn-sm btn-danger"><i class="fadeIn animated bx bx-trash"></i></a>';
 
                 return $btn;
             })
@@ -125,6 +124,20 @@ class BastController extends Controller
                 ], 400);
             }
 
+            $cekStatusKontrak = $this->sisaKontrak($data['no_kontrak'], $data['id_kontrak'], '', 'tambah');
+
+            if ((floatval($cekStatusKontrak) === floatval($data['total_rincian_kontrak'])) && $data['status_kontrak'] != '1') {
+                return response()->json([
+                    'status' => false,
+                    'error' => 'Error, Status Kontrak harusnya Sudah Selesai, Silahkan ganti!',
+                ], 400);
+            } elseif ((floatval($cekStatusKontrak) !== floatval($data['total_rincian_kontrak'])) && $data['status_kontrak'] != '2') {
+                return response()->json([
+                    'status' => false,
+                    'error' => 'Error, Status Kontrak harusnya Belum Selesai, Silahkan ganti!',
+                ], 400);
+            }
+
             $dataKontrak = DB::table('trhkontrak')
                 ->where(['idkontrak' => $data['id_kontrak'], 'nomorkontrak' => $data['no_kontrak'], 'kodeskpd' => $data['kd_skpd']])
                 ->first();
@@ -137,15 +150,13 @@ class BastController extends Controller
 
             DB::table('trhbast')
                 ->insert([
-                    'nomorpesanan' => $data['no_pesanan'],
-                    'tanggalpesanan' => $data['tgl_pesanan'],
                     'nomorbapbast' => $nomor,
                     'tanggalbapbast' => $tanggal,
                     'kodeskpd' => $data['kd_skpd'],
                     'namaskpd' => $skpd->nm_skpd,
                     'idkontrak' => $data['id_kontrak'],
                     'nomorkontrak' => $data['no_kontrak'],
-                    'statuspekerjaan' => strval($data['status_kontrak']),
+                    'statuspekerjaan' => floatval($cekStatusKontrak) === floatval($data['total_rincian_kontrak']) ? '1' : '2',
                     'jenis' => strval($data['jenis_kontrak']),
                     'keterangan' => $data['keterangan'],
                     'realisasifisik' => floatval($data['realisasi_fisik']),
@@ -190,7 +201,6 @@ class BastController extends Controller
                 DB::table('trdbapbast')
                     ->insert(array_map(function ($value) use ($data, $nomor) {
                         return [
-                            'nomorpesanan' => $data['no_pesanan'],
                             'nomorbapbast' => $nomor,
                             'kodeskpd' => $data['kd_skpd'],
                             'kodesubkegiatan' => $value['kd_sub_kegiatan'],
@@ -234,9 +244,8 @@ class BastController extends Controller
         }
     }
 
-    public function edit($nomorpesanan, $nomorbapbast, $kd_skpd, $idkontrak, $nomorkontrak)
+    public function edit($nomorbapbast, $kd_skpd, $idkontrak, $nomorkontrak)
     {
-        $nomorpesanan = Crypt::decrypt($nomorpesanan);
         $nomorbapbast = Crypt::decrypt($nomorbapbast);
         $kd_skpd = Crypt::decrypt($kd_skpd);
         $idkontrak = Crypt::decrypt($idkontrak);
@@ -264,19 +273,18 @@ class BastController extends Controller
             ->get();
 
         $dataBast = DB::table('trhbast')
-            ->where(['nomorpesanan' => $nomorpesanan, 'nomorbapbast' => $nomorbapbast, 'idkontrak' => $idkontrak, 'kodeskpd' => $kd_skpd, 'nomorkontrak' => $nomorkontrak])
+            ->where(['nomorbapbast' => $nomorbapbast, 'idkontrak' => $idkontrak, 'kodeskpd' => $kd_skpd, 'nomorkontrak' => $nomorkontrak])
             ->first();
 
         $detailBast = DB::table('trdbapbast as a')
             ->join('trhbast as b', function ($join) {
-                $join->on('a.nomorpesanan', '=', 'b.nomorpesanan');
                 $join->on('a.nomorbapbast', '=', 'b.nomorbapbast');
                 $join->on('a.kodeskpd', '=', 'b.kodeskpd');
                 $join->on('a.idkontrak', '=', 'b.idkontrak');
                 $join->on('a.nomorkontrak', '=', 'b.nomorkontrak');
             })
             ->select('a.*')
-            ->where(['b.nomorpesanan' => $nomorpesanan, 'b.nomorbapbast' => $nomorbapbast, 'b.idkontrak' => $idkontrak, 'b.nomorkontrak' => $nomorkontrak, 'b.kodeskpd' => $kd_skpd])
+            ->where(['b.nomorbapbast' => $nomorbapbast, 'b.idkontrak' => $idkontrak, 'b.nomorkontrak' => $nomorkontrak, 'b.kodeskpd' => $kd_skpd])
             ->get();
 
         if ($status_anggaran == '0') {
@@ -309,6 +317,20 @@ class BastController extends Controller
                 ], 400);
             }
 
+            $cekStatusKontrak = $this->sisaKontrak($data['no_kontrak'], $data['id_kontrak'], $data['nomorBastTersimpan'], 'edit');
+
+            if ((floatval($cekStatusKontrak) === floatval($data['total_rincian_kontrak'])) && $data['status_kontrak'] != '1') {
+                return response()->json([
+                    'status' => false,
+                    'error' => 'Error, Status Kontrak harusnya Sudah Selesai, Silahkan ganti!',
+                ], 400);
+            } elseif ((floatval($cekStatusKontrak) !== floatval($data['total_rincian_kontrak'])) && $data['status_kontrak'] != '2') {
+                return response()->json([
+                    'status' => false,
+                    'error' => 'Error, Status Kontrak harusnya Belum Selesai, Silahkan ganti!',
+                ], 400);
+            }
+
             DB::table('trhbast')
                 ->where([
                     'nomorbapbast' => $data['nomorBastTersimpan'],
@@ -317,8 +339,6 @@ class BastController extends Controller
                     'nomorkontrak' => $data['no_kontrak']
                 ])
                 ->update([
-                    'nomorpesanan' => $data['no_pesanan'],
-                    'tanggalpesanan' => $data['tgl_pesanan'],
                     'nomorbapbast' => $nomor,
                     'tanggalbapbast' => $tanggal,
                     'statuspekerjaan' => strval($data['status_kontrak']),
@@ -368,7 +388,6 @@ class BastController extends Controller
                     'nomorbapbast' => $data['nomorBastTersimpan'],
                     'kodeskpd' => $data['kd_skpd'],
                     'nomorkontrak' => $data['no_kontrak'],
-                    'nomorpesanan' => $data['nomorPesananTersimpan']
                 ])
                 ->delete();
 
@@ -376,7 +395,6 @@ class BastController extends Controller
                 DB::table('trdbapbast')
                     ->insert(array_map(function ($value) use ($data, $nomor) {
                         return [
-                            'nomorpesanan' => $data['no_pesanan'],
                             'nomorbapbast' => $nomor,
                             'kodeskpd' => $data['kd_skpd'],
                             'kodesubkegiatan' => $value['kd_sub_kegiatan'],
@@ -423,7 +441,6 @@ class BastController extends Controller
     public function delete(Request $request)
     {
         $idkontrak = $request->idkontrak;
-        $nomorpesanan = $request->nomorpesanan;
         $nomorbapbast = $request->nomorbapbast;
         $kd_skpd = $request->kd_skpd;
 
@@ -434,7 +451,6 @@ class BastController extends Controller
                 ->where([
                     'idkontrak' => $idkontrak,
                     'kodeskpd' => $kd_skpd,
-                    'nomorpesanan' => $nomorpesanan,
                     'nomorbapbast' => $nomorbapbast
                 ])
                 ->delete();
@@ -443,7 +459,6 @@ class BastController extends Controller
                 ->where([
                     'idkontrak' => $idkontrak,
                     'kodeskpd' => $kd_skpd,
-                    'nomorpesanan' => $nomorpesanan,
                     'nomorbapbast' => $nomorbapbast
                 ])
                 ->delete();
@@ -501,9 +516,12 @@ class BastController extends Controller
                 ], 400);
             }
 
+            $sisaKontrak = $this->sisaKontrak($kontrak, $id_kontrak);
+
             return response()->json([
                 'status' => true,
-                'message' => 'Data berhasil ditambahkan'
+                'message' => 'Data berhasil ditambahkan',
+                'sisaKontrak' => $sisaKontrak
             ], 200);
         } catch (Exception $e) {
             return response()->json([
@@ -624,7 +642,6 @@ class BastController extends Controller
 
         $realisasiKontrak = DB::table('trdbapbast as a')
             ->join('trhbast as b', function ($join) {
-                $join->on('a.nomorpesanan', '=', 'b.nomorpesanan');
                 $join->on('a.nomorbapbast', '=', 'b.nomorbapbast');
                 $join->on('a.kodeskpd', '=', 'b.kodeskpd');
             })
@@ -699,5 +716,42 @@ class BastController extends Controller
         // PROTEKSI REALISASI TERHADAP ANGGARAN SAAT INI (AKHIR)
 
         return $message;
+    }
+
+    public function sisaKontrak($kontrak, $id_kontrak, $nomorBastTersimpan, $tipe)
+    {
+        $totalKontrak = DB::table('trdkontrak as a')
+            ->join('trhkontrak as b', function ($join) {
+                $join->on('a.idkontrak', '=', 'b.idkontrak');
+                $join->on('a.nomorkontrak', '=', 'b.nomorkontrak');
+                $join->on('a.kodeskpd', '=', 'b.kodeskpd');
+            })
+            ->where([
+                'b.kodeskpd' => Auth::user()->kd_skpd,
+                'b.nomorkontrak' => $kontrak,
+                'b.idkontrak' => $id_kontrak,
+            ])
+            ->selectRaw("ISNULL(SUM(a.nilai),0) as nilai")
+            ->first();
+
+        $realisasiKontrak = DB::table('trdbapbast as a')
+            ->join('trhbast as b', function ($join) {
+                $join->on('a.nomorbapbast', '=', 'b.nomorbapbast');
+                $join->on('a.kodeskpd', '=', 'b.kodeskpd');
+            })
+            ->where([
+                'b.kodeskpd' => Auth::user()->kd_skpd,
+                'b.idkontrak' => $id_kontrak,
+            ])
+            ->where(function ($query) use ($tipe, $nomorBastTersimpan) {
+                // Kalau EDIT, realisasi nomor BAP sendiri jangan di masukkin sebagai realisasi kontrak global
+                if ($tipe == 'edit') {
+                    $query->whereRaw("b.nomorbapbast not in (?)", [$nomorBastTersimpan]);
+                };
+            })
+            ->selectRaw("ISNULL(sum(a.nilai),0) as nilai")
+            ->first();
+
+        return $totalKontrak->nilai - $realisasiKontrak->nilai;
     }
 }

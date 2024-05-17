@@ -19,8 +19,6 @@
                 <table class="table align-middle mb-0" id="bast" style="width: 100%">
                     <thead class="table-light">
                         <tr>
-                            <th>Nomor <br>Pesanan</th>
-                            <th>Tanggal <br>Pesanan</th>
                             <th>Nomor <br>BAST</th>
                             <th>Tanggal <br>BAST</th>
                             <th>SKPD</th>
@@ -67,12 +65,6 @@
                 searching: true,
                 // ordering: false,
                 columns: [{
-                        data: 'nomorpesanan',
-                        name: 'nomorpesanan'
-                    }, {
-                        data: 'tanggalpesanan',
-                        name: 'tanggalpesanan'
-                    }, {
                         data: 'nomorbapbast',
                         name: 'nomorbapbast'
                     }, {

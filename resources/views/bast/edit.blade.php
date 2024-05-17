@@ -13,6 +13,34 @@
                 <div class="card-body">
                     <div class="row mb-3">
                         <div class="col-12">
+                            <label class="form-label">Kontrak</label>
+                            <select class="form-select select_option" id="kontrak">
+                                <option value="" disabled selected>Silahkan Pilih</option>
+                                @foreach ($daftar_kontrak_awal as $kontrak_awal)
+                                    <option value="{{ $kontrak_awal->nomorkontrak }}"
+                                        data-pekerjaan="{{ $kontrak_awal->pekerjaan }}"
+                                        data-rekanan="{{ $kontrak_awal->rekanan }}"
+                                        data-pimpinan="{{ $kontrak_awal->pimpinan }}"
+                                        data-kodeskpd="{{ $kontrak_awal->kodeskpd }}"
+                                        data-id_kontrak="{{ $kontrak_awal->idkontrak }}"
+                                        data-jns_ang="{{ $kontrak_awal->jns_ang }}"
+                                        data-realisasi_fisik_lalu="{{ $kontrak_awal->realisasi_fisik_lalu }}"
+                                        data-pihakketiga="{{ $kontrak_awal->pihakketiga }}"
+                                        data-namaperusahaan="{{ $kontrak_awal->namaperusahaan }}"
+                                        data-alamatperusahaan="{{ $kontrak_awal->alamatperusahaan }}"
+                                        data-tanggalawal="{{ $kontrak_awal->tanggalawal }}"
+                                        data-tanggalakhir="{{ $kontrak_awal->tanggalakhir }}"
+                                        data-ketentuansanksi="{{ $kontrak_awal->ketentuansanksi }}"
+                                        {{ $kontrak_awal->nomorkontrak == $dataBast->nomorkontrak ? 'selected' : '' }}>
+                                        {{ $kontrak_awal->nomorkontrak }}
+                                        | {{ $kontrak_awal->tanggalkontrak }} | {{ rupiah($kontrak_awal->nilaikontrak) }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-12">
                             <label class="form-label">Jenis</label>
                             <select class="form-select select_option" id="jenis_kontrak">
                                 <option value="" disabled selected>Silahkan Pilih</option>
@@ -31,7 +59,7 @@
                             </select>
                         </div>
                     </div>
-                    <div class="row mb-3">
+                    {{-- <div class="row mb-3">
                         <div class="col-6">
                             <label class="form-label">No. Pesanan</label>
                             <input class="form-control" type="text" id="no_pesanan"
@@ -42,7 +70,7 @@
                             <input class="form-control" type="date" id="tgl_pesanan"
                                 value="{{ $dataBast->tanggalpesanan }}">
                         </div>
-                    </div>
+                    </div> --}}
                     <div class="row mb-3" id="bast">
                         <div class="col-6">
                             <label class="form-label">No. BAST</label>
@@ -81,33 +109,11 @@
                     </div>
                     <div class="row mb-3">
                         <div class="col-12">
-                            <label class="form-label">Kontrak</label>
-                            <select class="form-select select_option" id="kontrak">
-                                <option value="" disabled selected>Silahkan Pilih</option>
-                                @foreach ($daftar_kontrak_awal as $kontrak_awal)
-                                    <option value="{{ $kontrak_awal->nomorkontrak }}"
-                                        data-pekerjaan="{{ $kontrak_awal->pekerjaan }}"
-                                        data-rekanan="{{ $kontrak_awal->rekanan }}"
-                                        data-pimpinan="{{ $kontrak_awal->pimpinan }}"
-                                        data-kodeskpd="{{ $kontrak_awal->kodeskpd }}"
-                                        data-id_kontrak="{{ $kontrak_awal->idkontrak }}"
-                                        data-jns_ang="{{ $kontrak_awal->jns_ang }}"
-                                        data-realisasi_fisik_lalu="{{ $kontrak_awal->realisasi_fisik_lalu }}"
-                                        {{ $kontrak_awal->nomorkontrak == $dataBast->nomorkontrak ? 'selected' : '' }}>
-                                        {{ $kontrak_awal->nomorkontrak }}
-                                        | {{ $kontrak_awal->tanggalkontrak }} | {{ rupiah($kontrak_awal->nilaikontrak) }}
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
-                    </div>
-                    <div class="row mb-3">
-                        <div class="col-12">
                             <label class="form-label">Nama Pekerjaan</label>
                             <textarea class="form-control" id="nm_kerja" placeholder="Isi dengan nama pekerjaan" readonly disabled></textarea>
                         </div>
                     </div>
-                    <div class="row mb-3">
+                    {{-- <div class="row mb-3">
                         <div class="col-12">
                             <label class="form-label">(Rekanan) Nama Pemilik Rekening</label>
                             <select class="form-select select_option" id="rekanan">
@@ -147,6 +153,40 @@
                             <label class="form-label">Nama Bank</label>
                             <input class="form-control" type="text" id="nm_bank" readonly disabled>
                         </div>
+                    </div> --}}
+                    <div class="row mb-3">
+                        <div class="col-6">
+                            <label class="form-label">Nama Pihak Ketiga</label>
+                            <input class="form-control" type="text" id="pihak_ketiga"
+                                placeholder="Isi dengan nama pihak ketiga" readonly disabled>
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label">Nama Perusahaan</label>
+                            <input class="form-control" type="text" id="nama_perusahaan"
+                                placeholder="Isi dengan nama perusahaan" readonly disabled>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-12">
+                            <label class="form-label">Alamat Perusahaan</label>
+                            <textarea class="form-control" id="alamat_perusahaan" placeholder="Isi dengan alamat perusahaan" readonly disabled></textarea>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-6">
+                            <label class="form-label">Tanggal Awal</label>
+                            <input class="form-control" type="date" id="tanggal_awal" readonly disabled>
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label">Tanggal Akhir</label>
+                            <input class="form-control" type="date" id="tanggal_akhir" readonly disabled>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-12">
+                            <label class="form-label">Ketentuan Sanksi</label>
+                            <textarea class="form-control" id="sanksi" placeholder="Isi dengan ketentuan sanksi" readonly disabled></textarea>
+                        </div>
                     </div>
                     <div class="row mb-3">
                         <div class="col-12">
@@ -169,7 +209,7 @@
                         <div class="col-4">
                             <label class="form-label">Realisasi Fisik</label>
                             <input type="text" class="form-control kanan" id="realisasi_fisik"
-                                pattern="^\$\d{1,3}(,\d{3})*(\.\d+)?$" data-type="currency"
+                                pattern="^\$\d{1,3}(,\d{3})*(\.\d+)?$" data-type="currency" disabled readonly
                                 value="{{ $dataBast->realisasifisik }}">
                         </div>
                         <div class="col-4">
