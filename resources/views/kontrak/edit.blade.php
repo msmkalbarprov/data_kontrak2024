@@ -148,17 +148,25 @@
                     <div class="row mb-3">
                         <div class="col-6">
                             <label class="form-label">Tanggal Awal</label>
-                            <input class="form-control" type="date" id="tanggal_awal">
+                            <input class="form-control" type="date" id="tanggal_awal"
+                                value="{{ $kontrak->tanggalawal }}">
                         </div>
                         <div class="col-6">
                             <label class="form-label">Tanggal Akhir</label>
-                            <input class="form-control" type="date" id="tanggal_akhir">
+                            <input class="form-control" type="date" id="tanggal_akhir"
+                                value="{{ $kontrak->tanggalakhir }}">
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-12">
+                            <label class="form-label">Cara Pembayaran</label>
+                            <textarea class="form-control" id="pembayaran" placeholder="Isi dengan cara pembayaran">{{ $kontrak->carapembayaran }}</textarea>
                         </div>
                     </div>
                     <div class="row mb-3">
                         <div class="col-12">
                             <label class="form-label">Ketentuan Sanksi</label>
-                            <textarea class="form-control" id="sanksi" placeholder="Isi dengan ketentuan sanksi"></textarea>
+                            <textarea class="form-control" id="sanksi" placeholder="Isi dengan ketentuan sanksi">{{ $kontrak->ketentuansanksi }}</textarea>
                         </div>
                     </div>
                     <div class="mb-3 text-end">

@@ -466,6 +466,7 @@
             let tgl_kontrak = $('#tgl_kontrak').val();
             let kd_skpd = $('#kd_skpd').val();
             let nm_kerja = $('#nm_kerja').val();
+            let pembayaran = $('#pembayaran').val();
 
             // BACKUP JIKA REKANAN DIPAKAI KEMBALI
             // let rekanan = $('#rekanan').val();
@@ -592,6 +593,11 @@
                 return
             }
 
+            if (!pembayaran) {
+                swalAlert('Pembayaran harus diisi');
+                return
+            }
+
             if (!sanksi) {
                 swalAlert('Ketentuan sanksi harus diisi');
                 return
@@ -683,7 +689,8 @@
                 alamat_perusahaan,
                 tanggal_awal,
                 tanggal_akhir,
-                sanksi
+                sanksi,
+                pembayaran
             };
 
             Swal.fire({

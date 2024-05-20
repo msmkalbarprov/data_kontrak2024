@@ -196,6 +196,7 @@ class KontrakController extends Controller
                     'tanggalawal' => $data['tanggal_awal'],
                     'tanggalakhir' => $data['tanggal_akhir'],
                     'ketentuansanksi' => $data['sanksi'],
+                    'carapembayaran' => $data['pembayaran'],
                 ]);
 
             $data['kontrak'] = json_decode($data['kontrak'], true);
@@ -374,6 +375,7 @@ class KontrakController extends Controller
                     'tanggalawal' => $data['tanggal_awal'],
                     'tanggalakhir' => $data['tanggal_akhir'],
                     'ketentuansanksi' => $data['sanksi'],
+                    'carapembayaran' => $data['pembayaran'],
                 ]);
 
             $data['kontrak'] = json_decode($data['kontrak'], true);
