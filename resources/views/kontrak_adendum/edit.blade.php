@@ -166,6 +166,12 @@
                     </div>
                     <div class="row mb-3">
                         <div class="col-12">
+                            <label class="form-label">Cara Pembayaran</label>
+                            <textarea class="form-control" id="pembayaran" placeholder="Isi dengan cara pembayaran" readonly disabled>{{ $dataKontrak->carapembayaran }}</textarea>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-12">
                             <label class="form-label">Ketentuan Sanksi</label>
                             <textarea class="form-control" id="sanksi" placeholder="Isi dengan ketentuan sanksi" readonly disabled>{{ $dataKontrak->ketentuansanksi }}</textarea>
                         </div>

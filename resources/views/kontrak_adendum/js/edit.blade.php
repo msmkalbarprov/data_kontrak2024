@@ -464,6 +464,7 @@
             let tanggal_awal = $('#tanggal_awal').val();
             let tanggal_akhir = $('#tanggal_akhir').val();
             let sanksi = $('#sanksi').val();
+            let pembayaran = $('#pembayaran').val();
 
             let total_rincian_kontrak = rupiah($('#total_rincian_kontrak').val());
 
@@ -575,6 +576,11 @@
                 return
             }
 
+            if (!pembayaran) {
+                swalAlert('Cara pembayaran harus diisi');
+                return
+            }
+
             if (!sanksi) {
                 swalAlert('Ketentuan sanksi harus diisi');
                 return
@@ -677,7 +683,8 @@
                 alamat_perusahaan,
                 tanggal_awal,
                 tanggal_akhir,
-                sanksi
+                sanksi,
+                pembayaran
             };
 
             Swal.fire({

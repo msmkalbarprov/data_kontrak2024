@@ -40,6 +40,7 @@
                                         data-tanggalawal="{{ $kontrak_awal->tanggalawal }}"
                                         data-tanggalakhir="{{ $kontrak_awal->tanggalakhir }}"
                                         data-ketentuansanksi="{{ $kontrak_awal->ketentuansanksi }}"
+                                        data-carapembayaran="{{ $kontrak_awal->carapembayaran }}"
                                         data-tipe="{{ $kontrak_awal->tipe }}">
                                         {{ $kontrak_awal->nomorkontrak }}
                                         | {{ $kontrak_awal->tanggalkontrak }} | {{ rupiah($kontrak_awal->nilaikontrak) }}
@@ -175,6 +176,12 @@
                         <div class="col-6">
                             <label class="form-label">Tanggal Akhir</label>
                             <input class="form-control" type="date" id="tanggal_akhir" readonly disabled>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-12">
+                            <label class="form-label">Cara Pembayaran</label>
+                            <textarea class="form-control" id="pembayaran" placeholder="Isi dengan cara pembayaran" readonly disabled></textarea>
                         </div>
                     </div>
                     <div class="row mb-3">

@@ -190,6 +190,7 @@ class KontrakAdendumController extends Controller
                     'tanggalawal' => $dataKontrakLama->tanggalawal,
                     'tanggalakhir' => $dataKontrakLama->tanggalakhir,
                     'ketentuansanksi' => $dataKontrakLama->ketentuansanksi,
+                    'carapembayaran' => $dataKontrakLama->carapembayaran,
                 ]);
 
             $data['kontrak'] = json_decode($data['kontrak'], true);
@@ -414,13 +415,13 @@ class KontrakAdendumController extends Controller
             DB::commit();
             return response()->json([
                 'status' => true,
-                'message' => 'Data berhasil ditambahkan!'
+                'message' => 'Data berhasil diperbaharui!'
             ], 200);
         } catch (Exception $e) {
             DB::rollBack();
             return response()->json([
                 'status' => false,
-                'error' => 'Error, Data tidak berhasil ditambahkan!',
+                'error' => 'Error, Data tidak berhasil diperbaharui!',
                 'e' => $e->getMessage()
             ], 400);
         }
