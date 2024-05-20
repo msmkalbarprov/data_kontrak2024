@@ -22,7 +22,15 @@ class KontrakAdendumController extends Controller
 
     public function index()
     {
-        return view('kontrak_adendum.index');
+        $data = [
+            'dataTtd' => DB::connection('simakda')
+                ->table('ms_ttd')
+                ->where(['kd_skpd' => Auth::user()->kd_skpd])
+                ->whereIn('kode', ['PA', 'KPA'])
+                ->get()
+        ];
+
+        return view('kontrak_adendum.index')->with($data);
     }
 
     public function load(Request $request)
@@ -75,6 +83,8 @@ class KontrakAdendumController extends Controller
                 if ($cekKontrakAdendumSelanjutnya == 0 && $row->total_bast == 0) {
                     $btn .= '<a onclick="hapus(\'' . $row->idkontrak . '\',\'' . $row->nomorkontrak . '\',\'' . $row->nomorkontraklalu . '\',\'' . $row->kodeskpd . '\')" class="btn btn-sm btn-danger"><i class="fadeIn animated bx bx-trash"></i></a>';
                 }
+
+                $btn .= '<a onclick="cetak(\'' . $row->idkontrak . '\',\'' . $row->nomorkontrak . '\',\'' . $row->kodeskpd . '\')" class="btn btn-sm btn-success" style="margin:0px 4px"><i class="fadeIn animated bx bx-printer"></i></a>';
 
                 return $btn;
             })

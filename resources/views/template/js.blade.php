@@ -29,6 +29,11 @@
         width: "100%"
     });
 
+    $('.select_modal').select2({
+        dropdownParent: $('#modal_cetak .modal-content'),
+        theme: 'bootstrap-5'
+    });
+
     $("input[data-type='currency']").on({
         keyup: function() {
             formatCurrency($(this));
@@ -135,6 +140,50 @@
             title: "Oops...",
             text: message,
         });
+    }
+
+    $('.ringkasan').on('click', function() {
+        let no_kontrak = $('#no_kontrak').val();
+        let id_kontrak = $('#id_kontrak').val();
+        let kd_skpd = $('#kd_skpd').val();
+        let pptk = $('#pptk').val();
+        let tanggal_ttd = $('#tanggal_ttd').val();
+        let margin_atas = $('#margin_atas').val();
+        let margin_bawah = $('#margin_bawah').val();
+        let margin_kanan = $('#margin_kanan').val();
+        let margin_kiri = $('#margin_kiri').val();
+        let jenis_print = $(this).data("jenis");
+
+        if (!pptk) {
+            swalAlert('Silahkan pilih PPTK');
+            return
+        }
+
+        if (!tanggal_ttd) {
+            swalAlert('Silahkan isi tanggal ttd');
+            return
+        }
+
+        let url = new URL("{{ route('laporan_kontrak.cetak') }}");
+        let searchParams = url.searchParams;
+        searchParams.append("no_kontrak", no_kontrak);
+        searchParams.append("id_kontrak", id_kontrak);
+        searchParams.append("kd_skpd", kd_skpd);
+        searchParams.append("pptk", pptk);
+        searchParams.append("tanggal_ttd", tanggal_ttd);
+        searchParams.append("margin_atas", margin_atas);
+        searchParams.append("margin_bawah", margin_bawah);
+        searchParams.append("margin_kanan", margin_kanan);
+        searchParams.append("margin_kiri", margin_kiri);
+        searchParams.append("jenis_print", jenis_print);
+        window.open(url.toString(), "_blank");
+    });
+
+    function cetak(id, nomorkontrak, kd_skpd) {
+        $('#no_kontrak').val(nomorkontrak);
+        $('#id_kontrak').val(id);
+        $('#kd_skpd').val(kd_skpd);
+        $('#modal_cetak').modal('show');
     }
 
     function trim(n) {

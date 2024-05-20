@@ -99,6 +99,28 @@ function sub_menu()
     return $hak_akses;
 }
 
+function namaProgram($kd_program)
+{
+    $data = DB::connection('simakda')
+        ->table('ms_program')
+        ->where(['kd_program' => $kd_program])
+        ->first()
+        ->nm_program;
+
+    return $data;
+}
+
+function namaKegiatan($kd_kegiatan)
+{
+    $data = DB::connection('simakda')
+        ->table('ms_kegiatan')
+        ->where(['kd_kegiatan' => $kd_kegiatan])
+        ->first()
+        ->nm_kegiatan;
+
+    return $data;
+}
+
 function namaSubKegiatan($kd_sub_kegiatan)
 {
     $data = DB::connection('simakda')
@@ -130,4 +152,41 @@ function namaSumber($sumber)
         ->nm_sumber_dana1;
 
     return $data;
+}
+
+function depan($number)
+{
+    $number = abs($number);
+    $nomor_depan = array("", "satu", "dua", "tiga", "empat", "lima", "enam", "tujuh", "delapan", "sembilan", "sepuluh", "sebelas");
+    $depans = "";
+
+    if ($number < 12) {
+        $depans = " " . $nomor_depan[$number];
+    } else if ($number < 20) {
+        $depans = depan($number - 10) . " belas";
+    } else if ($number < 100) {
+        $depans = depan($number / 10) . " puluh " . depan(fmod($number, 10));
+    } else if ($number < 200) {
+        $depans = "seratus " . depan($number - 100);
+    } else if ($number < 1000) {
+        $depans = depan($number / 100) . " ratus " . depan(fmod($number, 100));
+        //$depans = depan($number/100)." Ratus ".depan($number%100);
+    } else if ($number < 2000) {
+        $depans = "seribu " . depan($number - 1000);
+    } else if ($number < 1000000) {
+        $depans = depan($number / 1000) . " ribu " . depan(fmod($number, 1000));
+    } else if ($number < 1000000000) {
+        $depans = depan($number / 1000000) . " juta " . depan(fmod($number, 1000000));
+    } else if ($number < 1000000000000) {
+        $depans = depan($number / 1000000000) . " milyar " . depan(fmod($number, 1000000000));
+        //$depans = ($number/1000000000)." Milyar ".(fmod($number,1000000000))."------".$number;
+
+    } else if ($number < 1000000000000000) {
+        $depans = depan($number / 1000000000000) . " triliun " . depan(fmod($number, 1000000000000));
+        //$depans = ($number/1000000000)." Milyar ".(fmod($number,1000000000))."------".$number;
+
+    } else {
+        $depans = "Undefined";
+    }
+    return $depans;
 }

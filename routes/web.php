@@ -4,6 +4,7 @@ use App\Http\Controllers\BastController;
 use App\Http\Controllers\DataController;
 use App\Http\Controllers\KontrakAdendumController;
 use App\Http\Controllers\KontrakController;
+use App\Http\Controllers\LaporanKontrakController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RoleController;
@@ -94,6 +95,9 @@ Route::middleware('auth')->group(function () {
     Route::post('barang_bast', [DataController::class, 'barangBast'])->name('barang_bast');
     Route::post('sumber_bast', [DataController::class, 'sumberBast'])->name('sumber_bast');
     Route::post('realisasi_bast', [DataController::class, 'realisasiBast'])->name('realisasi_bast');
+
+    // LAPORAN KONTRAK
+    Route::get('laporan_kontrak', [LaporanKontrakController::class, 'cetak'])->name('laporan_kontrak.cetak');
 });
 
 Route::get('/{any}', function () {

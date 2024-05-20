@@ -22,7 +22,15 @@ class KontrakController extends Controller
 
     public function index()
     {
-        return view('kontrak.index');
+        $data = [
+            'dataTtd' => DB::connection('simakda')
+                ->table('ms_ttd')
+                ->where(['kd_skpd' => Auth::user()->kd_skpd])
+                ->whereIn('kode', ['PA', 'KPA'])
+                ->get()
+        ];
+
+        return view('kontrak.index')->with($data);
     }
 
     public function load(Request $request)
@@ -65,11 +73,14 @@ class KontrakController extends Controller
 
         return DataTables::of($users)
             ->addColumn('aksi', function ($row) {
-                $btn = '<a href="' . route("kontrak.edit", ['id' => Crypt::encrypt($row->idkontrak), 'kd_skpd' => Crypt::encrypt($row->kodeskpd)]) . '" class="btn btn-sm btn-warning" style="margin-right:4px"><i class="fadeIn animated bx bx-edit"></i></a>';
+                $btn = '<a href="' . route("kontrak.edit", ['id' => Crypt::encrypt($row->idkontrak), 'kd_skpd' => Crypt::encrypt($row->kodeskpd)]) . '" class="btn btn-sm btn-warning" style="margin:0px 4px"><i class="fadeIn animated bx bx-edit"></i></a>';
 
                 if ($row->cekAdendum == 0 && $row->cekBast == 0) {
-                    $btn .= '<a onclick="hapus(\'' . $row->idkontrak . '\',\'' . $row->nomorkontrak . '\',\'' . $row->kodeskpd . '\')" class="btn btn-sm btn-danger"><i class="fadeIn animated bx bx-trash"></i></a>';
+                    $btn .= '<a onclick="hapus(\'' . $row->idkontrak . '\',\'' . $row->nomorkontrak . '\',\'' . $row->kodeskpd . '\')" class="btn btn-sm btn-danger" style="margin:0px 4px"><i class="fadeIn animated bx bx-trash"></i></a>';
                 }
+
+                $btn .= '<a onclick="cetak(\'' . $row->idkontrak . '\',\'' . $row->nomorkontrak . '\',\'' . $row->kodeskpd . '\')" class="btn btn-sm btn-success" style="margin:0px 4px"><i class="fadeIn animated bx bx-printer"></i></a>';
+
                 return $btn;
             })
             ->rawColumns(['aksi'])
@@ -92,7 +103,7 @@ class KontrakController extends Controller
 
         $tahun = $this->tahun;
 
-        $status_anggaran = 'M';
+        $status_anggaran = status_anggaran();
 
         if ($status_anggaran == '0') {
             return redirect()
