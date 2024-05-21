@@ -28,6 +28,7 @@
         $('#rekanan').prop('disabled', true)
         $('#jenis').prop('disabled', true)
         $('#tipe').prop('disabled', true)
+        $('#metode').prop('disabled', true)
 
         let tipe = "{{ $dataKontrak->tipe }}";
 

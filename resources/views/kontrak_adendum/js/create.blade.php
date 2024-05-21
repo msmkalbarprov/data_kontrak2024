@@ -23,6 +23,7 @@
         $('#rekanan').prop('disabled', true)
         $('#jenis').prop('disabled', true)
         $('#tipe').prop('disabled', true)
+        $('#metode').prop('disabled', true)
 
         $('.kontrak').hide();
         $('#pesanan').hide();
@@ -206,6 +207,7 @@
             let tanggalakhir = $(this).find(':selected').data('tanggalakhir');
             let ketentuansanksi = $(this).find(':selected').data('ketentuansanksi');
             let carapembayaran = $(this).find(':selected').data('carapembayaran');
+            let metodepengadaan = $(this).find(':selected').data('metodepengadaan');
 
             let tipeAnggaran = '';
 
@@ -246,6 +248,7 @@
             $('#tanggal_akhir').val(tanggalakhir);
             $('#sanksi').val(ketentuansanksi);
             $('#pembayaran').val(carapembayaran);
+            $('#metode').val(metodepengadaan).change();
 
             if (tipe == 1) {
                 $('.kontrak').show();

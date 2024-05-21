@@ -196,6 +196,7 @@ class KontrakAdendumController extends Controller
                     'tanggalakhir' => $dataKontrakLama->tanggalakhir,
                     'ketentuansanksi' => $dataKontrakLama->ketentuansanksi,
                     'carapembayaran' => $dataKontrakLama->carapembayaran,
+                    'metodepengadaan' => $dataKontrakLama->metodepengadaan,
                 ]);
 
             $data['kontrak'] = json_decode($data['kontrak'], true);

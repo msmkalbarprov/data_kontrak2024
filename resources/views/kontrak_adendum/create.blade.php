@@ -24,7 +24,7 @@
                         <div class="col-12">
                             <label class="form-label">Kontrak Awal</label>
                             <select class="form-select select_option" id="kontrak_awal">
-                                <option value="" selected>Silahkan Pilih</option>
+                                <option value="" disabled selected>Silahkan Pilih</option>
                                 @foreach ($daftar_kontrak_awal as $kontrak_awal)
                                     <option value="{{ $kontrak_awal->nomorkontrak }}"
                                         data-pekerjaan="{{ $kontrak_awal->pekerjaan }}"
@@ -41,6 +41,7 @@
                                         data-tanggalakhir="{{ $kontrak_awal->tanggalakhir }}"
                                         data-ketentuansanksi="{{ $kontrak_awal->ketentuansanksi }}"
                                         data-carapembayaran="{{ $kontrak_awal->carapembayaran }}"
+                                        data-metodepengadaan="{{ $kontrak_awal->metodepengadaan }}"
                                         data-tipe="{{ $kontrak_awal->tipe }}">
                                         {{ $kontrak_awal->nomorkontrak }}
                                         | {{ $kontrak_awal->tanggalkontrak }} | {{ rupiah($kontrak_awal->nilaikontrak) }}
