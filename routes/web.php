@@ -97,7 +97,9 @@ Route::middleware('auth')->group(function () {
     Route::post('realisasi_bast', [DataController::class, 'realisasiBast'])->name('realisasi_bast');
 
     // LAPORAN KONTRAK
-    Route::get('laporan_kontrak', [LaporanKontrakController::class, 'cetak'])->name('laporan_kontrak.cetak');
+    Route::get('laporan-kontrak', [LaporanKontrakController::class, 'index'])->name('laporan_kontrak.index');
+    Route::get('pengadaan-kontrak', [LaporanKontrakController::class, 'cetakPengadaan'])->name('laporan_kontrak.pengadaan');
+    Route::get('ringkasan-kontrak', [LaporanKontrakController::class, 'cetakRingkasan'])->name('laporan_kontrak.ringkasan');
 });
 
 Route::get('/{any}', function () {

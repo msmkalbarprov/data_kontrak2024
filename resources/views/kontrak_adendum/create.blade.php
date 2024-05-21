@@ -180,6 +180,16 @@
                     </div>
                     <div class="row mb-3">
                         <div class="col-12">
+                            <label class="form-label">Metode Pengadaan</label>
+                            <select class="form-select select_option" id="metode">
+                                <option value="" selected disabled>Silahkan Pilih</option>
+                                <option value="1">Kontraktual</option>
+                                <option value="2">Swakelola</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-12">
                             <label class="form-label">Cara Pembayaran</label>
                             <textarea class="form-control" id="pembayaran" placeholder="Isi dengan cara pembayaran" readonly disabled></textarea>
                         </div>

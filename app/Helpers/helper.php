@@ -190,3 +190,74 @@ function depan($number)
     }
     return $depans;
 }
+
+function paguAnggaran($item)
+{
+    $data = DB::connection('simakda')
+        ->table('trdrka')
+        ->where(['jns_ang' => $item->jns_ang, 'kd_skpd' => $item->kodeskpd, 'kd_sub_kegiatan' => $item->kodesubkegiatan, 'kd_rek6' => $item->kodeakun])
+        ->first();
+
+    return $data->nilai;
+}
+
+function left($string, $count)
+{
+    return substr($string, 0, $count);
+}
+
+function right($value, $count)
+{
+    return substr($value, ($count * -1));
+}
+
+function dotrek($rek)
+{
+    $nrek = strlen($rek);
+    switch ($nrek) {
+        case 1:
+            $rek = left($rek, 1);
+            break;
+        case 2:
+            $rek = left($rek, 1) . '.' . substr($rek, 1, 1);
+            break;
+        case 4:
+            $rek = left($rek, 1) . '.' . substr($rek, 1, 1) . '.' . substr($rek, 2, 2);
+            break;
+        case 6:
+            $rek = left($rek, 1) . '.' . substr($rek, 1, 1) . '.' . substr($rek, 2, 2) . '.' . substr($rek, 4, 2);
+            break;
+        case 8:
+            $rek = left($rek, 1) . '.' . substr($rek, 1, 1) . '.' . substr($rek, 2, 2) . '.' . substr($rek, 4, 2) . '.' . substr($rek, 6, 2);
+            break;
+        case 12:
+            $rek = left($rek, 1) . '.' . substr($rek, 1, 1) . '.' . substr($rek, 2, 2) . '.' . substr($rek, 4, 2) . '.' . substr($rek, 6, 2) . '.' . substr($rek, 8, 4);
+            break;
+        default:
+            $rek = "";
+    }
+    return $rek;
+}
+
+function getTingkatanRekening($rekening)
+{
+    if (strlen($rekening) == 12) return '6';
+    if (strlen($rekening) == 8) return '5';
+    if (strlen($rekening) == 6) return '4';
+    if (strlen($rekening) == 4) return '3';
+    if (strlen($rekening) == 2) return '2';
+    if (strlen($rekening) == 1) return '1';
+}
+
+function setRekeningAkun($rekening)
+{
+    $connection = DB::connection('simakda');
+    $rek = getTingkatanRekening($rekening);
+
+    $rekening = $connection->table("simakda_2024.dbo.ms_rek$rek as rek")
+        ->select("rek.nm_rek$rek as nama")
+        ->where(["rek.kd_rek$rek" => $rekening])
+        ->first();
+
+    return $rekening->nama;
+}

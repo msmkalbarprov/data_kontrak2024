@@ -61,13 +61,25 @@
                         </div>
                     </div>
                     <div class="mb-3 row">
-                        <label class="col-md-2 col-form-label">PPTK</label>
+                        <label class="col-md-2 col-form-label">PA/KPA</label>
                         <div class="col-md-10">
-                            <select name="pptk" class="form-control select_modal" id="pptk">
+                            <select name="PA/KPA" class="form-control select_modal" id="pa_kpa">
                                 <option value="" selected disabled>Silahkan Pilih</option>
                                 @foreach ($dataTtd as $ttd)
                                     <option value="{{ $ttd->nip }}">
                                         {{ $ttd->nip }} | {{ $ttd->nama }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mb-3 row">
+                        <label class="col-md-2 col-form-label">PPK</label>
+                        <div class="col-md-10">
+                            <select name="ppk" class="form-control select_modal" id="ppk">
+                                <option value="" selected disabled>Silahkan Pilih</option>
+                                @foreach ($dataPpk as $ppk)
+                                    <option value="{{ $ppk->nip }}">
+                                        {{ $ppk->nip }} | {{ $ppk->nama }}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -92,17 +104,16 @@
                         </div>
                         <label for="" class="col-md-1 col-form-label">Bawah</label>
                         <div class="col-md-1">
-                            <input type="number" class="form-control" id="margin_bawah" name="margin_bawah" value="10">
+                            <input type="number" class="form-control" id="margin_bawah" name="margin_bawah"
+                                value="10">
                         </div>
                     </div>
-                    {{-- Pengantar, Ringkasan dan Format Permandagri 77 --}}
                     <div class="mb-3 row">
-                        <label for="pengantar" class="col-md-2 col-form-label">Pengantar</label>
+                        <label for="pengadaan" class="col-md-2 col-form-label">Pengadaan</label>
                         <div class="col-md-2">
-                            <button type="button" class="btn btn-danger btn-md pengantar_layar" data-jenis="pdf"
-                                name="pengantar_pdf">PDF</button>
-                            <button type="button" class="btn btn-dark btn-md pengantar_layar" data-jenis="layar"
-                                name="pengantar_layar">Layar</button>
+                            <button type="button" class="btn btn-danger btn-md pengadaan" data-jenis="pdf">PDF</button>
+                            <button type="button" class="btn btn-dark btn-md pengadaan"
+                                data-jenis="layar">Layar</button>
                         </div>
                         <label for="ringkasan" class="col-md-2 col-form-label">Ringkasan</label>
                         <div class="col-md-2">

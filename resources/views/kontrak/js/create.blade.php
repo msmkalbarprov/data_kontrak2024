@@ -467,6 +467,7 @@
             let kd_skpd = $('#kd_skpd').val();
             let nm_kerja = $('#nm_kerja').val();
             let pembayaran = $('#pembayaran').val();
+            let metode = $('#metode').val();
 
             // BACKUP JIKA REKANAN DIPAKAI KEMBALI
             // let rekanan = $('#rekanan').val();
@@ -593,6 +594,11 @@
                 return
             }
 
+            if (!metode) {
+                swalAlert('Metode harus diisi');
+                return
+            }
+
             if (!pembayaran) {
                 swalAlert('Pembayaran harus diisi');
                 return
@@ -690,7 +696,8 @@
                 tanggal_awal,
                 tanggal_akhir,
                 sanksi,
-                pembayaran
+                pembayaran,
+                metode
             };
 
             Swal.fire({
@@ -732,7 +739,7 @@
 
                             Swal.fire({
                                 title: "Error!",
-                                text: errors.error,
+                                html: errors.error,
                                 icon: "error"
                             });
                         },

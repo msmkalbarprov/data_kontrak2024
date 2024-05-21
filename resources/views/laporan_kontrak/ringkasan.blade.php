@@ -150,15 +150,15 @@
                             <td style="text-align: center">{{ $loop->iteration }}</td>
                             <td>{{ $item->uraianbarang }}</td>
                             <td style="text-align: center">{{ $volume }}</td>
-                            <td>Rp. {{ number_format($item->harga, 2) }}</td>
-                            <td>Rp. {{ number_format($item->nilai, 2) }}</td>
+                            <td style="text-align: right">{{ number_format($item->harga, 2) }}</td>
+                            <td style="text-align: right">{{ number_format($item->nilai, 2) }}</td>
                         </tr>
                     @endforeach
                     <tr>
                         <td></td>
                         <td colspan="3" style="text-align: center">Jumlah (termasuk Pajak PPn, PPh, Biaya lainnya)
                         </td>
-                        <td>Rp. {{ number_format($total, 2) }}</td>
+                        <td style="text-align: right">{{ number_format($total, 2) }}</td>
                     </tr>
                 </table>
             </td>

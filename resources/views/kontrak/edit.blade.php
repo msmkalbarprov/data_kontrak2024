@@ -159,6 +159,18 @@
                     </div>
                     <div class="row mb-3">
                         <div class="col-12">
+                            <label class="form-label">Metode Pengadaan</label>
+                            <select class="form-select select_option" id="metode">
+                                <option value="" selected disabled>Silahkan Pilih</option>
+                                <option value="1" {{ $kontrak->metodepengadaan == 1 ? 'selected' : '' }}>Kontraktual
+                                </option>
+                                <option value="2" {{ $kontrak->metodepengadaan == 2 ? 'selected' : '' }}>Swakelola
+                                </option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-12">
                             <label class="form-label">Cara Pembayaran</label>
                             <textarea class="form-control" id="pembayaran" placeholder="Isi dengan cara pembayaran">{{ $kontrak->carapembayaran }}</textarea>
                         </div>

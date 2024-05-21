@@ -61,9 +61,9 @@
                         </div>
                     </div>
                     <div class="mb-3 row">
-                        <label class="col-md-2 col-form-label">PPTK</label>
+                        <label class="col-md-2 col-form-label">PA/KPA</label>
                         <div class="col-md-10">
-                            <select name="pptk" class="form-control select_modal" id="pptk">
+                            <select name="pa_kpa" class="form-control select_modal" id="pa_kpa">
                                 <option value="" selected disabled>Silahkan Pilih</option>
                                 @foreach ($dataTtd as $ttd)
                                     <option value="{{ $ttd->nip }}">

@@ -465,7 +465,7 @@
             let tanggal_akhir = $('#tanggal_akhir').val();
             let sanksi = $('#sanksi').val();
             let pembayaran = $('#pembayaran').val();
-
+            let metode = $('#metode').val();
             let total_rincian_kontrak = rupiah($('#total_rincian_kontrak').val());
 
             let tahun_anggaran = "{{ $tahun }}";
@@ -573,6 +573,11 @@
 
             if (tanggal_awal > tanggal_akhir) {
                 swalAlert('Tanggal Awal tidak boleh lebih besar dari tanggal akhir');
+                return
+            }
+
+            if (!metode) {
+                swalAlert('Metode pengadaan harus diisi');
                 return
             }
 
@@ -684,7 +689,8 @@
                 tanggal_awal,
                 tanggal_akhir,
                 sanksi,
-                pembayaran
+                pembayaran,
+                metode
             };
 
             Swal.fire({

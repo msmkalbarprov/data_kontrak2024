@@ -485,6 +485,7 @@
             let kd_skpd = $('#kd_skpd').val();
             let nm_kerja = $('#nm_kerja').val();
             let pembayaran = $('#pembayaran').val();
+            let metode = $('#metode').val();
 
             // BACKUP JIKA REKANAN DIPAKAI KEMBALI
             // let rekanan = $('#rekanan').val();
@@ -610,11 +611,15 @@
                 return
             }
 
+            if (!metode) {
+                swalAlert('Metode pengadaan harus diisi');
+                return
+            }
+
             if (!pembayaran) {
                 swalAlert('Cara pembayaran harus diisi');
                 return
             }
-
 
             if (!sanksi) {
                 swalAlert('Ketentuan sanksi harus diisi');
@@ -713,7 +718,8 @@
                 tanggal_awal,
                 tanggal_akhir,
                 sanksi,
-                pembayaran
+                pembayaran,
+                metode
             };
 
             Swal.fire({

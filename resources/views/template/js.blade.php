@@ -142,11 +142,12 @@
         });
     }
 
-    $('.ringkasan').on('click', function() {
+    $('.pengadaan').on('click', function() {
         let no_kontrak = $('#no_kontrak').val();
         let id_kontrak = $('#id_kontrak').val();
         let kd_skpd = $('#kd_skpd').val();
-        let pptk = $('#pptk').val();
+        let pa_kpa = $('#pa_kpa').val();
+        let ppk = $('#ppk').val();
         let tanggal_ttd = $('#tanggal_ttd').val();
         let margin_atas = $('#margin_atas').val();
         let margin_bawah = $('#margin_bawah').val();
@@ -154,8 +155,13 @@
         let margin_kiri = $('#margin_kiri').val();
         let jenis_print = $(this).data("jenis");
 
-        if (!pptk) {
-            swalAlert('Silahkan pilih PPTK');
+        if (!pa_kpa) {
+            swalAlert('Silahkan pilih PA/KPA');
+            return
+        }
+
+        if (!ppk) {
+            swalAlert('Silahkan pilih PPK');
             return
         }
 
@@ -164,12 +170,50 @@
             return
         }
 
-        let url = new URL("{{ route('laporan_kontrak.cetak') }}");
+        let url = new URL("{{ route('laporan_kontrak.pengadaan') }}");
         let searchParams = url.searchParams;
         searchParams.append("no_kontrak", no_kontrak);
         searchParams.append("id_kontrak", id_kontrak);
         searchParams.append("kd_skpd", kd_skpd);
-        searchParams.append("pptk", pptk);
+        searchParams.append("pa_kpa", pa_kpa);
+        searchParams.append("ppk", ppk);
+        searchParams.append("tanggal_ttd", tanggal_ttd);
+        searchParams.append("margin_atas", margin_atas);
+        searchParams.append("margin_bawah", margin_bawah);
+        searchParams.append("margin_kanan", margin_kanan);
+        searchParams.append("margin_kiri", margin_kiri);
+        searchParams.append("jenis_print", jenis_print);
+        window.open(url.toString(), "_blank");
+    });
+
+    $('.ringkasan').on('click', function() {
+        let no_kontrak = $('#no_kontrak').val();
+        let id_kontrak = $('#id_kontrak').val();
+        let kd_skpd = $('#kd_skpd').val();
+        let pa_kpa = $('#pa_kpa').val();
+        let tanggal_ttd = $('#tanggal_ttd').val();
+        let margin_atas = $('#margin_atas').val();
+        let margin_bawah = $('#margin_bawah').val();
+        let margin_kanan = $('#margin_kanan').val();
+        let margin_kiri = $('#margin_kiri').val();
+        let jenis_print = $(this).data("jenis");
+
+        if (!pa_kpa) {
+            swalAlert('Silahkan pilih PA/KPA');
+            return
+        }
+
+        if (!tanggal_ttd) {
+            swalAlert('Silahkan isi tanggal ttd');
+            return
+        }
+
+        let url = new URL("{{ route('laporan_kontrak.ringkasan') }}");
+        let searchParams = url.searchParams;
+        searchParams.append("no_kontrak", no_kontrak);
+        searchParams.append("id_kontrak", id_kontrak);
+        searchParams.append("kd_skpd", kd_skpd);
+        searchParams.append("pa_kpa", pa_kpa);
         searchParams.append("tanggal_ttd", tanggal_ttd);
         searchParams.append("margin_atas", margin_atas);
         searchParams.append("margin_bawah", margin_bawah);

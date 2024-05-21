@@ -27,6 +27,11 @@ class KontrakAdendumController extends Controller
                 ->table('ms_ttd')
                 ->where(['kd_skpd' => Auth::user()->kd_skpd])
                 ->whereIn('kode', ['PA', 'KPA'])
+                ->get(),
+            'dataPpk' => DB::connection('simakda')
+                ->table('ms_ttd')
+                ->where(['kd_skpd' => Auth::user()->kd_skpd])
+                ->whereIn('kode', ['PPK'])
                 ->get()
         ];
 

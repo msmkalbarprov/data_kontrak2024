@@ -27,6 +27,11 @@ class KontrakController extends Controller
                 ->table('ms_ttd')
                 ->where(['kd_skpd' => Auth::user()->kd_skpd])
                 ->whereIn('kode', ['PA', 'KPA'])
+                ->get(),
+            'dataPpk' => DB::connection('simakda')
+                ->table('ms_ttd')
+                ->where(['kd_skpd' => Auth::user()->kd_skpd])
+                ->whereIn('kode', ['PPK'])
                 ->get()
         ];
 
@@ -103,7 +108,7 @@ class KontrakController extends Controller
 
         $tahun = $this->tahun;
 
-        $status_anggaran = status_anggaran();
+        $status_anggaran = 'M';
 
         if ($status_anggaran == '0') {
             return redirect()
@@ -197,6 +202,7 @@ class KontrakController extends Controller
                     'tanggalakhir' => $data['tanggal_akhir'],
                     'ketentuansanksi' => $data['sanksi'],
                     'carapembayaran' => $data['pembayaran'],
+                    'metodepengadaan' => $data['metode']
                 ]);
 
             $data['kontrak'] = json_decode($data['kontrak'], true);
@@ -376,6 +382,7 @@ class KontrakController extends Controller
                     'tanggalakhir' => $data['tanggal_akhir'],
                     'ketentuansanksi' => $data['sanksi'],
                     'carapembayaran' => $data['pembayaran'],
+                    'metodepengadaan' => $data['metode']
                 ]);
 
             $data['kontrak'] = json_decode($data['kontrak'], true);
