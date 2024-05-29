@@ -167,55 +167,94 @@
                     <tr>
                         <td></td>
                         <td></td>
+
                         @php
-                            $rincianDetail = DB::table('trdkontrak as a')
+                            $headerKontrak = DB::table('trhkontrak as b')
+                                ->selectRaw(
+                                    "b.*,(select isnull(nomorbapbast,'') from trhbast where b.nomorkontrak=nomorkontrak and b.kodeskpd=kodeskpd and jenis='2') as nomorbap,
+                                    (select isnull(tanggalbapbast,'') from trhbast where b.nomorkontrak=nomorkontrak and b.kodeskpd=kodeskpd and jenis='2')
+as tanggalbap,(select isnull(nomorbapbast,'') from trhbast where b.nomorkontrak=nomorkontrak and b.kodeskpd=kodeskpd and jenis!='2') as nomorbast,
+                                    (select isnull(tanggalbapbast,'') from trhbast where b.nomorkontrak=nomorkontrak and b.kodeskpd=kodeskpd and jenis!='2')
+as tanggalbast,(select isnull(realisasifisik,0) from trhbast where b.nomorkontrak=nomorkontrak and b.kodeskpd=kodeskpd) as realisasifisik",
+                                )
+                                ->where([
+                                    'idkontrak' => $item->idkontrak,
+                                    'nomorkontrak' => $item->nomorkontrak,
+                                ])
+                                ->first();
+
+                            $sumberDana = DB::table('trdkontrak as a')
                                 ->join('trhkontrak as b', function ($join) {
                                     $join->on('a.idkontrak', '=', 'b.idkontrak');
                                     $join->on('a.nomorkontrak', '=', 'b.nomorkontrak');
                                     $join->on('a.kodeskpd', '=', 'b.kodeskpd');
                                 })
-                                ->select(
-                                    'a.*',
-                                    'b.metodepengadaan',
-                                    'b.namaperusahaan',
-                                    'b.tanggalkontrak',
-                                    'b.tanggalawal',
-                                    'b.tanggalakhir',
-                                )
-                                ->selectRaw(
-                                    "(select isnull(nomorbapbast,'') from trhbast where b.nomorkontrak=nomorkontrak and b.kodeskpd=kodeskpd and jenis='2') as nomorbap,
-                                    (select isnull(tanggalbapbast,'') from trhbast where b.nomorkontrak=nomorkontrak and b.kodeskpd=kodeskpd and jenis='2')
-as tanggalbap,(select isnull(nomorbapbast,'') from trhbast where b.nomorkontrak=nomorkontrak and b.kodeskpd=kodeskpd and jenis!='2') as nomorbast,
-                                    (select isnull(tanggalbapbast,'') from trhbast where b.nomorkontrak=nomorkontrak and b.kodeskpd=kodeskpd and jenis!='2')
-as tanggalbast",
-                                )
+                                ->select('a.namasumberdana')
                                 ->where([
                                     'a.idkontrak' => $item->idkontrak,
                                     'a.nomorkontrak' => $item->nomorkontrak,
                                     'a.kodeskpd' => $item->kodeskpd,
                                     'a.kodesubkegiatan' => $item->kodesubkegiatan,
                                     'a.kodeakun' => $item->kodeakun,
-                                    'a.kodesumberdana' => $item->kodesumberdana,
-                                    'a.kodebarang' => $item->kodebarang,
-                                    'a.header' => $item->header,
-                                    'a.subheader' => $item->subheader,
+                                ])
+                                ->groupby('a.namasumberdana')
+                                ->get();
+
+                            $pagu = DB::connection('simakda')
+                                ->table('trdrka')
+                                ->where([
+                                    'kd_skpd' => $item->kodeskpd,
+                                    'kd_sub_kegiatan' => $item->kodesubkegiatan,
+                                    'kd_rek6' => $item->kodeakun,
+                                    'jns_ang' => $headerKontrak->jns_ang,
                                 ])
                                 ->first();
+
+                            $dataSp2d = DB::connection('simakda')
+                                ->table('trdspp as a')
+                                ->join('trhspp as b', function ($join) {
+                                    $join->on('a.no_spp', '=', 'b.no_spp');
+                                    $join->on('a.kd_skpd', '=', 'b.kd_skpd');
+                                })
+                                ->join('trhsp2d as c', function ($join) {
+                                    $join->on('b.no_spp', '=', 'c.no_spp');
+                                    $join->on('b.kd_skpd', '=', 'c.kd_skpd');
+                                })
+                                ->select('c.no_sp2d', 'c.tgl_sp2d')
+                                ->selectRaw('sum(a.nilai) as nilai')
+                                ->where([
+                                    'b.kontrak' => $headerKontrak->nomorkontrak,
+                                    'b.kd_skpd' => $headerKontrak->kodeskpd,
+                                    'a.kd_sub_kegiatan' => $item->kodesubkegiatan,
+                                    'a.kd_rek6' => $item->kodeakun,
+                                    'c.status_bud' => '1',
+                                ])
+                                ->groupby('c.no_sp2d', 'c.tgl_sp2d')
+                                ->get();
                         @endphp
-                        <td>{{ $rincianDetail->uraianbarang }}</td>
-                        <td>{{ $rincianDetail->namasumberdana }}</td>
-                        <td></td>
-                        <td>{{ $rincianDetail->metodepengadaan === '1' ? 'Kontraktual' : 'Swakelola' }}</td>
-                        <td>{{ $rincianDetail->namaperusahaan }}</td>
-                        <td>Nomor : {{ $rincianDetail->nomorkontrak }}</td>
+
+                        <td>{{ $headerKontrak->pekerjaan }}</td>
                         <td>
-                            {{ \Carbon\Carbon::parse($rincianDetail->tanggalkontrak)->locale('id')->isoformat('DD MMMM YYYY') }}
+                            @foreach ($sumberDana as $rincian)
+                                <ul>
+                                    <li>{{ $rincian->namasumberdana }}</li>
+                                </ul>
+                            @endforeach
                         </td>
-                        <td style="text-align: right">{{ number_format($rincianDetail->nilai, 2) }}</td>
+                        <td style="text-align: right">
+                            {{ number_format($pagu->nilai, 2) }}
+                        </td>
+                        <td>{{ $headerKontrak->metodepengadaan === '1' ? 'Kontraktual' : 'Swakelola' }}</td>
+                        <td>{{ $headerKontrak->namaperusahaan }}</td>
+                        <td>Nomor : {{ $headerKontrak->nomorkontrak }}</td>
+                        <td>
+                            {{ \Carbon\Carbon::parse($headerKontrak->tanggalkontrak)->locale('id')->isoformat('DD MMMM YYYY') }}
+                        </td>
+                        <td style="text-align: right">{{ number_format($item->nilai, 2) }}</td>
                         <td>
                             @php
-                                $tanggalakhir = \Carbon\Carbon::parse($rincianDetail->tanggalakhir);
-                                $tanggalawal = \Carbon\Carbon::parse($rincianDetail->tanggalawal);
+                                $tanggalakhir = \Carbon\Carbon::parse($headerKontrak->tanggalakhir);
+                                $tanggalawal = \Carbon\Carbon::parse($headerKontrak->tanggalawal);
                                 $jarak =
                                     $tanggalakhir->diffInDays($tanggalawal) === 0
                                         ? 1
@@ -224,28 +263,60 @@ as tanggalbast",
                             {{ $jarak }} hari kalender
                         </td>
                         <td>
-                            {{ \Carbon\Carbon::parse($rincianDetail->tanggalawal)->locale('id')->isoformat('DD MMMM YY') }}
+                            {{ \Carbon\Carbon::parse($headerKontrak->tanggalawal)->locale('id')->isoformat('DD MMMM YY') }}
                         </td>
                         <td>
-                            {{ \Carbon\Carbon::parse($rincianDetail->tanggalakhir)->locale('id')->isoformat('DD MMMM YY') }}
+                            {{ \Carbon\Carbon::parse($headerKontrak->tanggalakhir)->locale('id')->isoformat('DD MMMM YY') }}
                         </td>
                         <td style="text-align: center">
-                            100%
+                            100 %
                         </td>
-                        <td style="text-align: center"></td>
-                        <td style="text-align: center"></td>
-                        <td>{{ $rincianDetail->nomorbap }}</td>
-                        <td>{{ $rincianDetail->tanggalbap }}</td>
-                        <td>{{ $rincianDetail->nomorbast }}</td>
-                        <td>{{ $rincianDetail->tanggalbast }}</td>
+                        <td style="text-align: center">
+                            {{ $headerKontrak->realisasifisik == '' ? 0 : $headerKontrak->realisasifisik }} %
+                        </td>
+                        <td style="text-align: center">
+                            {{ 100 - $headerKontrak->realisasifisik }} %
+                        </td>
+                        <td>{{ $headerKontrak->nomorbap }}</td>
+                        <td>{{ $headerKontrak->tanggalbap }}</td>
+                        <td>{{ $headerKontrak->nomorbast }}</td>
+                        <td>{{ $headerKontrak->tanggalbast }}</td>
                         <td>pembayaran</td>
-                        <td>no sp2d</td>
-                        <td>tanggal sp2d</td>
-                        <td>nilai</td>
-                        <td>persentase</td>
-                        <td>sisa kontrak</td>
-                        <td>sisa pagu</td>
-                        <td>ket</td>
+                        @php
+                            $total_sp2d = 0;
+                        @endphp
+                        @forelse ($dataSp2d as $sp2d)
+                            @php
+                                $total_sp2d += $sp2d->nilai;
+                            @endphp
+                            <td>
+                                <ul>
+                                    <li>{{ $sp2d->no_sp2d }}</li>
+                                </ul>
+                            </td>
+                            <td>
+                                <ul>
+                                    <li>{{ $sp2d->tgl_sp2d }}</li>
+                                </ul>
+                            </td>
+                            <td>
+                                <ul>
+                                    <li>{{ $sp2d->nilai }}</li>
+                                </ul>
+                            </td>
+                        @empty
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        @endforelse
+                        <td>
+                            {{ $total_sp2d == 0 ? 0 : number_format(($total_sp2d / $item->nilai) * 100, 2) }} %
+                        </td>
+                        <td style="text-align: right">
+                            {{ number_format($item->nilai - $total_sp2d, 2) }}
+                        </td style="text-align: right">
+                        <td>{{ number_format($pagu->nilai - $total_sp2d, 2) }}</td>
+                        <td>Keterangan</td>
                     </tr>
                 @endif
             @endforeach

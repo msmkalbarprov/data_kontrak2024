@@ -172,11 +172,11 @@
                     <div class="row mb-3">
                         <div class="col-6">
                             <label class="form-label">Tanggal Awal</label>
-                            <input class="form-control" type="date" id="tanggal_awal" readonly disabled>
+                            <input class="form-control" type="date" id="tanggal_awal">
                         </div>
                         <div class="col-6">
                             <label class="form-label">Tanggal Akhir</label>
-                            <input class="form-control" type="date" id="tanggal_akhir" readonly disabled>
+                            <input class="form-control" type="date" id="tanggal_akhir">
                         </div>
                     </div>
                     <div class="row mb-3">

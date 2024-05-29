@@ -67,15 +67,15 @@ class LaporanKontrakController extends Controller
     {
         $kd_skpd = Auth::user()->kd_skpd;
 
-        $rincianKontrak = collect(DB::select("SELECT 1 as urut,left(a.kodeakun,4) as kodeakun,'' kodesubkegiatan,''kodesumberdana,''kodeskpd,''nomorkontrak,''idkontrak,''kodebarang,''header,''subheader from trdkontrak a inner join trhkontrak b on a.idkontrak=b.idkontrak and a.nomorkontrak=b.nomorkontrak and a.kodeskpd=b.kodeskpd where b.kodeskpd=? group by left(a.kodeakun,4)
+        $rincianKontrak = collect(DB::select("SELECT 1 as urut,left(a.kodeakun,4) as kodeakun,'' kodesubkegiatan,''kodesumberdana,''kodeskpd,''nomorkontrak,''idkontrak,''kodebarang,''header,''subheader,0 as nilai from trdkontrak a inner join trhkontrak b on a.idkontrak=b.idkontrak and a.nomorkontrak=b.nomorkontrak and a.kodeskpd=b.kodeskpd where b.kodeskpd=? group by left(a.kodeakun,4)
         UNION ALL
-        SELECT 2 as urut,left(a.kodeakun,6) as kodeakun,'' kodesubkegiatan,''kodesumberdana,''kodeskpd,''nomorkontrak,''idkontrak,''kodebarang,''header,''subheader from trdkontrak a inner join trhkontrak b on a.idkontrak=b.idkontrak and a.nomorkontrak=b.nomorkontrak and a.kodeskpd=b.kodeskpd where b.kodeskpd=? group by left(a.kodeakun,6)
+        SELECT 2 as urut,left(a.kodeakun,6) as kodeakun,'' kodesubkegiatan,''kodesumberdana,''kodeskpd,''nomorkontrak,''idkontrak,''kodebarang,''header,''subheader,0 as nilai from trdkontrak a inner join trhkontrak b on a.idkontrak=b.idkontrak and a.nomorkontrak=b.nomorkontrak and a.kodeskpd=b.kodeskpd where b.kodeskpd=? group by left(a.kodeakun,6)
         UNION ALL
-        SELECT 3 as urut,left(a.kodeakun,8) as kodeakun,'' kodesubkegiatan,''kodesumberdana,''kodeskpd,''nomorkontrak,''idkontrak,''kodebarang,''header,''subheader from trdkontrak a inner join trhkontrak b on a.idkontrak=b.idkontrak and a.nomorkontrak=b.nomorkontrak and a.kodeskpd=b.kodeskpd where b.kodeskpd=? group by left(a.kodeakun,8)
+        SELECT 3 as urut,left(a.kodeakun,8) as kodeakun,'' kodesubkegiatan,''kodesumberdana,''kodeskpd,''nomorkontrak,''idkontrak,''kodebarang,''header,''subheader,0 as nilai from trdkontrak a inner join trhkontrak b on a.idkontrak=b.idkontrak and a.nomorkontrak=b.nomorkontrak and a.kodeskpd=b.kodeskpd where b.kodeskpd=? group by left(a.kodeakun,8)
         UNION ALL
-        SELECT 4 as urut,a.kodeakun as kodeakun,'' kodesubkegiatan,''kodesumberdana,''kodeskpd,''nomorkontrak,''idkontrak,''kodebarang,''header,''subheader from trdkontrak a inner join trhkontrak b on a.idkontrak=b.idkontrak and a.nomorkontrak=b.nomorkontrak and a.kodeskpd=b.kodeskpd where b.kodeskpd=? group by a.kodeakun
+        SELECT 4 as urut,a.kodeakun as kodeakun,'' kodesubkegiatan,''kodesumberdana,''kodeskpd,''nomorkontrak,''idkontrak,''kodebarang,''header,''subheader,0 as nilai from trdkontrak a inner join trhkontrak b on a.idkontrak=b.idkontrak and a.nomorkontrak=b.nomorkontrak and a.kodeskpd=b.kodeskpd where b.kodeskpd=? group by a.kodeakun
         UNION ALL
-        SELECT 5 as urut,a.kodeakun as kodeakun,a.kodesubkegiatan,a.kodesumberdana,a.kodeskpd,b.nomorkontrak,b.idkontrak,a.kodebarang,a.header,a.subheader from trdkontrak a inner join trhkontrak b on a.idkontrak=b.idkontrak and a.nomorkontrak=b.nomorkontrak and a.kodeskpd=b.kodeskpd where b.kodeskpd=? ORDER BY kodeakun,urut", [$kd_skpd, $kd_skpd, $kd_skpd, $kd_skpd, $kd_skpd]));
+        SELECT 5 as urut,a.kodeakun as kodeakun,a.kodesubkegiatan,''kodesumberdana,a.kodeskpd,a.nomorkontrak,a.idkontrak,''kodebarang,''header,''subheader,sum(nilai) as nilai from trdkontrak a inner join trhkontrak b on a.idkontrak=b.idkontrak and a.nomorkontrak=b.nomorkontrak and a.kodeskpd=b.kodeskpd where b.kodeskpd=? group by a.nomorkontrak,a.idkontrak,a.kodeskpd,a.kodesubkegiatan,a.kodeakun ORDER BY kodeakun,urut", [$kd_skpd, $kd_skpd, $kd_skpd, $kd_skpd, $kd_skpd]));
 
         // dd($rincianKontrak);
         $data = [
