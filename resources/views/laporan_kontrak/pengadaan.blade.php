@@ -168,14 +168,17 @@
                         <td></td>
                         <td></td>
 
-                        @php
-                            $headerKontrak = DB::table('trhkontrak as b')
-                                ->selectRaw(
-                                    "b.*,(select isnull(nomorbapbast,'') from trhbast where b.nomorkontrak=nomorkontrak and b.kodeskpd=kodeskpd and jenis='2') as nomorbap,
+                        {{-- ,(select isnull(nomorbapbast,'') from trhbast where b.nomorkontrak=nomorkontrak and b.kodeskpd=kodeskpd and jenis='2') as nomorbap,
                                     (select isnull(tanggalbapbast,'') from trhbast where b.nomorkontrak=nomorkontrak and b.kodeskpd=kodeskpd and jenis='2')
 as tanggalbap,(select isnull(nomorbapbast,'') from trhbast where b.nomorkontrak=nomorkontrak and b.kodeskpd=kodeskpd and jenis!='2') as nomorbast,
                                     (select isnull(tanggalbapbast,'') from trhbast where b.nomorkontrak=nomorkontrak and b.kodeskpd=kodeskpd and jenis!='2')
-as tanggalbast,(select isnull(realisasifisik,0) from trhbast where b.nomorkontrak=nomorkontrak and b.kodeskpd=kodeskpd) as realisasifisik",
+as tanggalbast,(select isnull(realisasifisik,0) from trhbast where b.nomorkontrak=nomorkontrak and b.kodeskpd=kodeskpd) as realisasifisik --}}
+                        @php
+                            ini_set('max_execution_time', -1);
+                            $headerKontrak = DB::table('trhkontrak as b')
+                                ->selectRaw(
+                                    "b.*
+                                    ,(select SUM(realisasifisik) from trhbast where b.nomorkontrak=nomorkontrak and b.kodeskpd=kodeskpd) as realisasifisik",
                                 )
                                 ->where([
                                     'idkontrak' => $item->idkontrak,
@@ -231,6 +234,14 @@ as tanggalbast,(select isnull(realisasifisik,0) from trhbast where b.nomorkontra
                                 ])
                                 ->groupby('c.no_sp2d', 'c.tgl_sp2d')
                                 ->get();
+
+                            $dataBapBast = DB::table('trhbast')
+                                ->select('nomorbapbast', 'tanggalbapbast', 'jenis')
+                                ->where([
+                                    'idkontrak' => $item->idkontrak,
+                                    'nomorkontrak' => $item->nomorkontrak,
+                                ])
+                                ->get();
                         @endphp
 
                         <td>{{ $headerKontrak->pekerjaan }}</td>
@@ -277,10 +288,40 @@ as tanggalbast,(select isnull(realisasifisik,0) from trhbast where b.nomorkontra
                         <td style="text-align: center">
                             {{ 100 - $headerKontrak->realisasifisik }} %
                         </td>
-                        <td>{{ $headerKontrak->nomorbap }}</td>
+                        {{-- <td>{{ $headerKontrak->nomorbap }}</td>
                         <td>{{ $headerKontrak->tanggalbap }}</td>
                         <td>{{ $headerKontrak->nomorbast }}</td>
-                        <td>{{ $headerKontrak->tanggalbast }}</td>
+                        <td>{{ $headerKontrak->tanggalbast }}</td> --}}
+                        <td>
+                            @foreach ($dataBapBast as $bapBast)
+                                <ul>
+                                    <li>{{ $bapBast->nomorbapbast }}</li>
+                                </ul>
+                            @endforeach
+                        </td>
+                        <td>
+                            @foreach ($dataBapBast as $bapBast)
+                                <ul>
+                                    <li>{{ \Carbon\Carbon::parse($bapBast->tanggalbapbast)->locale('id')->isoformat('DD MMMM YY') }}
+                                    </li>
+                                </ul>
+                            @endforeach
+                        </td>
+                        <td>
+                            @foreach ($dataBapBast as $bapBast)
+                                <ul>
+                                    <li>{{ $bapBast->nomorbapbast }}</li>
+                                </ul>
+                            @endforeach
+                        </td>
+                        <td>
+                            @foreach ($dataBapBast as $bapBast)
+                                <ul>
+                                    <li>{{ \Carbon\Carbon::parse($bapBast->tanggalbapbast)->locale('id')->isoformat('DD MMMM YY') }}
+                                    </li>
+                                </ul>
+                            @endforeach
+                        </td>
                         <td>pembayaran</td>
                         @php
                             $total_sp2d = 0;
@@ -316,7 +357,7 @@ as tanggalbast,(select isnull(realisasifisik,0) from trhbast where b.nomorkontra
                             {{ number_format($item->nilai - $total_sp2d, 2) }}
                         </td style="text-align: right">
                         <td>{{ number_format($pagu->nilai - $total_sp2d, 2) }}</td>
-                        <td>Keterangan</td>
+                        <td></td>
                     </tr>
                 @endif
             @endforeach

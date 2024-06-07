@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Yajra\DataTables\Facades\DataTables;
 
 class BastController extends Controller
@@ -63,7 +64,13 @@ class BastController extends Controller
             ->addColumn('aksi', function ($row) {
                 $btn = '<a href="' . route("bast.edit", ['nomorbapbast' => Crypt::encrypt($row->nomorbapbast), 'kd_skpd' => Crypt::encrypt($row->kodeskpd), 'idkontrak' => Crypt::encrypt($row->idkontrak), 'nomorkontrak' => Crypt::encrypt($row->nomorkontrak)]) . '" class="btn btn-sm btn-warning" style="margin-right:4px"><i class="fadeIn animated bx bx-edit"></i></a>';
 
-                $btn .= '<a onclick="hapus(\'' . $row->nomorbapbast . '\',\'' . $row->idkontrak . '\',\'' . $row->nomorkontrak . '\',\'' . $row->kodeskpd . '\')" class="btn btn-sm btn-danger"><i class="fadeIn animated bx bx-trash"></i></a>';
+                // Sudah Penagihan/Belum (Bisa dibuat di variable $users pakai subquery, ini biar nyaman dibaca karena pakai multiple database)
+                $cekDataPenagihan = DB::connection('simakda')
+                    ->table('trhtagih')
+                    ->where(['nomorbapbast' => $row->nomorbapbast, 'kd_skpd' => $row->kodeskpd, 'idkontrak' => $row->idkontrak, 'kontrak' => $row->nomorkontrak])
+                    ->count();
+
+                $btn .= $cekDataPenagihan > 0 ? '' : '<a onclick="hapus(\'' . $row->nomorbapbast . '\',\'' . $row->idkontrak . '\',\'' . $row->nomorkontrak . '\',\'' . $row->kodeskpd . '\')" class="btn btn-sm btn-danger"><i class="fadeIn animated bx bx-trash"></i></a>';
 
                 return $btn;
             })
@@ -293,7 +300,12 @@ class BastController extends Controller
                 ->with('message', 'Anggaran belum disahkan, hubungi Anggaran!');;
         }
 
-        return view('bast.edit', compact('daftar_rekening', 'skpd', 'tahun', 'status_anggaran', 'daftar_kontrak_awal', 'dataBast', 'detailBast'));
+        $cekPenagihan = DB::connection('simakda')
+            ->table('trhtagih')
+            ->where(['nomorbapbast' => $nomorbapbast, 'kd_skpd' => $kd_skpd, 'idkontrak' => $idkontrak, 'kontrak' => $nomorkontrak])
+            ->count();
+
+        return view('bast.edit', compact('daftar_rekening', 'skpd', 'tahun', 'status_anggaran', 'daftar_kontrak_awal', 'dataBast', 'detailBast', 'cekPenagihan'));
     }
 
     public function update(Request $request)
@@ -443,6 +455,18 @@ class BastController extends Controller
         $idkontrak = $request->idkontrak;
         $nomorbapbast = $request->nomorbapbast;
         $kd_skpd = $request->kd_skpd;
+
+        $cekPenagihan = DB::connection('simakda')
+            ->table('trhtagih')
+            ->where(['nomorbapbast' => $nomorbapbast, 'kd_skpd' => $kd_skpd, 'idkontrak' => $idkontrak, 'kontrak' => $nomorkontrak])
+            ->count();
+
+        if ($cekPenagihan > 0) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Nomor BAP/BAST telah digunakan, Tidak dapat dihapus!'
+            ], 400);
+        }
 
         DB::beginTransaction();
 

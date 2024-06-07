@@ -225,7 +225,8 @@
                         </div>
                     </div>
                     <div class="mb-3 text-end">
-                        <button class="btn btn-primary" id="simpan">Simpan</button>
+                        <button class="btn btn-primary" id="simpan"
+                            {{ $cekPenagihan > 0 ? 'hidden' : '' }}>Simpan</button>
                         <a href="{{ route('bast.index') }}" class="btn btn-warning">Kembali</a>
                     </div>
                 </div>
@@ -234,7 +235,8 @@
             <div class="card">
                 <div class="card-header">
                     Rincian BAST
-                    <button class="btn btn-success btn-md float-end" id="tambah_rincian">Tambah</button>
+                    <button class="btn btn-success btn-md float-end" id="tambah_rincian"
+                        {{ $cekPenagihan > 0 ? 'hidden' : '' }}>Tambah</button>
                 </div>
                 <div class="card-body table-responsive">
                     <table class="table align-middle mb-0" id="rincian_kontrak" style="width: 100%">
@@ -284,7 +286,8 @@
                                         {{-- @if ($cekKontrakAdendum == 0 && $cekBast == 0) --}}
                                         <a href="javascript:void(0);"
                                             onclick="hapusRincian('{{ $detail->idtrdpo }}','{{ $detail->nilai }}')"
-                                            class="btn btn-danger btn-sm"><i class="fadeIn animated bx bx-trash"></i></a>
+                                            class="btn btn-danger btn-sm" {{ $cekPenagihan > 0 ? 'hidden' : '' }}><i
+                                                class="fadeIn animated bx bx-trash"></i></a>
                                         {{-- @endif --}}
                                     </td>
                                 </tr>
