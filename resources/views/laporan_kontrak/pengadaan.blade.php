@@ -295,30 +295,40 @@ as tanggalbast,(select isnull(realisasifisik,0) from trhbast where b.nomorkontra
                         <td>
                             @foreach ($dataBapBast as $bapBast)
                                 <ul>
-                                    <li>{{ $bapBast->nomorbapbast }}</li>
+                                    @if ($bapBast->jenis == 2)
+                                        <li>{{ $bapBast->nomorbapbast }}</li>
+                                    @endif
                                 </ul>
                             @endforeach
                         </td>
                         <td>
                             @foreach ($dataBapBast as $bapBast)
                                 <ul>
-                                    <li>{{ \Carbon\Carbon::parse($bapBast->tanggalbapbast)->locale('id')->isoformat('DD MMMM YY') }}
-                                    </li>
+                                    @if ($bapBast->jenis == 2)
+                                        <li>
+                                            {{ \Carbon\Carbon::parse($bapBast->tanggalbapbast)->locale('id')->isoformat('DD MMMM YY') }}
+                                        </li>
+                                    @endif
                                 </ul>
                             @endforeach
                         </td>
                         <td>
                             @foreach ($dataBapBast as $bapBast)
                                 <ul>
-                                    <li>{{ $bapBast->nomorbapbast }}</li>
+                                    @if ($bapBast->jenis != 2)
+                                        <li>{{ $bapBast->nomorbapbast }}</li>
+                                    @endif
                                 </ul>
                             @endforeach
                         </td>
                         <td>
                             @foreach ($dataBapBast as $bapBast)
                                 <ul>
-                                    <li>{{ \Carbon\Carbon::parse($bapBast->tanggalbapbast)->locale('id')->isoformat('DD MMMM YY') }}
-                                    </li>
+                                    @if ($bapBast->jenis != 2)
+                                        <li>
+                                            {{ \Carbon\Carbon::parse($bapBast->tanggalbapbast)->locale('id')->isoformat('DD MMMM YY') }}
+                                        </li>
+                                    @endif
                                 </ul>
                             @endforeach
                         </td>
