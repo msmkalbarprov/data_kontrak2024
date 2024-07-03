@@ -175,6 +175,10 @@
                                 <option value="2" {{ $dataKontrak->metodepengadaan == 2 ? 'selected' : '' }}>
                                     Swakelola
                                 </option>
+                                <option value="3" {{ $dataKontrak->metodepengadaan == 3 ? 'selected' : '' }}>
+                                    Pengadaan yang Dikecualikan</option>
+                                <option value="4" {{ $dataKontrak->metodepengadaan == 4 ? 'selected' : '' }}>
+                                    Pengadaan Dalam Keadaan Darurat</option>
                             </select>
                         </div>
                     </div>

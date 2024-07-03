@@ -145,8 +145,10 @@
                             <label class="form-label">Metode Pengadaan</label>
                             <select class="form-select select_option" id="metode">
                                 <option value="" selected disabled>Silahkan Pilih</option>
-                                <option value="1">Kontraktual</option>
+                                <option value="1">Melalui Penyedia (Tender, E Purchasing, Pengadaan Langsung)</option>
                                 <option value="2">Swakelola</option>
+                                <option value="3">Pengadaan yang Dikecualikan</option>
+                                <option value="4">Pengadaan Dalam Keadaan Darurat</option>
                             </select>
                         </div>
                     </div>

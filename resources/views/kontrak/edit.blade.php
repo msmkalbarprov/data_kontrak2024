@@ -162,10 +162,15 @@
                             <label class="form-label">Metode Pengadaan</label>
                             <select class="form-select select_option" id="metode">
                                 <option value="" selected disabled>Silahkan Pilih</option>
-                                <option value="1" {{ $kontrak->metodepengadaan == 1 ? 'selected' : '' }}>Kontraktual
+                                <option value="1" {{ $kontrak->metodepengadaan == 1 ? 'selected' : '' }}>Melalui
+                                    Penyedia (Tender, E Purchasing, Pengadaan Langsung)
                                 </option>
                                 <option value="2" {{ $kontrak->metodepengadaan == 2 ? 'selected' : '' }}>Swakelola
                                 </option>
+                                <option value="3" {{ $kontrak->metodepengadaan == 3 ? 'selected' : '' }}>Pengadaan
+                                    yang Dikecualikan</option>
+                                <option value="4" {{ $kontrak->metodepengadaan == 4 ? 'selected' : '' }}>Pengadaan
+                                    Dalam Keadaan Darurat</option>
                             </select>
                         </div>
                     </div>
