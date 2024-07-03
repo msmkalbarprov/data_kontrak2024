@@ -321,6 +321,8 @@
             let input_volume3 = angka($('#input_volume3').val());
             let input_volume4 = angka($('#input_volume4').val());
 
+            let harga_nego = angka($('#harga_nego').val());
+
             if (!kd_sub_kegiatan) {
                 swalAlert('Kegiatan tidak boleh kosong!');
                 return;
@@ -373,6 +375,16 @@
 
             if (volume3 < input_volume4) {
                 swalAlert('Input volume 4 melebihi volume 4');
+                return;
+            }
+
+            if (harga_nego == 0) {
+                swalAlert('Harga nego tidak boleh kosong!');
+                return;
+            }
+
+            if (harga < harga_nego) {
+                swalAlert('Harga nego melebihi harga pada DPA!');
                 return;
             }
 
@@ -440,6 +452,7 @@
                 input_volume2,
                 input_volume3,
                 input_volume4,
+                harga_nego
             };
 
             Swal.fire({
@@ -914,6 +927,7 @@
             $('#input_volume4').val(null)
 
             $('#harga').val(null)
+            $('#harga_nego').val(null)
             $('#total').val(null)
         }
 
@@ -927,7 +941,7 @@
                 return prev
             });
 
-            let total = volume * data.harga;
+            let total = volume * data.harga_nego;
 
             rincian_kontrak.row.add({
                 'id': data.id_po,
@@ -940,7 +954,7 @@
                 }).format(volume),
                 'harga': new Intl.NumberFormat('id-ID', {
                     minimumFractionDigits: 2
-                }).format(data.harga),
+                }).format(data.harga_nego),
                 'total': new Intl.NumberFormat('id-ID', {
                     minimumFractionDigits: 2
                 }).format(total),
@@ -976,7 +990,7 @@
                 'satuan4': data.satuan4,
                 'harga': new Intl.NumberFormat('id-ID', {
                     minimumFractionDigits: 2
-                }).format(data.harga),
+                }).format(data.harga_nego),
                 'total': new Intl.NumberFormat('id-ID', {
                     minimumFractionDigits: 2
                 }).format(total),

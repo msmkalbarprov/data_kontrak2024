@@ -93,7 +93,14 @@ return [
             // 'trust_server_certificate' => env('DB_TRUST_SERVER_CERTIFICATE', 'false'),
         ],
 
-
+        'simakda' => [
+            'driver' => 'sqlsrv',
+            'host' => '103.148.49.74',
+            'port' => '',
+            'database' => 'simakda_2024',
+            'username' => 'sa',
+            'password' => 'Server7m@kda',
+        ],
 
     ],
 

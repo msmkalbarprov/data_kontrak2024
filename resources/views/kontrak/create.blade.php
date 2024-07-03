@@ -152,8 +152,15 @@
                     </div>
                     <div class="row mb-3">
                         <div class="col-12">
+                            {{-- <label class="form-label">Cara Pembayaran</label>
+                            <textarea class="form-control" id="pembayaran" placeholder="Isi dengan cara pembayaran"></textarea> --}}
                             <label class="form-label">Cara Pembayaran</label>
-                            <textarea class="form-control" id="pembayaran" placeholder="Isi dengan cara pembayaran"></textarea>
+                            <select class="form-select select_option" id="pembayaran">
+                                <option value="" selected disabled>Silahkan Pilih</option>
+                                <option value="1">Sekaligus</option>
+                                <option value="2">Bertahap</option>
+                                <option value="3">Termin</option>
+                            </select>
                         </div>
                     </div>
                     <div class="row mb-3">
@@ -314,6 +321,14 @@
                         <div class="col-md-2">
                             <input class="form-control kanan" type="text" readonly disabled id="harga">
                         </div>
+                        <label class="form-label col-md-2">Harga Nego</label>
+                        <div class="col-md-2">
+                            <input type="text" class="form-control kanan" id="harga_nego"
+                                pattern="^\$\d{1,3}(,\d{3})*(\.\d+)?$" data-type="currency">
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <label class="form-label col-md-8"></label>
                         <label class="form-label col-md-2">Total Anggaran</label>
                         <div class="col-md-2">
                             <input class="form-control kanan" type="text" readonly disabled id="total">

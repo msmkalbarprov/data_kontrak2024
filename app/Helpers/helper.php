@@ -99,6 +99,17 @@ function sub_menu()
     return $hak_akses;
 }
 
+function namaSkpd($kd_skpd)
+{
+    $data = DB::connection('simakda')
+        ->table('ms_skpd')
+        ->where(['kd_skpd' => $kd_skpd])
+        ->first()
+        ->nm_skpd;
+
+    return $data;
+}
+
 function namaProgram($kd_program)
 {
     $data = DB::connection('simakda')

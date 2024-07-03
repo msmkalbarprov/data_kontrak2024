@@ -23,6 +23,14 @@
     integrity="sha512-FbWDiO6LEOsPMMxeEvwrJPNzc0cinzzC0cB/+I2NFlfBPFlZJ3JHSYJBtdK7PhMn0VQlCY1qxflEG+rplMwGUg=="
     crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
+<script src="https://cdn.amcharts.com/lib/5/index.js"></script>
+<script src="https://cdn.amcharts.com/lib/5/xy.js"></script>
+<script src="https://cdn.amcharts.com/lib/5/themes/Animated.js"></script>
+<script src="https://cdn.amcharts.com/lib/5/locales/de_DE.js"></script>
+<script src="https://cdn.amcharts.com/lib/5/geodata/germanyLow.js"></script>
+<script src="https://cdn.amcharts.com/lib/5/fonts/notosans-sc.js"></script>
+<script src="https://cdn.amcharts.com/lib/5/percent.js"></script>
+
 <script>
     $('.select_option').select2({
         theme: "bootstrap-5",

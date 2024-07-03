@@ -10,6 +10,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -27,9 +28,9 @@ Route::get('/', function () {
     return view('auth.login2');
 })->middleware('guest')->name('home');
 
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+Route::get('/dashboard', [DataController::class, 'indexDashboard'])->middleware(['auth', 'verified'])->name('dashboard');
+
+Route::post('dashboard_data', [DataController::class, 'dataDashboard'])->name('dashboard.data');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

@@ -40,7 +40,7 @@
         </tr>
         <tr>
             <td style="text-align: center">1.</td>
-            <td>Nama SKPD/Biro/UPTD</td>
+            <td>Nama SKPD/Unit SKPD</td>
             <td style="text-align: center">:</td>
             <td>{{ $dataKontrak->namaskpd }}</td>
         </tr>
@@ -67,7 +67,7 @@
         </tr>
         <tr>
             <td style="text-align: center">5.</td>
-            <td>Sub Kegiatan</td>
+            <td>Nama Sub Kegiatan</td>
             <td style="text-align: center">:</td>
             <td>{{ namaSubKegiatan($dataKegiatan->kodesubkegiatan) }}</td>
         </tr>
@@ -83,36 +83,44 @@
         </tr>
         <tr>
             <td style="text-align: center">7.</td>
-            <td>Nomor Surat Pesanan</td>
+            <td>Nomor dan Tanggal Surat Perjanjian Kerja/SPK/Pesanan/PKS/PO</td>
             <td style="text-align: center">:</td>
-            <td>{{ $dataKontrak->nomorpesanan }}</td>
+            <td>{{ $dataKontrak->nomorkontrak }},
+                {{ \Carbon\Carbon::parse($dataKontrak->tanggalkontrak)->locale('id')->isoFormat('DD MMMM YYYY') }}</td>
         </tr>
         <tr>
             <td style="text-align: center">8.</td>
-            <td>Nama Pihak Ketiga</td>
+            <td>Nomor dan Tanggal SPMK/SP</td>
+            <td style="text-align: center">:</td>
+            <td>{{ $dataKontrak->nomorpesanan }},
+                {{ \Carbon\Carbon::parse($dataKontrak->tanggalkontrak)->locale('id')->isoFormat('DD MMMM YYYY') }}</td>
+        </tr>
+        <tr>
+            <td style="text-align: center">9.</td>
+            <td>Nama Rekanan/Pihak Ketiga</td>
             <td style="text-align: center">:</td>
             <td>{{ $dataKontrak->pihakketiga }}</td>
         </tr>
         <tr>
-            <td style="text-align: center">9.</td>
+            <td style="text-align: center">10.</td>
             <td>Nama Perusahaan</td>
             <td style="text-align: center">:</td>
             <td>{{ $dataKontrak->namaperusahaan }}</td>
         </tr>
         <tr>
-            <td style="text-align: center">10.</td>
+            <td style="text-align: center">11.</td>
             <td>Alamat Perusahaan</td>
             <td style="text-align: center">:</td>
             <td>{{ $dataKontrak->alamatperusahaan }}</td>
         </tr>
         <tr>
-            <td style="text-align: center">11.</td>
+            <td style="text-align: center">12.</td>
             <td>Nilai Pekerjaan/Nilai SPK</td>
             <td style="text-align: center">:</td>
             <td>Rp. {{ number_format($dataKontrak->nilaikontrak, 2) }}</td>
         </tr>
         <tr>
-            <td style="text-align: center">12.</td>
+            <td style="text-align: center"></td>
             <td style="vertical-align: top">
                 Uraian/Volume Pekerjaan <br><br>
                 Pengadaan barang/jasa
@@ -167,7 +175,23 @@
             <td style="text-align: center">13.</td>
             <td>Cara Pembayaran</td>
             <td style="text-align: center">:</td>
-            <td>{{ $dataKontrak->carapembayaran }}</td>
+            <td>
+                @switch($dataKontrak->carapembayaran)
+                    @case('1')
+                        Sekaligus
+                    @break
+
+                    @case('2')
+                        Bertahap
+                    @break
+
+                    @case('3')
+                        Termin
+                    @break
+
+                    @default
+                @endswitch
+            </td>
         </tr>
         <tr>
             <td style="text-align: center">14.</td>
@@ -193,12 +217,18 @@
         </tr>
         <tr>
             <td style="text-align: center">16.</td>
-            <td>Jangka waktu pemeliharaan</td>
+            <td>Tanggal penyelesaian pekerjaan</td>
             <td style="text-align: center">:</td>
-            <td>-</td>
+            <td>{{ \Carbon\Carbon::parse($dataKontrak->tanggalakhir)->locale('id')->isoformat('DD MMMM Y') }}</td>
         </tr>
         <tr>
             <td style="text-align: center">17.</td>
+            <td>Jangka waktu pemeliharaan</td>
+            <td style="text-align: center">:</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td style="text-align: center">18.</td>
             <td>Ketentuan sanksi</td>
             <td style="text-align: center">:</td>
             <td>{{ $dataKontrak->ketentuansanksi }}</td>

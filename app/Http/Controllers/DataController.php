@@ -16,6 +16,107 @@ class DataController extends Controller
         $this->connection = DB::connection('simakda');
     }
 
+    public function indexDashboard()
+    {
+        $jumlahKontrak = DB::table('trhkontrak')->count();
+
+        $totalKontrak1 = DB::table('trdkontrak as a')
+            ->join('trhkontrak as b', function ($join) {
+                $join->on('a.idkontrak', '=', 'b.idkontrak');
+                $join->on('a.nomorkontrak', '=', 'b.nomorkontrak');
+                $join->on('a.kodeskpd', '=', 'b.kodeskpd');
+            })
+            ->selectRaw("
+                CASE WHEN jenisspp = 1 THEN sum(a.nilai) END AS up_gu,
+                CASE WHEN jenisspp = 5 THEN sum(a.nilai) END AS ls
+            ")
+            ->groupBy('jenisspp');
+
+        $totalKontrak = DB::table(DB::raw("({$totalKontrak1->toSql()}) AS sub"))
+            ->selectRaw("sum(up_gu) as up_gu,sum(ls) as ls")
+            ->mergeBindings($totalKontrak1)
+            ->first();
+
+        $totalBapBast = DB::table('trdbapbast as a')
+            ->join('trhbast as b', function ($join) {
+                $join->on('a.nomorbapbast', '=', 'b.nomorbapbast');
+                $join->on('a.kodeskpd', '=', 'b.kodeskpd');
+            })
+            ->selectRaw("ISNULL(sum(a.nilai),0) as nilai")
+            ->first()
+            ->nilai;
+
+        $skpd = Auth::user()->kd_skpd;
+
+        return view('dashboard', compact('jumlahKontrak', 'totalKontrak', 'totalBapBast', 'skpd'));
+    }
+    public function dataDashboard(Request $request)
+    {
+        $kontrak1 = DB::table('trhkontrak')
+            ->selectRaw("
+                CASE WHEN MONTH(tanggalkontrak) = 1 THEN COUNT(*) ELSE 0 END AS jan,
+                CASE WHEN MONTH(tanggalkontrak) = 2 THEN COUNT(*) ELSE 0 END AS feb,
+                CASE WHEN MONTH(tanggalkontrak) = 3 THEN COUNT(*) ELSE 0 END AS mar,
+                CASE WHEN MONTH(tanggalkontrak) = 4 THEN COUNT(*) ELSE 0 END AS apr,
+                CASE WHEN MONTH(tanggalkontrak) = 5 THEN COUNT(*) ELSE 0 END AS mei,
+                CASE WHEN MONTH(tanggalkontrak) = 6 THEN COUNT(*) ELSE 0 END AS jun,
+                CASE WHEN MONTH(tanggalkontrak) = 7 THEN COUNT(*) ELSE 0 END AS jul,
+                CASE WHEN MONTH(tanggalkontrak) = 8 THEN COUNT(*) ELSE 0 END AS agu,
+                CASE WHEN MONTH(tanggalkontrak) = 9 THEN COUNT(*) ELSE 0 END AS sep,
+                CASE WHEN MONTH(tanggalkontrak) = 10 THEN COUNT(*) ELSE 0 END AS okt,
+                CASE WHEN MONTH(tanggalkontrak) = 11 THEN COUNT(*) ELSE 0 END AS nov,
+                CASE WHEN MONTH(tanggalkontrak) = 12 THEN COUNT(*) ELSE 0 END AS des
+            ")
+            ->groupBy('idkontrak', 'nomorkontrak', 'tanggalkontrak');
+
+        $kontrak = DB::table(DB::raw("({$kontrak1->toSql()}) AS sub"))
+            ->selectRaw("sum(jan) as jan,sum(feb) as feb,sum(mar) as mar,sum(apr) as apr,sum(mei) as mei,sum(jun) as jun,sum(jul) as jul,sum(agu) as agu,sum(sep) as sep,sum(okt) as okt,sum(nov) as nov,sum(des) as des")
+            ->mergeBindings($kontrak1)
+            ->get()->toArray();
+
+
+        $bap1 = DB::table('trhbast')
+            ->selectRaw("
+                CASE WHEN MONTH(tanggalbapbast) = 1 THEN COUNT(*) ELSE 0 END AS jan,
+                CASE WHEN MONTH(tanggalbapbast) = 2 THEN COUNT(*) ELSE 0 END AS feb,
+                CASE WHEN MONTH(tanggalbapbast) = 3 THEN COUNT(*) ELSE 0 END AS mar,
+                CASE WHEN MONTH(tanggalbapbast) = 4 THEN COUNT(*) ELSE 0 END AS apr,
+                CASE WHEN MONTH(tanggalbapbast) = 5 THEN COUNT(*) ELSE 0 END AS mei,
+                CASE WHEN MONTH(tanggalbapbast) = 6 THEN COUNT(*) ELSE 0 END AS jun,
+                CASE WHEN MONTH(tanggalbapbast) = 7 THEN COUNT(*) ELSE 0 END AS jul,
+                CASE WHEN MONTH(tanggalbapbast) = 8 THEN COUNT(*) ELSE 0 END AS agu,
+                CASE WHEN MONTH(tanggalbapbast) = 9 THEN COUNT(*) ELSE 0 END AS sep,
+                CASE WHEN MONTH(tanggalbapbast) = 10 THEN COUNT(*) ELSE 0 END AS okt,
+                CASE WHEN MONTH(tanggalbapbast) = 11 THEN COUNT(*) ELSE 0 END AS nov,
+                CASE WHEN MONTH(tanggalbapbast) = 12 THEN COUNT(*) ELSE 0 END AS des
+            ")
+            ->groupBy('idkontrak', 'nomorbapbast', 'tanggalbapbast');
+
+        $bap = DB::table(DB::raw("({$bap1->toSql()}) AS sub"))
+            ->selectRaw("sum(jan) as jan,sum(feb) as feb,sum(mar) as mar,sum(apr) as apr,sum(mei) as mei,sum(jun) as jun,sum(jul) as jul,sum(agu) as agu,sum(sep) as sep,sum(okt) as okt,sum(nov) as nov,sum(des) as des")
+            ->mergeBindings($bap1)
+            ->get()->toArray();
+
+        // Untuk DONUT CHART
+        $kontrak3 = DB::table('trhkontrak')
+            ->selectRaw("
+                CASE WHEN jenisspp = 1 THEN COUNT(*) ELSE 0 END AS up_gu,
+                CASE WHEN jenisspp = 5 THEN COUNT(*) ELSE 0 END AS ls
+            ")
+            ->groupBy('jenisspp');
+
+        $rincianKontrak = DB::table(DB::raw("({$kontrak3->toSql()}) AS sub"))
+            ->selectRaw("sum(up_gu) as up_gu,sum(ls) as ls")
+            ->mergeBindings($kontrak3)
+            ->get()->toArray();
+
+        return response()->json([
+            'dataKontrak' => $kontrak,
+            'dataBap' => $bap,
+            'rincianKontrak' => $rincianKontrak
+        ]);
+    }
+
     // Status Anggaran
     public function statusAnggaran()
     {

@@ -540,7 +540,7 @@ class BastController extends Controller
                 ], 400);
             }
 
-            $sisaKontrak = $this->sisaKontrak($kontrak, $id_kontrak);
+            $sisaKontrak = $this->sisaKontrak($kontrak, $id_kontrak, '', 'tambah');
 
             return response()->json([
                 'status' => true,

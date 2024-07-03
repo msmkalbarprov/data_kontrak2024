@@ -23,7 +23,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&amp;display=swap" rel="stylesheet">
     <link href="{{ asset('template/assets/css/app.css') }}" rel="stylesheet">
     <link href="{{ asset('template/assets/css/icons.css') }}" rel="stylesheet">
-    <title>Rocker - Bootstrap 5 Admin Dashboard Template</title>
+    <title>Data Kontrak</title>
 </head>
 
 <body class="">
@@ -54,8 +54,8 @@
                                             alt="">
                                     </div>
                                     <div class="text-center mb-4">
-                                        <h5 class="">Rocker Admin</h5>
-                                        <p class="mb-0">Please fill the below details to create your account</p>
+                                        <h5 class="">Data Kontrak</h5>
+                                        <p class="mb-0">Silahkan isi <i>username</i> dan <i>password</i> Anda</p>
                                     </div>
                                     <div class="form-body">
                                         <form method="POST" class="row g-3" action="{{ route('login') }}">
