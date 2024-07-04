@@ -108,7 +108,7 @@ class KontrakController extends Controller
 
         $tahun = $this->tahun;
 
-        $status_anggaran = 'M';
+        $status_anggaran = status_anggaran();
 
         if ($status_anggaran == '0') {
             return redirect()
@@ -534,7 +534,7 @@ class KontrakController extends Controller
 
             $realisasiKontrak = DB::table('trdbapbast as a')
                 ->join('trhbast as b', function ($join) {
-                    $join->on('a.nomorpesanan', '=', 'b.nomorpesanan');
+                    // $join->on('a.nomorpesanan', '=', 'b.nomorpesanan');
                     $join->on('a.nomorbapbast', '=', 'b.nomorbapbast');
                     $join->on('a.kodeskpd', '=', 'b.kodeskpd');
                 })

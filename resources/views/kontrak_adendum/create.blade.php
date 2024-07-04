@@ -27,9 +27,8 @@
                                 <option value="" disabled selected>Silahkan Pilih</option>
                                 @foreach ($daftar_kontrak_awal as $kontrak_awal)
                                     <option value="{{ $kontrak_awal->nomorkontrak }}"
-                                        data-pekerjaan="{{ $kontrak_awal->pekerjaan }}"
-                                        data-rekanan="{{ $kontrak_awal->rekanan }}"
-                                        data-pimpinan="{{ $kontrak_awal->pimpinan }}"
+                                        data-pekerjaan="{{ $kontrak_awal->pekerjaan }}" {{-- data-rekanan="{{ $kontrak_awal->rekanan }}"
+                                        data-pimpinan="{{ $kontrak_awal->pimpinan }}" --}}
                                         data-kodeskpd="{{ $kontrak_awal->kodeskpd }}"
                                         data-idkontrak="{{ $kontrak_awal->idkontrak }}"
                                         data-jns_ang="{{ $kontrak_awal->jns_ang }}"
@@ -184,8 +183,10 @@
                             <label class="form-label">Metode Pengadaan</label>
                             <select class="form-select select_option" id="metode">
                                 <option value="" selected disabled>Silahkan Pilih</option>
-                                <option value="1">Kontraktual</option>
+                                <option value="1">Melalui Penyedia (Tender, E Purchasing, Pengadaan Langsung)</option>
                                 <option value="2">Swakelola</option>
+                                <option value="3">Pengadaan yang Dikecualikan</option>
+                                <option value="4">Pengadaan Dalam Keadaan Darurat</option>
                             </select>
                         </div>
                     </div>
@@ -196,10 +197,9 @@
                             <label class="form-label">Cara Pembayaran</label>
                             <select class="form-select select_option" id="pembayaran">
                                 <option value="" selected disabled>Silahkan Pilih</option>
-                                <option value="1">Melalui Penyedia (Tender, E Purchasing, Pengadaan Langsung)</option>
-                                <option value="2">Swakelola</option>
-                                <option value="3">Pengadaan yang Dikecualikan</option>
-                                <option value="4">Pengadaan Dalam Keadaan Darurat</option>
+                                <option value="1">Sekaligus</option>
+                                <option value="2">Bertahap</option>
+                                <option value="3">Termin</option>
                             </select>
                         </div>
                     </div>

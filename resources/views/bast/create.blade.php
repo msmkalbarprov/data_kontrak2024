@@ -18,9 +18,8 @@
                                 <option value="" disabled selected>Silahkan Pilih</option>
                                 @foreach ($daftar_kontrak_awal as $kontrak_awal)
                                     <option value="{{ $kontrak_awal->nomorkontrak }}"
-                                        data-pekerjaan="{{ $kontrak_awal->pekerjaan }}"
-                                        data-rekanan="{{ $kontrak_awal->rekanan }}"
-                                        data-pimpinan="{{ $kontrak_awal->pimpinan }}"
+                                        data-pekerjaan="{{ $kontrak_awal->pekerjaan }}" {{-- data-rekanan="{{ $kontrak_awal->rekanan }}"
+                                        data-pimpinan="{{ $kontrak_awal->pimpinan }}" --}}
                                         data-kodeskpd="{{ $kontrak_awal->kodeskpd }}"
                                         data-id_kontrak="{{ $kontrak_awal->idkontrak }}"
                                         data-jns_ang="{{ $kontrak_awal->jns_ang }}"
@@ -30,7 +29,9 @@
                                         data-alamatperusahaan="{{ $kontrak_awal->alamatperusahaan }}"
                                         data-tanggalawal="{{ $kontrak_awal->tanggalawal }}"
                                         data-tanggalakhir="{{ $kontrak_awal->tanggalakhir }}"
-                                        data-ketentuansanksi="{{ $kontrak_awal->ketentuansanksi }}">
+                                        data-ketentuansanksi="{{ $kontrak_awal->ketentuansanksi }}"
+                                        data-tipe="{{ $kontrak_awal->tipe }}"
+                                        data-tanggalkontrak="{{ $kontrak_awal->tanggalkontrak }}">
                                         {{ $kontrak_awal->nomorkontrak }}
                                         | {{ $kontrak_awal->tanggalkontrak }} | {{ rupiah($kontrak_awal->nilaikontrak) }}
                                     </option>
@@ -198,7 +199,7 @@
                     <div class="row mb-3">
                         <div class="col-12">
                             <label class="form-label">Keterangan</label>
-                            <textarea class="form-control" id="keterangan" placeholder="Isi dengan keterangan" rows="5"></textarea>
+                            <textarea class="form-control" id="keterangan" readonly disabled placeholder="Isi dengan keterangan" rows="5"></textarea>
                         </div>
                     </div>
                     <div class="mb-3 text-end">

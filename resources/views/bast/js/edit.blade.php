@@ -30,7 +30,6 @@
         }
 
         const nomorBastTersimpan = "{{ $dataBast->nomorbapbast }}";
-        const nomorPesananTersimpan = "{{ $dataBast->nomorpesanan }}";
 
         $('#nm_kerja').val($('#kontrak').find(':selected').data('pekerjaan'));
         $('#pihak_ketiga').val($('#kontrak').find(':selected').data('pihakketiga'));
@@ -39,6 +38,8 @@
         $('#tanggal_awal').val($('#kontrak').find(':selected').data('tanggalawal'));
         $('#tanggal_akhir').val($('#kontrak').find(':selected').data('tanggalakhir'));
         $('#sanksi').val($('#kontrak').find(':selected').data('ketentuansanksi'));
+        let tipe = $('#kontrak').find(':selected').data('tipe');
+        let tanggalkontrak = $('#kontrak').find(':selected').data('tanggalkontrak');
         // $('#rekanan').val($('#kontrak').find(':selected').data('rekanan')).change();
         // $('#pimpinan').val($('#kontrak').find(':selected').data('pimpinan'));
 
@@ -219,6 +220,14 @@
         });
 
         $('#jenis_kontrak').on('select2:select', function() {
+            let kontrak = $('#kontrak').val();
+
+            if (!kontrak) {
+                swalAlert("Silahkan pilih nomor kontrak");
+                $(this).val(null).change()
+                return
+            }
+
             if (this.value == 2) {
                 $('#no_bast').val(null);
                 $('#tgl_bast').val(null);
@@ -230,7 +239,25 @@
                 $('#bap').hide();
                 $('#bast').show();
             }
+
+            isiKeterangan()
         });
+
+        $('#no_bast').on('keyup', function() {
+            isiKeterangan();
+        })
+
+        $('#no_bap').on('keyup', function() {
+            isiKeterangan();
+        })
+
+        $('#tgl_bast').on('change', function() {
+            isiKeterangan();
+        })
+
+        $('#tgl_bap').on('change', function() {
+            isiKeterangan();
+        })
 
         $('#tambah_rincian').on('click', function() {
             let kontrak = $('#kontrak').val();
@@ -693,7 +720,7 @@
                 anggaran_kontrak,
                 realisasi_fisik,
                 nomorBastTersimpan,
-                nomorPesananTersimpan
+                // nomorPesananTersimpan
             };
 
             Swal.fire({
@@ -1076,6 +1103,41 @@
             } else {
                 $('#status_kontrak').val('2').change();
             }
+        }
+
+        function isiKeterangan() {
+            let jenis = $('#jenis_kontrak').val() == '2' ? 'BAP' : 'BAST';
+            let nm_kerja = $('#nm_kerja').val();
+
+            let tipe_kontrak = tipe == '2' ? 'SP' : 'SPK';
+            let nomor_kontrak = $('#kontrak').val()
+
+            let no_bap = $('#no_bap').val();
+            let no_bast = $('#no_bast').val();
+            let tgl_bap = $('#tgl_bap').val();
+            let tgl_bast = $('#tgl_bast').val();
+
+            let tanggal = $('#jenis_kontrak').val() == '2' ? tgl_bap : tgl_bast;
+            let nomor = $('#jenis_kontrak').val() == '2' ? no_bap : no_bast;
+
+            let keterangan =
+                `Pembayaran Atas ${upperCase(nm_kerja)} Dengan Nomor ${tipe_kontrak} ${nomor_kontrak} Tanggal ${tipe_kontrak} ${tanggalIndonesia(tanggalkontrak)} Dan Nomor ${jenis} ${nomor} Tanggal ${jenis} ${tanggalIndonesia(tanggal)}`
+
+            $('#keterangan').val(keterangan)
+        }
+
+        function tanggalIndonesia(tanggal) {
+            return tanggal ? new Date(tanggal).toLocaleDateString('id-ID', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+            }) : ''
+        }
+
+        function upperCase(str) {
+            return str.toLowerCase().replace(/\b[a-z]/g, function(letter) {
+                return letter.toUpperCase();
+            });
         }
     });
 

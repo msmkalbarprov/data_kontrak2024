@@ -528,7 +528,7 @@ class KontrakAdendumController extends Controller
 
             $realisasiKontrak = DB::table('trdbapbast as a')
                 ->join('trhbast as b', function ($join) {
-                    $join->on('a.nomorpesanan', '=', 'b.nomorpesanan');
+                    // $join->on('a.nomorpesanan', '=', 'b.nomorpesanan');
                     $join->on('a.nomorbapbast', '=', 'b.nomorbapbast');
                     $join->on('a.kodeskpd', '=', 'b.kodeskpd');
                 })
