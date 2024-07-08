@@ -11,6 +11,16 @@
             }
         });
 
+        $('#kolom_sertifikat').hide();
+        $('#kolom_lokasi').hide();
+        $('#kolom_luas').hide();
+        $('#kolom_nomor').hide();
+        $('#kolom_bangunan').hide();
+        $('#kolom_buku').hide();
+        $('#kolom_barang').hide();
+        $('#kolom_hewan').hide();
+        $('#kolom_aplikasi').hide();
+
         let status_anggaran = "{{ $status_anggaran }}"
 
         $('.select_modal').select2({
@@ -252,6 +262,87 @@
 
         $('#kd_rek6').on('select2:select', function() {
             load_barang();
+
+            let kode = this.value.substring(0, 4);
+
+            if (kode === '5201') {
+                $('#kolom_sertifikat').show();
+                $('#kolom_lokasi').show();
+                $('#kolom_luas').show();
+
+                $('#kolom_nomor').hide();
+                $('#kolom_bangunan').hide();
+                $('#kolom_buku').hide();
+                $('#kolom_barang').hide();
+                $('#kolom_hewan').hide();
+                $('#kolom_aplikasi').hide();
+            } else if (kode === '5202') {
+                $('#kolom_nomor').show();
+
+                $('#kolom_sertifikat').hide();
+                $('#kolom_lokasi').hide();
+                $('#kolom_luas').hide();
+                $('#kolom_bangunan').hide();
+                $('#kolom_buku').hide();
+                $('#kolom_barang').hide();
+                $('#kolom_hewan').hide();
+                $('#kolom_aplikasi').hide();
+            } else if (kode === '5203') {
+                $('#kolom_lokasi').show();
+                $('#kolom_luas').show();
+                $('#kolom_bangunan').show();
+
+                $('#kolom_sertifikat').hide();
+                $('#kolom_nomor').hide();
+                $('#kolom_buku').hide();
+                $('#kolom_barang').hide();
+                $('#kolom_hewan').hide();
+                $('#kolom_aplikasi').hide();
+            } else if (kode === '5204') {
+                $('#kolom_lokasi').show();
+                $('#kolom_luas').show();
+
+                $('#kolom_sertifikat').hide();
+                $('#kolom_nomor').hide();
+                $('#kolom_bangunan').hide();
+                $('#kolom_buku').hide();
+                $('#kolom_barang').hide();
+                $('#kolom_hewan').hide();
+                $('#kolom_aplikasi').hide();
+            } else if (kode === '5205') {
+                $('#kolom_buku').show();
+                $('#kolom_barang').show();
+                $('#kolom_hewan').show();
+
+                $('#kolom_sertifikat').hide();
+                $('#kolom_lokasi').hide();
+                $('#kolom_luas').hide();
+                $('#kolom_nomor').hide();
+                $('#kolom_bangunan').hide();
+                $('#kolom_aplikasi').hide();
+            } else if (kode === '5206') {
+                $('#kolom_aplikasi').show();
+
+                $('#kolom_sertifikat').hide();
+                $('#kolom_lokasi').hide();
+                $('#kolom_luas').hide();
+                $('#kolom_nomor').hide();
+                $('#kolom_bangunan').hide();
+                $('#kolom_buku').hide();
+                $('#kolom_barang').hide();
+                $('#kolom_hewan').hide();
+            } else {
+                $('#kolom_sertifikat').hide();
+                $('#kolom_lokasi').hide();
+                $('#kolom_luas').hide();
+                $('#kolom_nomor').hide();
+                $('#kolom_bangunan').hide();
+                $('#kolom_buku').hide();
+                $('#kolom_barang').hide();
+                $('#kolom_hewan').hide();
+                $('#kolom_aplikasi').hide();
+            }
+
         });
 
         $('#kd_barang').on('select2:select', function() {

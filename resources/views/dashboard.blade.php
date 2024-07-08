@@ -184,13 +184,13 @@
                     });
                 },
             });
-            let totalUp = "{{ $totalKontrak->up_gu }}";
-            let totalLs = "{{ $totalKontrak->ls }}";
+            let totalUp = "{{ $totalKontrak->up_gu }}" || 0;
+            let totalLs = "{{ $totalKontrak->ls }}" || 0;
             let totalKontrak = parseFloat(totalUp) + parseFloat(totalLs);
 
-            document.getElementById('total_ls').innerText = formatter(parseFloat(totalLs))
-            document.getElementById('total_upgu').innerHTML = formatter(parseFloat(totalUp))
-            document.getElementById('total_kontrak').innerHTML = formatter(parseFloat(totalKontrak))
+            document.getElementById('total_ls').innerText = formatter(parseFloat(totalLs));
+            document.getElementById('total_upgu').innerText = formatter(parseFloat(totalUp));
+            document.getElementById('total_kontrak').innerText = formatter(parseFloat(totalKontrak));
 
             // CHART KONTRAK
 
