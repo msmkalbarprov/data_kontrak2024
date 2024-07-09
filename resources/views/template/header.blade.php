@@ -21,7 +21,8 @@
 
                     <li class="nav-item dropdown dropdown-large">
                         <a class="nav-link dropdown-toggle dropdown-toggle-nocaret position-relative" href="#"
-                            data-bs-toggle="dropdown"><span class="alert-count">7</span>
+                            data-bs-toggle="dropdown">
+                            {{-- <span class="alert-count"></span> --}}
                             <i class='bx bx-bell'></i>
                         </a>
                         <div class="dropdown-menu dropdown-menu-end">
@@ -32,7 +33,7 @@
                                 </div>
                             </a>
                             <div class="header-notifications-list">
-                                <a class="dropdown-item" href="javascript:;">
+                                {{-- <a class="dropdown-item" href="javascript:;">
                                     <div class="d-flex align-items-center">
                                         <div class="user-online">
                                             <img src="assets/images/avatars/avatar-1.png" class="msg-avatar"
@@ -143,7 +144,7 @@
                                             <p class="msg-info">It was popularised in the 1960s</p>
                                         </div>
                                     </div>
-                                </a>
+                                </a> --}}
                             </div>
                             <a href="javascript:;">
                                 <div class="text-center msg-footer">
@@ -158,7 +159,7 @@
             <div class="user-box dropdown px-3">
                 <a class="d-flex align-items-center nav-link dropdown-toggle gap-3 dropdown-toggle-nocaret"
                     href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                    <img src="{{ asset('template/assets/images/avatars/avatar-2.png') }}" class="user-img"
+                    <img src="{{ asset('template/assets/images/avatars/avatar.jpg') }}" class="user-img"
                         alt="user avatar">
                     <div class="user-info">
                         <p class="user-name mb-0">{{ ucwords(Auth::user()->name) }}</p>

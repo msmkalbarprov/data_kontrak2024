@@ -300,11 +300,27 @@ class DataController extends Controller
     // Cari Kegiatan, Rekening, Kode Barang, Sumber pada rincian kontrak awal untuk Kontrak Adendum
     public function dataAdendum(Request $request)
     {
+
         return response()->json([
             'kegiatan' => $this->cariKegiatan($request),
             'rekening' => $this->cariRekening($request),
             'kodeBarang' => $this->cariKodeBarang($request),
             'sumber' => $this->cariSumber($request),
+            'detailKontrak' => DB::table('trdkontrak')
+                ->select('detailkontrak')
+                ->where(
+                    [
+                        'kodesubkegiatan' => $request->kd_sub_kegiatan,
+                        'kodeakun' => $request->kd_rek6,
+                        'kodebarang' => $request->kd_barang,
+                        'kodesumberdana' => $request->sumber,
+                        'header' => $request->header,
+                        'subheader' => $request->sub_header,
+                        'nomorkontrak' => $request->kontrak,
+                        'kodeskpd' => Auth::user()->kd_skpd
+                    ]
+                )
+                ->first()
         ]);
     }
 

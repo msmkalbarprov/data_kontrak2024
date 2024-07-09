@@ -271,8 +271,8 @@
                         <div class="col-md-4">
                             <select class="form-select select_modal" id="status_tanah" data-nama_modal="modal_rincian">
                                 <option value="" selected>Silahkan Pilih</option>
-                                <option value="0">Hak Milik</option>
-                                <option value="1">Hak Pakai</option>
+                                <option value="hak_milik">Hak Milik</option>
+                                <option value="hak_pakai">Hak Pakai</option>
                             </select>
                         </div>
                         <label class="form-label col-md-2">Penggunaan</label>
@@ -557,6 +557,7 @@
                                         <th>No PO</th>
                                         <th>Header</th>
                                         <th>Sub Header</th>
+                                        <th>Detail Kontrak</th>
                                         <th>Aksi</th>
                                     </tr>
                                 </thead>

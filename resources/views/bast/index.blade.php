@@ -7,7 +7,7 @@
         <div class="card-header">
             <div class="d-flex align-items-center">
                 <div>
-                    <h6 class="mb-0">BAST</h6>
+                    <h6 class="mb-0">BAP/BAST</h6>
                 </div>
                 <div class="dropdown ms-auto">
                     <a href="{{ route('bast.create') }}" class="btn btn-success">Tambah</a>
@@ -19,8 +19,8 @@
                 <table class="table align-middle mb-0" id="bast" style="width: 100%">
                     <thead class="table-light">
                         <tr>
-                            <th>Nomor <br>BAST</th>
-                            <th>Tanggal <br>BAST</th>
+                            <th>Nomor <br>BAP/BAST</th>
+                            <th>Tanggal <br>BAP/BAST</th>
                             <th>SKPD</th>
                             <th>Aksi</th>
                         </tr>

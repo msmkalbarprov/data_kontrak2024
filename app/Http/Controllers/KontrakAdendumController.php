@@ -201,6 +201,14 @@ class KontrakAdendumController extends Controller
 
             $data['kontrak'] = json_decode($data['kontrak'], true);
 
+            $validationDetailKontrak = cekDetailKontrak($data['kontrak']);
+            if ($validationDetailKontrak) {
+                return response()->json([
+                    'status' => false,
+                    'error' => $validationDetailKontrak,
+                ], 400);
+            }
+
             $validationSumberDana = $this->cekNilaiSumber($data['kontrak'], $data['kd_skpd'], $data['status_anggaran']);
 
             if ($validationSumberDana) {
@@ -241,6 +249,7 @@ class KontrakAdendumController extends Controller
                             'namasumberdana' => $value['nm_sumber'],
                             'kodeskpd' => $dataKontrakLama->kodeskpd,
                             'namaskpd' => $dataKontrakLama->namaskpd,
+                            'detailkontrak' => json_encode(dataDetailKontrak($value['detail']))
                         ];
                     }, $data['kontrak']));
             }
@@ -370,6 +379,14 @@ class KontrakAdendumController extends Controller
 
             $data['kontrak'] = json_decode($data['kontrak'], true);
 
+            $validationDetailKontrak = cekDetailKontrak($data['kontrak']);
+            if ($validationDetailKontrak) {
+                return response()->json([
+                    'status' => false,
+                    'error' => $validationDetailKontrak,
+                ], 400);
+            }
+
             $validationSumberDana = $this->cekNilaiSumber($data['kontrak'], $data['kd_skpd'], $data['status_anggaran']);
 
             if ($validationSumberDana) {
@@ -414,6 +431,7 @@ class KontrakAdendumController extends Controller
                             'namasumberdana' => $value['nm_sumber'],
                             'kodeskpd' => $dataKontrakLama->kodeskpd,
                             'namaskpd' => $dataKontrakLama->namaskpd,
+                            'detailkontrak' => json_encode(dataDetailKontrak($value['detail']))
                         ];
                     }, $data['kontrak']));
             }
@@ -585,4 +603,316 @@ class KontrakAdendumController extends Controller
 
         return $message;
     }
+
+    // public function cekDetailKontrak($request)
+    // {
+    //     $message = '';
+
+    //     foreach ($request as $item) {
+    //         if ($item['detail']['kelompok'] == '5201') {
+    //             if (!$item['detail']['nomor_sertifikat']) {
+    //                 $message .= "Kegiatan " . $item['kd_sub_kegiatan'] . " ,Rekening " . $item['kd_rek6'] . " ,Kode Barang " . $item['kd_barang'] . " .Silahkan isi nomor sertifikat! <br/><br/>";
+    //             }
+
+    //             if (!$item['detail']['tanggal_sertifikat']) {
+    //                 $message .= "Kegiatan " . $item['kd_sub_kegiatan'] . " ,Rekening " . $item['kd_rek6'] . " ,Kode Barang " . $item['kd_barang'] . " .Silahkan isi tanggal sertifikat! <br/><br/>";
+    //             }
+
+    //             if (!$item['detail']['panjang']) {
+    //                 $message .= "Kegiatan " . $item['kd_sub_kegiatan'] . " ,Rekening " . $item['kd_rek6'] . " ,Kode Barang " . $item['kd_barang'] . " .Silahkan isi panjang! <br/><br/>";
+    //             }
+
+    //             if (!$item['detail']['lebar']) {
+    //                 $message .= "Kegiatan " . $item['kd_sub_kegiatan'] . " ,Rekening " . $item['kd_rek6'] . " ,Kode Barang " . $item['kd_barang'] . " .Silahkan isi lebar! <br/><br/>";
+    //             }
+
+    //             if (!$item['detail']['luas']) {
+    //                 $message .= "Kegiatan " . $item['kd_sub_kegiatan'] . " ,Rekening " . $item['kd_rek6'] . " ,Kode Barang " . $item['kd_barang'] . " .Silahkan isi luas! <br/><br/>";
+    //             }
+
+    //             if ($item['detail']['panjang'] == 0) {
+    //                 $message .= "Kegiatan " . $item['kd_sub_kegiatan'] . " ,Rekening " . $item['kd_rek6'] . " ,Kode Barang " . $item['kd_barang'] . " .Panjang tidak boleh 0! <br/><br/>";
+    //             }
+
+    //             if ($item['detail']['lebar'] == 0) {
+    //                 $message .= "Kegiatan " . $item['kd_sub_kegiatan'] . " ,Rekening " . $item['kd_rek6'] . " ,Kode Barang " . $item['kd_barang'] . " .Lebar tidak boleh 0! <br/><br/>";
+    //             }
+
+    //             if ($item['detail']['luas'] == 0) {
+    //                 $message .= "Kegiatan " . $item['kd_sub_kegiatan'] . " ,Rekening " . $item['kd_rek6'] . " ,Kode Barang " . $item['kd_barang'] . " .Luas tidak boleh 0! <br/><br/>";
+    //             }
+
+    //             if (!$item['detail']['status_tanah']) {
+    //                 $message .= "Kegiatan " . $item['kd_sub_kegiatan'] . " ,Rekening " . $item['kd_rek6'] . " ,Kode Barang " . $item['kd_barang'] . " .Silahkan pilih status tanah! <br/><br/>";
+    //             }
+
+    //             if (!$item['detail']['penggunaan']) {
+    //                 $message .= "Kegiatan " . $item['kd_sub_kegiatan'] . " ,Rekening " . $item['kd_rek6'] . " ,Kode Barang " . $item['kd_barang'] . " .Penggunaan tidak boleh kosong! <br/><br/>";
+    //             }
+
+    //             if ($message != '') {
+    //                 return $message;
+    //             }
+    //         }
+
+    //         if ($item['detail']['kelompok'] == '5202') {
+    //             if (!$item['detail']['merk']) {
+    //                 $message .= "Kegiatan " . $item['kd_sub_kegiatan'] . " ,Rekening " . $item['kd_rek6'] . " ,Kode Barang " . $item['kd_barang'] . " .Merk tidak boleh kosong! <br/><br/>";
+    //             }
+
+    //             if (!$item['detail']['ukuran']) {
+    //                 $message .= "Kegiatan " . $item['kd_sub_kegiatan'] . " ,Rekening " . $item['kd_rek6'] . " ,Kode Barang " . $item['kd_barang'] . " .Ukuran tidak boleh kosong! <br/><br/>";
+    //             }
+
+    //             if (!$item['detail']['pabrik']) {
+    //                 $message .= "Kegiatan " . $item['kd_sub_kegiatan'] . " ,Rekening " . $item['kd_rek6'] . " ,Kode Barang " . $item['kd_barang'] . " .Pabrik tidak boleh kosong! <br/><br/>";
+    //             }
+
+    //             if (!$item['detail']['rangka']) {
+    //                 $message .= "Kegiatan " . $item['kd_sub_kegiatan'] . " ,Rekening " . $item['kd_rek6'] . " ,Kode Barang " . $item['kd_barang'] . " .Rangka tidak boleh kosong! <br/><br/>";
+    //             }
+
+    //             if (!$item['detail']['mesin']) {
+    //                 $message .= "Kegiatan " . $item['kd_sub_kegiatan'] . " ,Rekening " . $item['kd_rek6'] . " ,Kode Barang " . $item['kd_barang'] . " .Mesin tidak boleh kosong! <br/><br/>";
+    //             }
+
+    //             if (!$item['detail']['polisi']) {
+    //                 $message .= "Kegiatan " . $item['kd_sub_kegiatan'] . " ,Rekening " . $item['kd_rek6'] . " ,Kode Barang " . $item['kd_barang'] . " .Polisi tidak boleh kosong! <br/><br/>";
+    //             }
+
+    //             if (!$item['detail']['bpkb']) {
+    //                 $message .= "Kegiatan " . $item['kd_sub_kegiatan'] . " ,Rekening " . $item['kd_rek6'] . " ,Kode Barang " . $item['kd_barang'] . " .BPKB tidak boleh kosong! <br/><br/>";
+    //             }
+
+    //             if (!$item['detail']['bahan']) {
+    //                 $message .= "Kegiatan " . $item['kd_sub_kegiatan'] . " ,Rekening " . $item['kd_rek6'] . " ,Kode Barang " . $item['kd_barang'] . " .Bahan tidak boleh kosong! <br/>";
+    //             }
+
+    //             if ($message != '') {
+    //                 return $message;
+    //             }
+    //         }
+
+    //         if ($item['detail']['kelompok'] == '5203') {
+    //             if (!$item['detail']['bertingkat'] && !$item['detail']['beton']) {
+    //                 $message .= "Kegiatan " . $item['kd_sub_kegiatan'] . " ,Rekening " . $item['kd_rek6'] . " ,Kode Barang " . $item['kd_barang'] . " .Silahkan pilih kontruksi bangunan! <br/><br/>";
+    //             }
+
+    //             if (!$item['detail']['panjang']) {
+    //                 $message .= "Kegiatan " . $item['kd_sub_kegiatan'] . " ,Rekening " . $item['kd_rek6'] . " ,Kode Barang " . $item['kd_barang'] . " .Silahkan isi panjang! <br/><br/>";
+    //             }
+
+    //             if (!$item['detail']['lebar']) {
+    //                 $message .= "Kegiatan " . $item['kd_sub_kegiatan'] . " ,Rekening " . $item['kd_rek6'] . " ,Kode Barang " . $item['kd_barang'] . " .Silahkan isi lebar! <br/><br/>";
+    //             }
+
+    //             if (!$item['detail']['luas']) {
+    //                 $message .= "Kegiatan " . $item['kd_sub_kegiatan'] . " ,Rekening " . $item['kd_rek6'] . " ,Kode Barang " . $item['kd_barang'] . " .Silahkan isi luas! <br/><br/>";
+    //             }
+
+    //             if ($item['detail']['panjang'] == 0) {
+    //                 $message .= "Kegiatan " . $item['kd_sub_kegiatan'] . " ,Rekening " . $item['kd_rek6'] . " ,Kode Barang " . $item['kd_barang'] . " .Panjang tidak boleh 0! <br/><br/>";
+    //             }
+
+    //             if ($item['detail']['lebar'] == 0) {
+    //                 $message .= "Kegiatan " . $item['kd_sub_kegiatan'] . " ,Rekening " . $item['kd_rek6'] . " ,Kode Barang " . $item['kd_barang'] . " .Lebar tidak boleh 0! <br/><br/>";
+    //             }
+
+    //             if ($item['detail']['luas'] == 0) {
+    //                 $message .= "Kegiatan " . $item['kd_sub_kegiatan'] . " ,Rekening " . $item['kd_rek6'] . " ,Kode Barang " . $item['kd_barang'] . " .Luas tidak boleh 0! <br/><br/>";
+    //             }
+
+    //             if (!$item['detail']['status_tanah']) {
+    //                 $message .= "Kegiatan " . $item['kd_sub_kegiatan'] . " ,Rekening " . $item['kd_rek6'] . " ,Kode Barang " . $item['kd_barang'] . " .Silahkan pilih status tanah! <br/><br/>";
+    //             }
+
+    //             if (!$item['detail']['penggunaan']) {
+    //                 $message .= "Kegiatan " . $item['kd_sub_kegiatan'] . " ,Rekening " . $item['kd_rek6'] . " ,Kode Barang " . $item['kd_barang'] . " .Penggunaan tidak boleh kosong! <br/><br/>";
+    //             }
+
+    //             if ($message != '') {
+    //                 return $message;
+    //             }
+    //         }
+
+    //         if ($item['detail']['kelompok'] == '5204') {
+    //             if (!$item['detail']['panjang']) {
+    //                 $message .= "Kegiatan " . $item['kd_sub_kegiatan'] . " ,Rekening " . $item['kd_rek6'] . " ,Kode Barang " . $item['kd_barang'] . " .Silahkan isi panjang! <br/><br/>";
+    //             }
+
+    //             if (!$item['detail']['lebar']) {
+    //                 $message .= "Kegiatan " . $item['kd_sub_kegiatan'] . " ,Rekening " . $item['kd_rek6'] . " ,Kode Barang " . $item['kd_barang'] . " .Silahkan isi lebar! <br/><br/>";
+    //             }
+
+    //             if (!$item['detail']['luas']) {
+    //                 $message .= "Kegiatan " . $item['kd_sub_kegiatan'] . " ,Rekening " . $item['kd_rek6'] . " ,Kode Barang " . $item['kd_barang'] . " .Silahkan isi luas! <br/><br/>";
+    //             }
+
+    //             if ($item['detail']['panjang'] == 0) {
+    //                 $message .= "Kegiatan " . $item['kd_sub_kegiatan'] . " ,Rekening " . $item['kd_rek6'] . " ,Kode Barang " . $item['kd_barang'] . " .Panjang tidak boleh 0! <br/><br/>";
+    //             }
+
+    //             if ($item['detail']['lebar'] == 0) {
+    //                 $message .= "Kegiatan " . $item['kd_sub_kegiatan'] . " ,Rekening " . $item['kd_rek6'] . " ,Kode Barang " . $item['kd_barang'] . " .Lebar tidak boleh 0! <br/><br/>";
+    //             }
+
+    //             if ($item['detail']['luas'] == 0) {
+    //                 $message .= "Kegiatan " . $item['kd_sub_kegiatan'] . " ,Rekening " . $item['kd_rek6'] . " ,Kode Barang " . $item['kd_barang'] . " .Luas tidak boleh 0! <br/><br/>";
+    //             }
+
+    //             if (!$item['detail']['status_tanah']) {
+    //                 $message .= "Kegiatan " . $item['kd_sub_kegiatan'] . " ,Rekening " . $item['kd_rek6'] . " ,Kode Barang " . $item['kd_barang'] . " .Silahkan pilih status tanah! <br/><br/>";
+    //             }
+
+    //             if (!$item['detail']['penggunaan']) {
+    //                 $message .= "Kegiatan " . $item['kd_sub_kegiatan'] . " ,Rekening " . $item['kd_rek6'] . " ,Kode Barang " . $item['kd_barang'] . " .Penggunaan tidak boleh kosong! <br/><br/>";
+    //             }
+
+    //             if ($message != '') {
+    //                 return $message;
+    //             }
+    //         }
+
+    //         if ($item['detail']['kelompok'] == '5205') {
+    //             if (!$item['detail']['judul_buku']) {
+    //                 $message .= "Kegiatan " . $item['kd_sub_kegiatan'] . " ,Rekening " . $item['kd_rek6'] . " ,Kode Barang " . $item['kd_barang'] . " .Silahkan isi judul buku/perpustakaan! <br/><br/>";
+    //             }
+
+    //             if (!$item['detail']['pencipta_buku']) {
+    //                 $message .= "Kegiatan " . $item['kd_sub_kegiatan'] . " ,Rekening " . $item['kd_rek6'] . " ,Kode Barang " . $item['kd_barang'] . " .Silahkan isi pencipta buku/perpustakaan! <br/><br/>";
+    //             }
+
+    //             if (!$item['detail']['spesifikasi_buku']) {
+    //                 $message .= "Kegiatan " . $item['kd_sub_kegiatan'] . " ,Rekening " . $item['kd_rek6'] . " ,Kode Barang " . $item['kd_barang'] . " .Silahkan isi spesifikasi buku/perpustakaan! <br/><br/>";
+    //             }
+
+    //             if (!$item['detail']['asal_daerah']) {
+    //                 $message .= "Kegiatan " . $item['kd_sub_kegiatan'] . " ,Rekening " . $item['kd_rek6'] . " ,Kode Barang " . $item['kd_barang'] . " .Silahkan isi asal daerah barang bercorak! <br/><br/>";
+    //             }
+
+    //             if (!$item['detail']['pencipta_daerah']) {
+    //                 $message .= "Kegiatan " . $item['kd_sub_kegiatan'] . " ,Rekening " . $item['kd_rek6'] . " ,Kode Barang " . $item['kd_barang'] . " .Silahkan isi pencipta barang bercorak! <br/><br/>";
+    //             }
+
+    //             if (!$item['detail']['bahan_daerah']) {
+    //                 $message .= "Kegiatan " . $item['kd_sub_kegiatan'] . " ,Rekening " . $item['kd_rek6'] . " ,Kode Barang " . $item['kd_barang'] . " .Silahkan isi bahan barang bercorak! <br/><br/>";
+    //             }
+
+    //             if (!$item['detail']['jenis_hewan']) {
+    //                 $message .= "Kegiatan " . $item['kd_sub_kegiatan'] . " ,Rekening " . $item['kd_rek6'] . " ,Kode Barang " . $item['kd_barang'] . " .Silahkan isi jenis hewan/ternak tumbuhan! <br/><br/>";
+    //             }
+
+    //             if (!$item['detail']['ukuran_hewan']) {
+    //                 $message .= "Kegiatan " . $item['kd_sub_kegiatan'] . " ,Rekening " . $item['kd_rek6'] . " ,Kode Barang " . $item['kd_barang'] . " .Silahkan isi ukuran hewan/ternak tumbuhan! <br/><br/>";
+    //             }
+
+    //             if (!$item['detail']['nik_hewan']) {
+    //                 $message .= "Kegiatan " . $item['kd_sub_kegiatan'] . " ,Rekening " . $item['kd_rek6'] . " ,Kode Barang " . $item['kd_barang'] . " .Silahkan isi NIK! <br/><br/>";
+    //             }
+
+
+    //             if ($message != '') {
+    //                 return $message;
+    //             }
+    //         }
+
+    //         if ($item['detail']['kelompok'] == '5206') {
+    //             if (!$item['detail']['nama_aplikasi']) {
+    //                 $message .= "Kegiatan " . $item['kd_sub_kegiatan'] . " ,Rekening " . $item['kd_rek6'] . " ,Kode Barang " . $item['kd_barang'] . " .Silahkan isi nama aplikasi! <br/><br/>";
+    //             }
+
+    //             if (!$item['detail']['judul_aplikasi']) {
+    //                 $message .= "Kegiatan " . $item['kd_sub_kegiatan'] . " ,Rekening " . $item['kd_rek6'] . " ,Kode Barang " . $item['kd_barang'] . " .Silahkan isi judul aplikasi! <br/><br/>";
+    //             }
+
+    //             if (!$item['detail']['pencipta_aplikasi']) {
+    //                 $message .= "Kegiatan " . $item['kd_sub_kegiatan'] . " ,Rekening " . $item['kd_rek6'] . " ,Kode Barang " . $item['kd_barang'] . " .Silahkan isi pencipta aplikasi! <br/><br/>";
+    //             }
+
+    //             if (!$item['detail']['spesifikasi_aplikasi']) {
+    //                 $message .= "Kegiatan " . $item['kd_sub_kegiatan'] . " ,Rekening " . $item['kd_rek6'] . " ,Kode Barang " . $item['kd_barang'] . " .Silahkan isi spesifikasi aplikasi! <br/><br/>";
+    //             }
+
+
+    //             if ($message != '') {
+    //                 return $message;
+    //             }
+    //         }
+    //     }
+
+    //     return $message;
+    // }
+
+    // public function dataDetailKontrak($request)
+    // {
+    //     if ($request['kelompok'] == '5201') {
+    //         $detailKontrak = [
+    //             'kelompok' => $request['kelompok'],
+    //             'nomor_sertifikat' => $request['nomor_sertifikat'],
+    //             'tanggal_sertifikat' => $request['tanggal_sertifikat'],
+    //             'status_tanah' => $request['status_tanah'],
+    //             'penggunaan' => $request['penggunaan'],
+    //             'panjang' => $request['panjang'],
+    //             'lebar' => $request['lebar'],
+    //             'luas' => $request['luas'],
+    //         ];
+    //     } else if ($request['kelompok'] == '5202') {
+    //         $detailKontrak = [
+    //             'kelompok' => $request['kelompok'],
+    //             'merk' => $request['merk'],
+    //             'ukuran' => $request['ukuran'],
+    //             'pabrik' => $request['pabrik'],
+    //             'rangka' => $request['rangka'],
+    //             'mesin' => $request['mesin'],
+    //             'polisi' => $request['polisi'],
+    //             'bpkb' => $request['bpkb'],
+    //             'bahan' => $request['bahan'],
+    //         ];
+    //     } else if ($request['kelompok'] == '5203') {
+    //         $detailKontrak = [
+    //             'kelompok' => $request['kelompok'],
+    //             'status_tanah' => $request['status_tanah'],
+    //             'penggunaan' => $request['penggunaan'],
+    //             'panjang' => $request['panjang'],
+    //             'lebar' => $request['lebar'],
+    //             'luas' => $request['luas'],
+    //             'bertingkat' => $request['bertingkat'],
+    //             'beton' => $request['beton'],
+    //         ];
+    //     } else if ($request['kelompok'] == '5204') {
+    //         $detailKontrak = [
+    //             'kelompok' => $request['kelompok'],
+    //             'status_tanah' => $request['status_tanah'],
+    //             'penggunaan' => $request['penggunaan'],
+    //             'panjang' => $request['panjang'],
+    //             'lebar' => $request['lebar'],
+    //             'luas' => $request['luas'],
+    //         ];
+    //     } else if ($request['kelompok'] == '5205') {
+    //         $detailKontrak = [
+    //             'kelompok' => $request['kelompok'],
+    //             'judul_buku' => $request['judul_buku'],
+    //             'pencipta_buku' => $request['pencipta_buku'],
+    //             'spesifikasi_buku' => $request['spesifikasi_buku'],
+    //             'asal_daerah' => $request['asal_daerah'],
+    //             'pencipta_daerah' => $request['pencipta_daerah'],
+    //             'bahan_daerah' => $request['bahan_daerah'],
+    //             'jenis_hewan' => $request['jenis_hewan'],
+    //             'ukuran_hewan' => $request['ukuran_hewan'],
+    //             'nik_hewan' => $request['nik_hewan'],
+    //         ];
+    //     } else if ($request['kelompok'] == '5206') {
+    //         $detailKontrak = [
+    //             'kelompok' => $request['kelompok'],
+    //             'nama_aplikasi' => $request['nama_aplikasi'],
+    //             'judul_aplikasi' => $request['judul_aplikasi'],
+    //             'pencipta_aplikasi' => $request['pencipta_aplikasi'],
+    //             'spesifikasi_aplikasi' => $request['spesifikasi_aplikasi'],
+    //         ];
+    //     } else {
+    //         $detailKontrak = [];
+    //     }
+
+    //     return $detailKontrak;
+    // }
 }

@@ -332,6 +332,182 @@
                             </select>
                         </div>
                     </div>
+
+                    <div class="row mb-3" id="kolom_sertifikat">
+                        <label class="form-label text-center"><b>Sertifikat</b></label>
+                        <label class="form-label col-md-2">No. Sertifikat</label>
+                        <div class="col-md-4">
+                            <input class="form-control" type="text" id="nomor_sertifikat">
+                        </div>
+                        <label class="form-label col-md-2">Tanggal Sertifikat</label>
+                        <div class="col-md-4">
+                            <input class="form-control" type="date" id="tanggal_sertifikat">
+                        </div>
+                    </div>
+                    <div class="row mb-3" id="kolom_lokasi">
+                        <label class="form-label text-center"><b>Lokasi/Alamat</b></label>
+                        <label class="form-label col-md-2">Status Tanah</label>
+                        <div class="col-md-4">
+                            <select class="form-select select_modal" id="status_tanah" data-nama_modal="modal_rincian">
+                                <option value="" selected>Silahkan Pilih</option>
+                                <option value="hak_milik">Hak Milik</option>
+                                <option value="hak_pakai">Hak Pakai</option>
+                            </select>
+                        </div>
+                        <label class="form-label col-md-2">Penggunaan</label>
+                        <div class="col-md-4">
+                            <input class="form-control" type="text" id="penggunaan">
+                        </div>
+                    </div>
+                    <div class="row mb-3" id="kolom_luas">
+                        <label class="form-label col-md-2">Panjang</label>
+                        <div class="col-md-2">
+                            <input type="text" class="form-control kanan" id="panjang"
+                                pattern="^\$\d{1,3}(,\d{3})*(\.\d+)?$" data-type="currency">
+                        </div>
+                        <label class="form-label col-md-2">Lebar</label>
+                        <div class="col-md-2">
+                            <input type="text" class="form-control kanan" id="lebar"
+                                pattern="^\$\d{1,3}(,\d{3})*(\.\d+)?$" data-type="currency">
+                        </div>
+                        <label class="form-label col-md-2">Luas</label>
+                        <div class="col-md-2">
+                            <input type="text" class="form-control kanan" id="luas" disabled readonly
+                                pattern="^\$\d{1,3}(,\d{3})*(\.\d+)?$" data-type="currency">
+                        </div>
+                    </div>
+                    <div id="kolom_nomor">
+                        <div class="row mb-3">
+                            <label class="form-label text-center"><b>Nomor:</b></label>
+                            <label class="form-label col-md-2">Merk/Type</label>
+                            <div class="col-md-4">
+                                <input type="text" class="form-control" id="merk">
+                            </div>
+                            <label class="form-label col-md-2">Ukuran</label>
+                            <div class="col-md-4">
+                                <input type="text" class="form-control" id="ukuran">
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <label class="form-label col-md-2">Pabrik</label>
+                            <div class="col-md-4">
+                                <input type="text" class="form-control" id="pabrik">
+                            </div>
+                            <label class="form-label col-md-2">Rangka</label>
+                            <div class="col-md-4">
+                                <input type="text" class="form-control" id="rangka">
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <label class="form-label col-md-2">Mesin</label>
+                            <div class="col-md-4">
+                                <input type="text" class="form-control" id="mesin">
+                            </div>
+                            <label class="form-label col-md-2">Polisi</label>
+                            <div class="col-md-4">
+                                <input type="text" class="form-control" id="polisi">
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <label class="form-label col-md-2">BPKB</label>
+                            <div class="col-md-4">
+                                <input type="text" class="form-control" id="bpkb">
+                            </div>
+                            <label class="form-label col-md-2">Bahan</label>
+                            <div class="col-md-4">
+                                <input type="text" class="form-control" id="bahan">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mb-3" id="kolom_bangunan">
+                        <label class="form-label col-md-2">Kontruksi Bangunan</label>
+                        <div class="col-md-2">
+                            <input type="checkbox" id="bertingkat"> Bertingkat
+                        </div>
+                        <div class="col-md-2">
+                            <input type="checkbox" id="beton"> Beton
+                        </div>
+                    </div>
+                    <div id="kolom_buku">
+                        <div class="row mb-3">
+                            <label class="form-label text-center"><b>Buku / Perpustakaan</b></label>
+                            <label class="form-label col-md-2">Judul</label>
+                            <div class="col-md-4">
+                                <input type="text" class="form-control" id="judul">
+                            </div>
+                            <label class="form-label col-md-2">Pencipta</label>
+                            <div class="col-md-4">
+                                <input type="text" class="form-control" id="pencipta">
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <label class="form-label col-md-2">Spesifikasi</label>
+                            <div class="col-md-4">
+                                <input type="text" class="form-control" id="spesifikasi">
+                            </div>
+                        </div>
+                    </div>
+                    <div id="kolom_barang">
+                        <div class="row mb-3">
+                            <label class="form-label text-center"><b>Barang Bercorak</b></label>
+                            <label class="form-label col-md-2">Asal Daerah</label>
+                            <div class="col-md-4">
+                                <input type="text" class="form-control" id="asal_daerah">
+                            </div>
+                            <label class="form-label col-md-2">Pencipta</label>
+                            <div class="col-md-4">
+                                <input type="text" class="form-control" id="pencipta_daerah">
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <label class="form-label col-md-2">Bahan</label>
+                            <div class="col-md-4">
+                                <input type="text" class="form-control" id="bahan_daerah">
+                            </div>
+                        </div>
+                    </div>
+                    <div id="kolom_hewan">
+                        <div class="row mb-3">
+                            <label class="form-label text-center"><b>Hewan/Ternak Tumbuhan</b></label>
+                            <label class="form-label col-md-2">Jenis</label>
+                            <div class="col-md-4">
+                                <input type="text" class="form-control" id="jenis_hewan">
+                            </div>
+                            <label class="form-label col-md-2">Ukuran</label>
+                            <div class="col-md-4">
+                                <input type="text" class="form-control" id="ukuran_hewan">
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <label class="form-label col-md-2">NIK</label>
+                            <div class="col-md-4">
+                                <input type="text" class="form-control" id="nik_hewan">
+                            </div>
+                        </div>
+                    </div>
+                    <div id="kolom_aplikasi">
+                        <div class="row mb-3">
+                            <label class="form-label col-md-2">Nama Aplikasi</label>
+                            <div class="col-md-4">
+                                <input type="text" class="form-control" id="nama_aplikasi">
+                            </div>
+                            <label class="form-label col-md-2">Judul Aplikasi</label>
+                            <div class="col-md-4">
+                                <input type="text" class="form-control" id="judul_aplikasi">
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <label class="form-label col-md-2">Pencipta Aplikasi</label>
+                            <div class="col-md-4">
+                                <input type="text" class="form-control" id="pencipta_aplikasi">
+                            </div>
+                            <label class="form-label col-md-2">Spesifikasi Aplikasi</label>
+                            <div class="col-md-4">
+                                <input type="text" class="form-control" id="spesifikasi_aplikasi">
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="row mb-3">
                         <label class="form-label col-md-2">Volume 1</label>
                         <div class="col-md-2">
@@ -462,6 +638,7 @@
                                         <th>No PO</th>
                                         <th>Header</th>
                                         <th>Sub Header</th>
+                                        <th>Detail</th>
                                         <th>Aksi</th>
                                     </tr>
                                 </thead>
@@ -491,6 +668,7 @@
                                             <td>{{ $detail->nomorpo }}</td>
                                             <td>{{ $detail->header }}</td>
                                             <td>{{ $detail->subheader }}</td>
+                                            <td>{{ $detail->detailkontrak }}</td>
                                             <td>
                                                 @if ($cekKontrakAdendumSelanjutnya == 0)
                                                     <a href="javascript:void(0);"

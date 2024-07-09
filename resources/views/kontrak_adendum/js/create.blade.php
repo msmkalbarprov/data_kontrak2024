@@ -29,6 +29,16 @@
         $('.kontrak').hide();
         $('#pesanan').hide();
 
+        $('#kolom_sertifikat').hide();
+        $('#kolom_lokasi').hide();
+        $('#kolom_luas').hide();
+        $('#kolom_nomor').hide();
+        $('#kolom_bangunan').hide();
+        $('#kolom_buku').hide();
+        $('#kolom_barang').hide();
+        $('#kolom_hewan').hide();
+        $('#kolom_aplikasi').hide();
+
         let rincian_kontrak = $('#rincian_kontrak').DataTable({
             processing: true,
             searching: true,
@@ -183,6 +193,11 @@
                 {
                     data: 'sub_header',
                     nama: 'sub_header',
+                    visible: false
+                },
+                {
+                    data: 'detail',
+                    nama: 'detail',
                     visible: false
                 },
                 {
@@ -348,6 +363,7 @@
 
             tipeEdit = '';
 
+            load_kegiatan(kodesubkegiatan)
             $('#modal_rincian').modal('show')
         })
 
@@ -357,6 +373,86 @@
 
         $('#kd_rek6').on('select2:select', function() {
             load_barang();
+
+            let kode = this.value.substring(0, 4);
+
+            if (kode === '5201') {
+                $('#kolom_sertifikat').show();
+                $('#kolom_lokasi').show();
+                $('#kolom_luas').show();
+
+                $('#kolom_nomor').hide();
+                $('#kolom_bangunan').hide();
+                $('#kolom_buku').hide();
+                $('#kolom_barang').hide();
+                $('#kolom_hewan').hide();
+                $('#kolom_aplikasi').hide();
+            } else if (kode === '5202') {
+                $('#kolom_nomor').show();
+
+                $('#kolom_sertifikat').hide();
+                $('#kolom_lokasi').hide();
+                $('#kolom_luas').hide();
+                $('#kolom_bangunan').hide();
+                $('#kolom_buku').hide();
+                $('#kolom_barang').hide();
+                $('#kolom_hewan').hide();
+                $('#kolom_aplikasi').hide();
+            } else if (kode === '5203') {
+                $('#kolom_lokasi').show();
+                $('#kolom_luas').show();
+                $('#kolom_bangunan').show();
+
+                $('#kolom_sertifikat').hide();
+                $('#kolom_nomor').hide();
+                $('#kolom_buku').hide();
+                $('#kolom_barang').hide();
+                $('#kolom_hewan').hide();
+                $('#kolom_aplikasi').hide();
+            } else if (kode === '5204') {
+                $('#kolom_lokasi').show();
+                $('#kolom_luas').show();
+
+                $('#kolom_sertifikat').hide();
+                $('#kolom_nomor').hide();
+                $('#kolom_bangunan').hide();
+                $('#kolom_buku').hide();
+                $('#kolom_barang').hide();
+                $('#kolom_hewan').hide();
+                $('#kolom_aplikasi').hide();
+            } else if (kode === '5205') {
+                $('#kolom_buku').show();
+                $('#kolom_barang').show();
+                $('#kolom_hewan').show();
+
+                $('#kolom_sertifikat').hide();
+                $('#kolom_lokasi').hide();
+                $('#kolom_luas').hide();
+                $('#kolom_nomor').hide();
+                $('#kolom_bangunan').hide();
+                $('#kolom_aplikasi').hide();
+            } else if (kode === '5206') {
+                $('#kolom_aplikasi').show();
+
+                $('#kolom_sertifikat').hide();
+                $('#kolom_lokasi').hide();
+                $('#kolom_luas').hide();
+                $('#kolom_nomor').hide();
+                $('#kolom_bangunan').hide();
+                $('#kolom_buku').hide();
+                $('#kolom_barang').hide();
+                $('#kolom_hewan').hide();
+            } else {
+                $('#kolom_sertifikat').hide();
+                $('#kolom_lokasi').hide();
+                $('#kolom_luas').hide();
+                $('#kolom_nomor').hide();
+                $('#kolom_bangunan').hide();
+                $('#kolom_buku').hide();
+                $('#kolom_barang').hide();
+                $('#kolom_hewan').hide();
+                $('#kolom_aplikasi').hide();
+            }
         });
 
         $('#kd_barang').on('select2:select', function() {
@@ -367,10 +463,10 @@
         });
 
         $('#sumber').on('select2:select', function() {
-            let volume1 = $(this).find(':selected').data('volume1');
-            let volume2 = $(this).find(':selected').data('volume2');
-            let volume3 = $(this).find(':selected').data('volume3');
-            let volume4 = $(this).find(':selected').data('volume4');
+            let volume1 = parseFloat($(this).find(':selected').data('volume1')) || 0;
+            let volume2 = parseFloat($(this).find(':selected').data('volume2')) || 0;
+            let volume3 = parseFloat($(this).find(':selected').data('volume3')) || 0;
+            let volume4 = parseFloat($(this).find(':selected').data('volume4')) || 0;
 
             $('#volume1').val(conversi(volume1));
             $('#volume2').val(conversi(volume2));
@@ -387,10 +483,36 @@
             $('#satuan3').val(satuan3);
             $('#satuan4').val(satuan4);
 
-            $('#volume').val(conversi(parseFloat(volume1) * parseFloat(volume2) * parseFloat(
-                volume3) * parseFloat(volume4)));
+            let cek = [volume1, volume2, volume3, volume4];
+
+            let volume = cek.reduce((prev, current) => {
+                if (current != 0) {
+                    prev *= current
+                }
+                return prev
+            });
+
+            $('#volume').val(conversi(volume));
             $('#harga').val(conversi($(this).find(':selected').data('harga')));
             $('#total').val(conversi($(this).find(':selected').data('total')));
+        });
+
+        $('#panjang').on('keyup', function() {
+            let panjang = angka(this.value);
+            let lebar = angka($('#lebar').val())
+
+            let luas = panjang * lebar;
+
+            $('#luas').val(conversi(luas))
+        });
+
+        $('#lebar').on('keyup', function() {
+            let lebar = angka(this.value);
+            let panjang = angka($('#panjang').val())
+
+            let luas = panjang * lebar;
+
+            $('#luas').val(conversi(luas))
         });
 
         $('#simpan_rincian').on('click', function() {
@@ -427,6 +549,47 @@
             let input_volume4 = angka($('#input_volume4').val());
 
             let harga_nego = angka($('#harga_nego').val());
+
+            let merk = $('#merk').val();
+            let ukuran = $('#ukuran').val();
+            let pabrik = $('#pabrik').val();
+            let rangka = $('#rangka').val();
+            let mesin = $('#mesin').val();
+            let polisi = $('#polisi').val();
+            let bpkb = $('#bpkb').val();
+            let bahan = $('#bahan').val();
+
+            let bertingkat = $('#bertingkat').is(":checked");
+            let beton = $('#beton').is(":checked");
+
+            let panjang = angka($('#panjang').val());
+            let lebar = angka($('#lebar').val());
+            let luas = rupiah($('#luas').val());
+
+            let status_tanah = $('#status_tanah').val();
+            let penggunaan = $('#penggunaan').val();
+
+            let nomor_sertifikat = $('#nomor_sertifikat').val();
+            let tanggal_sertifikat = $('#tanggal_sertifikat').val();
+
+            let judul_buku = $('#judul').val();
+            let pencipta_buku = $('#pencipta').val();
+            let spesifikasi_buku = $('#spesifikasi').val();
+
+            let asal_daerah = $('#asal_daerah').val();
+            let pencipta_daerah = $('#pencipta_daerah').val();
+            let bahan_daerah = $('#bahan_daerah').val();
+
+            let jenis_hewan = $('#jenis_hewan').val();
+            let ukuran_hewan = $('#ukuran_hewan').val();
+            let nik_hewan = $('#nik_hewan').val();
+
+            let nama_aplikasi = $('#nama_aplikasi').val();
+            let judul_aplikasi = $('#judul_aplikasi').val();
+            let pencipta_aplikasi = $('#pencipta_aplikasi').val();
+            let spesifikasi_aplikasi = $('#spesifikasi_aplikasi').val();
+
+            let kelompok = kd_rek6.substring(0, 4);
 
             if (!kd_sub_kegiatan) {
                 swalAlert('Kegiatan tidak boleh kosong!');
@@ -537,6 +700,276 @@
                 }
             }
 
+            if (kelompok == '5201') {
+                if (!nomor_sertifikat) {
+                    swalAlert("Nomor sertifikat tidak boleh kosong!");
+                    return;
+                }
+
+                if (!tanggal_sertifikat) {
+                    swalAlert('Tanggal sertifikat tidak boleh kosong!');
+                    return;
+                }
+
+                if (!panjang) {
+                    swalAlert('Silahkan isi panjang!');
+                    return;
+                }
+
+                if (!lebar) {
+                    swalAlert('Silahkan isi lebar!');
+                    return;
+                }
+
+                if (!luas) {
+                    swalAlert('Silahkan isi panjang dan lebar!');
+                    return;
+                }
+
+                if (panjang == 0) {
+                    swalAlert('Panjang tidak boleh 0');
+                    return;
+                }
+
+                if (lebar == 0) {
+                    swalAlert('Lebar tidak boleh 0');
+                    return;
+                }
+
+                if (luas == 0) {
+                    swalAlert('Luas tidak boleh 0');
+                    return;
+                }
+
+                if (panjang * lebar != luas) {
+                    swalAlert(
+                        'Luas lokasi/alamat tidak sesuai dengan panjang dan lebar lokasi/alamat!');
+                    return;
+                }
+
+                if (!status_tanah) {
+                    swalAlert("Silahkan pilih status tanah!");
+                    return;
+                }
+
+                if (!penggunaan) {
+                    swalAlert("Penggunaan tidak boleh kosong!");
+                    return;
+                }
+            }
+
+            if (kelompok == '5202') {
+                if (!merk) {
+                    swalAlert('Merk tidak boleh kosong!');
+                    return;
+                }
+
+                if (!ukuran) {
+                    swalAlert('Ukuran tidak boleh kosong!');
+                    return;
+                }
+
+                if (!pabrik) {
+                    swalAlert('Pabrik tidak boleh kosong!');
+                    return;
+                }
+
+                if (!rangka) {
+                    swalAlert('Rangka tidak boleh kosong!');
+                    return;
+                }
+
+                if (!mesin) {
+                    swalAlert('Mesin tidak boleh kosong!');
+                    return;
+                }
+
+                if (!polisi) {
+                    swalAlert('Polisi tidak boleh kosong!');
+                    return;
+                }
+
+                if (!bpkb) {
+                    swalAlert('BPKB tidak boleh kosong!');
+                    return;
+                }
+
+                if (!bahan) {
+                    swalAlert('Bahan tidak boleh kosong!');
+                    return;
+                }
+            }
+
+            if (kelompok == '5203') {
+                if (!bertingkat && !beton) {
+                    swalAlert("Silahkan pilih kontruksi bangunan!");
+                    return;
+                }
+
+                if (!panjang) {
+                    swalAlert('Silahkan isi panjang!');
+                    return;
+                }
+
+                if (!lebar) {
+                    swalAlert('Silahkan isi lebar!');
+                    return;
+                }
+
+                if (!luas) {
+                    swalAlert('Silahkan isi panjang dan lebar!');
+                    return;
+                }
+
+                if (panjang == 0) {
+                    swalAlert('Panjang tidak boleh 0');
+                    return;
+                }
+
+                if (lebar == 0) {
+                    swalAlert('Lebar tidak boleh 0');
+                    return;
+                }
+
+                if (luas == 0) {
+                    swalAlert('Luas tidak boleh 0');
+                    return;
+                }
+
+                if (panjang * lebar != luas) {
+                    swalAlert(
+                        'Luas lokasi/alamat tidak sesuai dengan panjang dan lebar lokasi/alamat!');
+                    return;
+                }
+
+                if (!status_tanah) {
+                    swalAlert("Silahkan pilih status tanah!");
+                    return;
+                }
+
+                if (!penggunaan) {
+                    swalAlert("Penggunaan tidak boleh kosong!");
+                    return;
+                }
+            }
+
+            if (kelompok == '5204') {
+                if (!panjang) {
+                    swalAlert('Silahkan isi panjang!');
+                    return;
+                }
+
+                if (!lebar) {
+                    swalAlert('Silahkan isi lebar!');
+                    return;
+                }
+
+                if (!luas) {
+                    swalAlert('Silahkan isi panjang dan lebar!');
+                    return;
+                }
+
+                if (panjang == 0) {
+                    swalAlert('Panjang tidak boleh 0');
+                    return;
+                }
+
+                if (lebar == 0) {
+                    swalAlert('Lebar tidak boleh 0');
+                    return;
+                }
+
+                if (luas == 0) {
+                    swalAlert('Luas tidak boleh 0');
+                    return;
+                }
+
+                if (panjang * lebar != luas) {
+                    swalAlert(
+                        'Luas lokasi/alamat tidak sesuai dengan panjang dan lebar lokasi/alamat!');
+                    return;
+                }
+
+                if (!status_tanah) {
+                    swalAlert("Silahkan pilih status tanah!");
+                    return;
+                }
+
+                if (!penggunaan) {
+                    swalAlert("Penggunaan tidak boleh kosong!");
+                    return;
+                }
+            }
+
+            if (kelompok == '5205') {
+                if (!judul_buku) {
+                    swalAlert('Judul buku/perpustakaan tidak boleh kosong!');
+                    return;
+                }
+
+                if (!pencipta_buku) {
+                    swalAlert('Pencipta buku/perpustakaan tidak boleh kosong!');
+                    return;
+                }
+
+                if (!spesifikasi_buku) {
+                    swalAlert('Spesifikasi buku/perpustakaan tidak boleh kosong!');
+                    return;
+                }
+
+                if (!asal_daerah) {
+                    swalAlert('Asal daerah barang bercorak tidak boleh kosong!');
+                    return;
+                }
+
+                if (!pencipta_daerah) {
+                    swalAlert('Pencipta barang bercorak tidak boleh kosong!');
+                    return;
+                }
+
+                if (!bahan_daerah) {
+                    swalAlert('Bahan barang bercorak tidak boleh kosong!');
+                    return;
+                }
+
+                if (!jenis_hewan) {
+                    swalAlert('Jenis hewan/ternak tumbuhan tidak boleh kosong!');
+                    return;
+                }
+
+                if (!ukuran_hewan) {
+                    swalAlert('Ukuran hewan/ternak tumbuhan tidak boleh kosong!');
+                    return;
+                }
+
+                if (!nik_hewan) {
+                    swalAlert('NIK tidak boleh kosong!');
+                    return;
+                }
+            }
+
+            if (kelompok == '5206') {
+                if (!nama_aplikasi) {
+                    swalAlert('Nama aplikasi tidak boleh kosong!');
+                    return;
+                }
+
+                if (!judul_aplikasi) {
+                    swalAlert('Judul aplikasi tidak boleh kosong!');
+                    return;
+                }
+
+                if (!pencipta_aplikasi) {
+                    swalAlert('Pencipta aplikasi tidak boleh kosong!');
+                    return;
+                }
+
+                if (!spesifikasi_aplikasi) {
+                    swalAlert('Spesifikasi aplikasi tidak boleh kosong!');
+                    return;
+                }
+            }
+
             let data = {
                 kd_sub_kegiatan,
                 nm_sub_kegiatan,
@@ -560,7 +993,38 @@
                 input_volume2,
                 input_volume3,
                 input_volume4,
-                harga_nego
+                harga_nego,
+                merk,
+                ukuran,
+                pabrik,
+                rangka,
+                mesin,
+                polisi,
+                bpkb,
+                bahan,
+                bertingkat,
+                beton,
+                panjang,
+                lebar,
+                luas,
+                status_tanah,
+                penggunaan,
+                nomor_sertifikat,
+                tanggal_sertifikat,
+                judul_buku,
+                pencipta_buku,
+                spesifikasi_buku,
+                asal_daerah,
+                pencipta_daerah,
+                bahan_daerah,
+                jenis_hewan,
+                ukuran_hewan,
+                nik_hewan,
+                nama_aplikasi,
+                judul_aplikasi,
+                pencipta_aplikasi,
+                spesifikasi_aplikasi,
+                kelompok
             };
 
             Swal.fire({
@@ -773,6 +1237,7 @@
                     no_po: value.no_po,
                     header: value.header,
                     sub_header: value.sub_header,
+                    detail: value.detail,
                 };
                 return data;
             });
@@ -1099,6 +1564,39 @@
                 'no_po': data.no_po,
                 'header': data.header,
                 'sub_header': data.sub_header,
+                'detail': {
+                    'kelompok': data.kelompok,
+                    'nomor_sertifikat': data.nomor_sertifikat,
+                    'tanggal_sertifikat': data.tanggal_sertifikat,
+                    'status_tanah': data.status_tanah,
+                    'penggunaan': data.penggunaan,
+                    'panjang': data.panjang,
+                    'lebar': data.lebar,
+                    'luas': data.luas,
+                    'merk': data.merk,
+                    'ukuran': data.ukuran,
+                    'pabrik': data.pabrik,
+                    'rangka': data.rangka,
+                    'mesin': data.mesin,
+                    'polisi': data.polisi,
+                    'bpkb': data.bpkb,
+                    'bahan': data.bahan,
+                    'bertingkat': data.bertingkat,
+                    'beton': data.beton,
+                    'judul_buku': data.judul_buku,
+                    'pencipta_buku': data.pencipta_buku,
+                    'spesifikasi_buku': data.spesifikasi_buku,
+                    'asal_daerah': data.asal_daerah,
+                    'pencipta_daerah': data.pencipta_daerah,
+                    'bahan_daerah': data.bahan_daerah,
+                    'jenis_hewan': data.jenis_hewan,
+                    'ukuran_hewan': data.ukuran_hewan,
+                    'nik_hewan': data.nik_hewan,
+                    'nama_aplikasi': data.nama_aplikasi,
+                    'judul_aplikasi': data.judul_aplikasi,
+                    'pencipta_aplikasi': data.pencipta_aplikasi,
+                    'spesifikasi_aplikasi': data.spesifikasi_aplikasi,
+                },
                 'aksi': tipeEdit == 'editVolume' ?
                     `<a href="javascript:void(0);" onclick="editRincian('${data.id_po}','${data.kd_sub_kegiatan}','${data.kd_rek6}','${data.kd_barang}','${data.sumber}','${data.header}','${data.sub_header}','${data.input_volume1}','${data.input_volume2}','${data.input_volume3}','${data.input_volume4}','editVolume')" class="btn btn-warning btn-sm"><i class="fadeIn animated bx bx-edit"></i></a>` :
                     `<a href="javascript:void(0);" onclick="hapusRincian('${data.id_po}','${total}')" class="btn btn-danger btn-sm"><i class="fadeIn animated bx bx-trash"></i></a>`,
@@ -1198,6 +1696,7 @@
                     'no_po': data.nomorpo,
                     'header': data.header,
                     'sub_header': data.subheader,
+                    'detail': JSON.parse(data.detailkontrak),
                     'aksi': `<a href="javascript:void(0);" onclick="editRincian('${data.id_po}','${data.kodesubkegiatan}','${data.kodeakun}','${data.kodebarang}','${data.kodesumberdana}','${data.header}','${data.subheader}','${data.volume1}','${data.volume2}','${data.volume3}','${data.volume4}','editVolume')" class="btn btn-warning btn-sm"><i class="fadeIn animated bx bx-edit"></i></a>`,
                 }).draw();
                 total_rincian_kontrak += parseFloat(total)
@@ -1301,8 +1800,7 @@
 
     }
 
-    function loadEdit(kd_sub_kegiatan, kd_rek6, kd_barang, sumber, header, sub_header, volume1, volume2, volume3,
-        volume4) {
+    function loadEdit(kd_sub_kegiatan, kd_rek6, kd_barang, sumber, header, sub_header) {
         $.ajax({
             url: "{{ route('data_adendum') }}",
             type: "POST",
@@ -1316,6 +1814,7 @@
                 sumber: sumber,
                 header: header,
                 sub_header: sub_header,
+                kontrak: $('#kontrak_awal').val(),
                 status_anggaran: "{{ $status_anggaran }}"
             },
             beforeSend: function() {
@@ -1366,25 +1865,162 @@
                             `<option value="${sumber_dana.sumber}" data-nama="${sumber_dana.nm_sumber}" data-volume1="${sumber_dana.volume1}" data-volume2="${sumber_dana.volume2}" data-volume3="${sumber_dana.volume3}" data-volume4="${sumber_dana.volume4}" data-satuan1="${sumber_dana.satuan1}" data-satuan2="${sumber_dana.satuan2}" data-satuan3="${sumber_dana.satuan3}" data-satuan4="${sumber_dana.satuan4}" data-harga="${sumber_dana.harga}" data-total="${sumber_dana.total}" data-id="${sumber_dana.id}" data-no_po="${sumber_dana.no_po}" data-uraian="${sumber_dana.uraian}" data-spesifikasi="${sumber_dana.spesifikasi}" selected>${sumber_dana.sumber} | ${sumber_dana.nm_sumber}</option>`
                         );
 
-                        $('#volume1').val(conversi(sumber_dana.volume1));
-                        $('#volume2').val(conversi(sumber_dana.volume2));
-                        $('#volume3').val(conversi(sumber_dana.volume3));
-                        $('#volume4').val(conversi(sumber_dana.volume4));
+                        let volume1 = parseFloat(sumber_dana.volume1) || 0;
+                        let volume2 = parseFloat(sumber_dana.volume2) || 0;
+                        let volume3 = parseFloat(sumber_dana.volume3) || 0;
+                        let volume4 = parseFloat(sumber_dana.volume4) || 0;
+
+                        let cek = [volume1, volume2, volume3, volume4];
+
+                        let volume = cek.reduce((prev, current) => {
+                            if (current != 0) {
+                                prev *= current
+                            }
+                            return prev
+                        });
+
+                        $('#volume1').val(conversi(volume1));
+                        $('#volume2').val(conversi(volume2));
+                        $('#volume3').val(conversi(volume3));
+                        $('#volume4').val(conversi(volume4));
 
                         $('#satuan1').val(sumber_dana.satuan1);
                         $('#satuan2').val(sumber_dana.satuan2);
                         $('#satuan3').val(sumber_dana.satuan3);
                         $('#satuan4').val(sumber_dana.satuan4);
 
-                        $('#volume').val(conversi(parseFloat(sumber_dana.volume1) * parseFloat(
-                                sumber_dana.volume2) * parseFloat(sumber_dana.volume3) *
-                            parseFloat(sumber_dana.volume4)));
+                        $('#volume').val(conversi(volume));
 
                         $('#harga').val(conversi(sumber_dana.harga));
 
                         $('#total').val(conversi(sumber_dana.total));
                     }
                 })
+
+                let kode = kd_rek6.substring(0, 4);
+
+                let detailkontrak = JSON.parse(data.detailKontrak.detailkontrak)
+
+                $('#merk').val(detailkontrak.merk);
+                $('#ukuran').val(detailkontrak.ukuran);
+                $('#pabrik').val(detailkontrak.pabrik);
+                $('#rangka').val(detailkontrak.rangka);
+                $('#mesin').val(detailkontrak.mesin);
+                $('#polisi').val(detailkontrak.polisi);
+                $('#bpkb').val(detailkontrak.bpkb);
+                $('#bahan').val(detailkontrak.bahan);
+
+                detailkontrak.bertingkat ? $('#bertingkat').prop('checked', true) : $('#bertingkat').prop(
+                    'checked', false);
+                detailkontrak.beton ? $('#beton').prop('checked', true) : $('#beton').prop(
+                    'checked', false);
+
+                $('#panjang').val(detailkontrak.panjang);
+                $('#lebar').val(detailkontrak.lebar);
+                $('#luas').val(conversi(detailkontrak.luas));
+
+                $('#status_tanah').val(detailkontrak.status_tanah).change();
+                $('#penggunaan').val(detailkontrak.penggunaan);
+
+                $('#nomor_sertifikat').val(detailkontrak.nomor_sertifikat);
+                $('#tanggal_sertifikat').val(detailkontrak.tanggal_sertifikat);
+
+                $('#judul').val(detailkontrak.judul_buku);
+                $('#pencipta').val(detailkontrak.pencipta_buku);
+                $('#spesifikasi').val(detailkontrak.spesifikasi_buku);
+
+                $('#asal_daerah').val(detailkontrak.asal_daerah);
+                $('#pencipta_daerah').val(detailkontrak.pencipta_daerah);
+                $('#bahan_daerah').val(detailkontrak.bahan_daerah);
+
+                $('#jenis_hewan').val(detailkontrak.jenis_hewan);
+                $('#ukuran_hewan').val(detailkontrak.ukuran_hewan);
+                $('#nik_hewan').val(detailkontrak.nik_hewan);
+
+                $('#nama_aplikasi').val(detailkontrak.nama_aplikasi);
+                $('#judul_aplikasi').val(detailkontrak.judul_aplikasi);
+                $('#pencipta_aplikasi').val(detailkontrak.pencipta_aplikasi);
+                $('#spesifikasi_aplikasi').val(detailkontrak.spesifikasi_aplikasi);
+
+                if (kode === '5201') {
+                    $('#kolom_sertifikat').show();
+                    $('#kolom_lokasi').show();
+                    $('#kolom_luas').show();
+
+                    $('#kolom_nomor').hide();
+                    $('#kolom_bangunan').hide();
+                    $('#kolom_buku').hide();
+                    $('#kolom_barang').hide();
+                    $('#kolom_hewan').hide();
+                    $('#kolom_aplikasi').hide();
+                } else if (kode === '5202') {
+                    $('#kolom_nomor').show();
+
+                    $('#kolom_sertifikat').hide();
+                    $('#kolom_lokasi').hide();
+                    $('#kolom_luas').hide();
+                    $('#kolom_bangunan').hide();
+                    $('#kolom_buku').hide();
+                    $('#kolom_barang').hide();
+                    $('#kolom_hewan').hide();
+                    $('#kolom_aplikasi').hide();
+                } else if (kode === '5203') {
+                    $('#kolom_lokasi').show();
+                    $('#kolom_luas').show();
+                    $('#kolom_bangunan').show();
+
+                    $('#kolom_sertifikat').hide();
+                    $('#kolom_nomor').hide();
+                    $('#kolom_buku').hide();
+                    $('#kolom_barang').hide();
+                    $('#kolom_hewan').hide();
+                    $('#kolom_aplikasi').hide();
+                } else if (kode === '5204') {
+                    $('#kolom_lokasi').show();
+                    $('#kolom_luas').show();
+
+                    $('#kolom_sertifikat').hide();
+                    $('#kolom_nomor').hide();
+                    $('#kolom_bangunan').hide();
+                    $('#kolom_buku').hide();
+                    $('#kolom_barang').hide();
+                    $('#kolom_hewan').hide();
+                    $('#kolom_aplikasi').hide();
+                } else if (kode === '5205') {
+                    $('#kolom_buku').show();
+                    $('#kolom_barang').show();
+                    $('#kolom_hewan').show();
+
+                    $('#kolom_sertifikat').hide();
+                    $('#kolom_lokasi').hide();
+                    $('#kolom_luas').hide();
+                    $('#kolom_nomor').hide();
+                    $('#kolom_bangunan').hide();
+                    $('#kolom_aplikasi').hide();
+                } else if (kode === '5206') {
+                    $('#kolom_aplikasi').show();
+
+                    $('#kolom_sertifikat').hide();
+                    $('#kolom_lokasi').hide();
+                    $('#kolom_luas').hide();
+                    $('#kolom_nomor').hide();
+                    $('#kolom_bangunan').hide();
+                    $('#kolom_buku').hide();
+                    $('#kolom_barang').hide();
+                    $('#kolom_hewan').hide();
+                } else {
+                    $('#kolom_sertifikat').hide();
+                    $('#kolom_lokasi').hide();
+                    $('#kolom_luas').hide();
+                    $('#kolom_nomor').hide();
+                    $('#kolom_bangunan').hide();
+                    $('#kolom_buku').hide();
+                    $('#kolom_barang').hide();
+                    $('#kolom_hewan').hide();
+                    $('#kolom_aplikasi').hide();
+                }
+
+
             },
             complete: function(data) {
                 $("#overlay").fadeOut(100);

@@ -156,7 +156,7 @@ class UserController extends Controller
                     'name' => $request->name,
                     'username' => $request->username,
                     'kd_skpd' => $request->kd_skpd,
-                    'password' => Hash::make($request->password),
+                    // 'password' => Hash::make($request->password),
                     'tipe' => $request->tipe,
                     'status_aktif' => $request->status_aktif,
                     'role' => $request->role,
