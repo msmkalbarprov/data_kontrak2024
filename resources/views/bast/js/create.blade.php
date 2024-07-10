@@ -235,6 +235,14 @@
             rincian_kontrak.clear().draw();
             detail_kontrak.clear().draw();
 
+            $('#total_detail_kontrak').val(new Intl.NumberFormat('id-ID', {
+                minimumFractionDigits: 2
+            }).format(0));
+
+            $('#total_rincian_kontrak').val(new Intl.NumberFormat('id-ID', {
+                minimumFractionDigits: 2
+            }).format(0));
+
             kontrak = $(this).find(':selected');
 
             $.ajax({

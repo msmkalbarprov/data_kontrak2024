@@ -7,7 +7,7 @@
             </div>
         @endif
         <div class="col-xl-10 mx-auto">
-            <h6 class="mb-0 text-uppercase">Tambah BAST</h6>
+            <h6 class="mb-0 text-uppercase">Tambah BAP/BAST</h6>
             <hr />
             <div class="card">
                 <div class="card-body">
@@ -211,7 +211,7 @@
 
             <div class="card">
                 <div class="card-header">
-                    Rincian BAST
+                    Rincian BAP/BAST
                     <button class="btn btn-success btn-md float-end" id="tambah_rincian">Tambah</button>
                 </div>
                 <div class="card-body table-responsive">
@@ -249,7 +249,7 @@
         <div class="modal-dialog modal-xl">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Tambah Rincian BAST</h5>
+                    <h5 class="modal-title">Tambah Rincian BAP/BAST</h5>
                 </div>
                 <div class="modal-body">
                     <div class="row mb-3">

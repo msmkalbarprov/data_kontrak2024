@@ -454,6 +454,7 @@ class BastController extends Controller
     {
         $idkontrak = $request->idkontrak;
         $nomorbapbast = $request->nomorbapbast;
+        $nomorkontrak = $request->nomorkontrak;
         $kd_skpd = $request->kd_skpd;
 
         $cekPenagihan = DB::connection('simakda')

@@ -86,7 +86,7 @@
             });
         });
 
-        function hapus(nomorpesanan, nomorbapbast, idkontrak, nomorkontrak, kd_skpd) {
+        function hapus(nomorbapbast, idkontrak, nomorkontrak, kd_skpd) {
             const swalWithBootstrapButtons = Swal.mixin({
                 customClass: {
                     confirmButton: "btn btn-success right-gap",
@@ -109,7 +109,6 @@
                             _token: '{{ csrf_token() }}',
                             idkontrak: idkontrak,
                             nomorkontrak: nomorkontrak,
-                            nomorpesanan: nomorpesanan,
                             nomorbapbast: nomorbapbast,
                             kd_skpd: kd_skpd
                         },

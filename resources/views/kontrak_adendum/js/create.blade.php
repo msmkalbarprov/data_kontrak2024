@@ -1625,8 +1625,8 @@
             rincian_kontrak.clear().draw();
             detail_kontrak.clear().draw();
 
-            let total_detail_kontrak = rupiah($('#total_detail_kontrak').val());
-            let total_rincian_kontrak = rupiah($('#total_rincian_kontrak').val());
+            let total_detail_kontrak = 0;
+            let total_rincian_kontrak = 0;
 
             $.each(item, function(index, data) {
                 let cek = [data.volume1, data.volume2, data.volume3, data.volume4];
