@@ -109,12 +109,12 @@
                         </div>
                     </div>
                     <div class="mb-3 row">
-                        <label for="pengadaan" class="col-md-2 col-form-label">Pengadaan</label>
+                        {{-- <label for="pengadaan" class="col-md-2 col-form-label">Pengadaan</label>
                         <div class="col-md-2">
                             <button type="button" class="btn btn-danger btn-md pengadaan" data-jenis="pdf">PDF</button>
                             <button type="button" class="btn btn-dark btn-md pengadaan"
                                 data-jenis="layar">Layar</button>
-                        </div>
+                        </div> --}}
                         <label for="ringkasan" class="col-md-2 col-form-label">Ringkasan</label>
                         <div class="col-md-2">
                             <button type="button" class="btn btn-danger btn-md ringkasan" data-jenis="pdf">PDF</button>

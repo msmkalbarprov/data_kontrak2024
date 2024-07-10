@@ -97,13 +97,13 @@
                     </div>
                     {{-- Pengantar, Ringkasan dan Format Permandagri 77 --}}
                     <div class="mb-3 row">
-                        <label for="pengantar" class="col-md-2 col-form-label">Pengantar</label>
+                        {{-- <label for="pengantar" class="col-md-2 col-form-label">Pengantar</label>
                         <div class="col-md-2">
                             <button type="button" class="btn btn-danger btn-md pengantar_layar" data-jenis="pdf"
                                 name="pengantar_pdf">PDF</button>
                             <button type="button" class="btn btn-dark btn-md pengantar_layar" data-jenis="layar"
                                 name="pengantar_layar">Layar</button>
-                        </div>
+                        </div> --}}
                         <label for="ringkasan" class="col-md-2 col-form-label">Ringkasan</label>
                         <div class="col-md-2">
                             <button type="button" class="btn btn-danger btn-md ringkasan" data-jenis="pdf">PDF</button>
