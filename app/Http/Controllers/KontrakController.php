@@ -108,7 +108,7 @@ class KontrakController extends Controller
 
         $tahun = $this->tahun;
 
-        $status_anggaran = "M";
+        $status_anggaran = status_anggaran();
 
         if ($status_anggaran == '0') {
             return redirect()
