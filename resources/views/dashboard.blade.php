@@ -47,7 +47,7 @@
                 <div class="card-body">
                     <div class="d-flex align-items-center">
                         <div>
-                            <p class="mb-0 text-secondary font-20">{{ $totalBapBast }}</p>
+                            <p class="mb-0 text-secondary font-20">{{ rupiah($totalBapBast) }}</p>
                             <br>
                             <div class="text-primary ms-auto font-20"><i class="fadeIn animated bx bx-file"></i></i>
                             </div>
@@ -71,7 +71,9 @@
         </div>
         <div class="col-12 col-lg-6 d-flex margin_top">
             <div class="card radius-10 w-100">
-                <h5 class="card-title" style="padding: 14px">{{ namaSkpd($skpd) }}</h5>
+                <h5 class="card-title" style="padding: 14px">
+                    {{ Auth::user()->role == '9C7ABFC4-9F6B-478B-91A1-3A8C4CABA3C7' ? 'Seluruh Satuan Kerja Perangkat Daerah (SKPD)' : namaSkpd($skpd) }}
+                </h5>
                 <div class="card-body" style="align-content: center">
                     <div class="row">
                         <div class="col-lg-6">

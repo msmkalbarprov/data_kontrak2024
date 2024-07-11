@@ -18,7 +18,16 @@ class DataController extends Controller
 
     public function indexDashboard()
     {
-        $jumlahKontrak = DB::table('trhkontrak')->count();
+        $tipe = Auth::user()->role == '9C7ABFC4-9F6B-478B-91A1-3A8C4CABA3C7' ? 'admin' : 'non-admin';
+        $kodeskpd = Auth::user()->kd_skpd;
+
+        $jumlahKontrak = DB::table('trhkontrak')
+            ->where(function ($query) use ($tipe, $kodeskpd) {
+                if ($tipe == 'non-admin') {
+                    $query->where('kodeskpd', $kodeskpd);
+                }
+            })
+            ->count();
 
         $totalKontrak1 = DB::table('trdkontrak as a')
             ->join('trhkontrak as b', function ($join) {
@@ -30,6 +39,11 @@ class DataController extends Controller
                 CASE WHEN jenisspp = 1 THEN sum(a.nilai) END AS up_gu,
                 CASE WHEN jenisspp = 5 THEN sum(a.nilai) END AS ls
             ")
+            ->where(function ($query) use ($tipe, $kodeskpd) {
+                if ($tipe == 'non-admin') {
+                    $query->where('b.kodeskpd', $kodeskpd);
+                }
+            })
             ->groupBy('jenisspp');
 
         $totalKontrak = DB::table(DB::raw("({$totalKontrak1->toSql()}) AS sub"))
@@ -43,6 +57,11 @@ class DataController extends Controller
                 $join->on('a.kodeskpd', '=', 'b.kodeskpd');
             })
             ->selectRaw("ISNULL(sum(a.nilai),0) as nilai")
+            ->where(function ($query) use ($tipe, $kodeskpd) {
+                if ($tipe == 'non-admin') {
+                    $query->where('b.kodeskpd', $kodeskpd);
+                }
+            })
             ->first()
             ->nilai;
 
@@ -52,6 +71,9 @@ class DataController extends Controller
     }
     public function dataDashboard(Request $request)
     {
+        $tipe = Auth::user()->role == '9C7ABFC4-9F6B-478B-91A1-3A8C4CABA3C7' ? 'admin' : 'non-admin';
+        $kodeskpd = Auth::user()->kd_skpd;
+
         $kontrak1 = DB::table('trhkontrak')
             ->selectRaw("
                 CASE WHEN MONTH(tanggalkontrak) = 1 THEN COUNT(*) ELSE 0 END AS jan,
@@ -67,12 +89,18 @@ class DataController extends Controller
                 CASE WHEN MONTH(tanggalkontrak) = 11 THEN COUNT(*) ELSE 0 END AS nov,
                 CASE WHEN MONTH(tanggalkontrak) = 12 THEN COUNT(*) ELSE 0 END AS des
             ")
+            ->where(function ($query) use ($tipe, $kodeskpd) {
+                if ($tipe == 'non-admin') {
+                    $query->where('kodeskpd', $kodeskpd);
+                }
+            })
             ->groupBy('idkontrak', 'nomorkontrak', 'tanggalkontrak');
 
         $kontrak = DB::table(DB::raw("({$kontrak1->toSql()}) AS sub"))
             ->selectRaw("sum(jan) as jan,sum(feb) as feb,sum(mar) as mar,sum(apr) as apr,sum(mei) as mei,sum(jun) as jun,sum(jul) as jul,sum(agu) as agu,sum(sep) as sep,sum(okt) as okt,sum(nov) as nov,sum(des) as des")
             ->mergeBindings($kontrak1)
-            ->get()->toArray();
+            ->get()
+            ->toArray();
 
 
         $bap1 = DB::table('trhbast')
@@ -90,6 +118,11 @@ class DataController extends Controller
                 CASE WHEN MONTH(tanggalbapbast) = 11 THEN COUNT(*) ELSE 0 END AS nov,
                 CASE WHEN MONTH(tanggalbapbast) = 12 THEN COUNT(*) ELSE 0 END AS des
             ")
+            ->where(function ($query) use ($tipe, $kodeskpd) {
+                if ($tipe == 'non-admin') {
+                    $query->where('kodeskpd', $kodeskpd);
+                }
+            })
             ->groupBy('idkontrak', 'nomorbapbast', 'tanggalbapbast');
 
         $bap = DB::table(DB::raw("({$bap1->toSql()}) AS sub"))
@@ -103,6 +136,11 @@ class DataController extends Controller
                 CASE WHEN jenisspp = 1 THEN COUNT(*) ELSE 0 END AS up_gu,
                 CASE WHEN jenisspp = 5 THEN COUNT(*) ELSE 0 END AS ls
             ")
+            ->where(function ($query) use ($tipe, $kodeskpd) {
+                if ($tipe == 'non-admin') {
+                    $query->where('kodeskpd', $kodeskpd);
+                }
+            })
             ->groupBy('jenisspp');
 
         $rincianKontrak = DB::table(DB::raw("({$kontrak3->toSql()}) AS sub"))
