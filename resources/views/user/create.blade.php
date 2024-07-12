@@ -11,6 +11,19 @@
                     </ul>
                 </div>
             @endif
+            @if (session('message'))
+                <div class="alert alert-danger border-0 bg-danger alert-dismissible fade show py-2">
+                    <div class="d-flex align-items-center">
+                        <div class="font-35 text-white"><i class='bx bxs-message-square-x'></i>
+                        </div>
+                        <div class="ms-3">
+                            <h6 class="mb-0 text-white">Error</h6>
+                            <div class="text-white">{{ session('message') }}</div>
+                        </div>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            @endif
             <h6 class="mb-0 text-uppercase">Tambah User</h6>
             <hr />
             <div class="card">
@@ -119,7 +132,8 @@
                         <div class="mb-3">
                             <label class="form-label">Jabatan</label>
                             <input class="form-control @error('jabatan') is-invalid @enderror" type="text"
-                                placeholder="Isi dengan nama" name="jabatan" id="jabatan" value="{{ old('jabatan') }}">
+                                placeholder="Isi dengan nama" name="jabatan" id="jabatan"
+                                value="{{ old('jabatan') }}">
                             @error('jabatan')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
