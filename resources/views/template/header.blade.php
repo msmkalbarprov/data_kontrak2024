@@ -170,9 +170,11 @@
                     <li><a class="dropdown-item d-flex align-items-center" href="javascript:;"><i
                                 class="bx bx-user fs-5"></i><span>Profile</span></a>
                     </li>
-                    <li><a class="dropdown-item d-flex align-items-center" href="{{ route('ubah_skpd.index') }}"><i
-                                class="bx bx-user fs-5"></i><span>UBAH SKPD</span></a>
-                    </li>
+                    @if (Auth::user()->role == '9C7ABFC4-9F6B-478B-91A1-3A8C4CABA3C7')
+                        <li><a class="dropdown-item d-flex align-items-center" href="{{ route('ubah_skpd.index') }}"><i
+                                    class="bx bx-user fs-5"></i><span>UBAH SKPD</span></a>
+                        </li>
+                    @endif
                     <li><a class="dropdown-item d-flex align-items-center" href="{{ route('ubah_password.index') }}"><i
                                 class="bx bx-user fs-5"></i><span>UBAH PASSWORD</span></a>
                     </li>
