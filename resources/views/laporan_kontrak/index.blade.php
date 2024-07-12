@@ -105,7 +105,7 @@
                     </div>
                     <div class="mb-3 row">
                         <div class="col-md-12 text-center">
-                            <button type="button" class="btn btn-danger btn-md pengadaan" data-jenis="pdf">PDF</button>
+                            {{-- <button type="button" class="btn btn-danger btn-md pengadaan" data-jenis="pdf">PDF</button> --}}
                             <button type="button" class="btn btn-dark btn-md pengadaan" data-jenis="layar">Layar</button>
                             <button type="button" class="btn btn-success btn-md pengadaan"
                                 data-jenis="excel">Excel</button>

@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rules\Password;
 use Yajra\DataTables\Facades\DataTables;
 
 class UserController extends Controller
@@ -228,6 +229,66 @@ class UserController extends Controller
         } catch (Exception $e) {
             DB::rollBack();
             return redirect()->back()->withInput();
+        }
+    }
+
+    // UBAH PASSWORD
+    public function ubahPassword()
+    {
+        $daftarSkpd = DB::connection('simakda')
+            ->table('ms_skpd')
+            ->select('kd_skpd', 'nm_skpd')
+            ->groupBy('kd_skpd', 'nm_skpd')
+            ->get();
+
+        return view('ubahpassword.index', compact('daftarSkpd'));
+    }
+
+    public function simpanUbahPassword(Request $request)
+    {
+        $id = Auth::user()->id;
+
+        $validated = $request->validate([
+            'old_password' => ['required'],
+            'new_password' => ['required', Password::min(8)
+                ->letters()
+                ->mixedCase()
+                ->numbers()
+                ->symbols()
+                ->uncompromised()],
+            'confirmation_password' => ['required', Password::min(8)
+                ->letters()
+                ->mixedCase()
+                ->numbers()
+                ->symbols()
+                ->uncompromised(), 'same:new_password'],
+        ]);
+
+        $password_lama = DB::table('users')
+            ->where(['id' => Auth::user()->id])
+            ->first()
+            ->password;
+
+        if (!Hash::check($request->old_password, $password_lama)) {
+            return redirect()->route('ubah_password.index')->withInput()->with('error', 'Pasword lama tidak sesuai');
+        }
+
+        DB::beginTransaction();
+        try {
+            $user = User::find($id);
+
+            $user
+                ->update([
+                    'password' => Hash::make($request->new_password)
+                ]);
+
+            DB::commit();
+            return redirect()
+                ->route('ubah_password.index')
+                ->with('message', 'Password berhasil diubah');
+        } catch (Exception $e) {
+            DB::rollBack();
+            return redirect()->route('ubah_password.index')->withInput()->with('error', 'Ubah passsword gagal');
         }
     }
 }

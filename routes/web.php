@@ -41,6 +41,10 @@ Route::middleware('auth')->group(function () {
     Route::get('ubah_skpd', [UserController::class, 'ubahSkpd'])->name('ubah_skpd.index');
     Route::post('simpan_ubah_skpd', [UserController::class, 'simpanUbahSkpd'])->name('ubah_skpd.store');
 
+    // UBAH PASSWORD
+    Route::get('ubah_password', [UserController::class, 'ubahPassword'])->name('ubah_password.index');
+    Route::post('simpan_ubah_password', [UserController::class, 'simpanUbahPassword'])->name('ubah_password.store');
+
     // Permission
     Route::resource('akses', PermissionController::class);
     Route::post('akses/load', [PermissionController::class, 'load'])->name('akses.load');
