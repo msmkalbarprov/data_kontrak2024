@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use PDF;
 
 class LaporanKontrakController extends Controller
 {
@@ -106,7 +107,23 @@ class LaporanKontrakController extends Controller
                 ->first()
         ];
 
-        return view('laporan_kontrak.pengadaan')->with($data);
+        $view = view('laporan_kontrak.pengadaan')->with($data);
+
+        if ($request->jenis_print == 'layar') {
+            return $view;
+        } else if ($request->jenis_print == 'pdf') {
+            $pdf = PDF::loadHtml($view)
+                ->setPaper('legal', 'landscape')
+                // ->setOrientation('landscape')
+                ->setOption('page-width', 215)
+                ->setOption('page-width', 330);
+            return $pdf->stream('Laporan Pengadaan.pdf');
+        } else {
+            header("Cache-Control: no-cache, no-store, must_revalidate");
+            header('Content-Type: application/vnd.ms-excel');
+            header('Content-Disposition: attachement; filename="laporan Pengadaan - ' . 'SKPD' . '.xls"');
+            return $view;
+        }
     }
 
     public function dataKontrak($request)

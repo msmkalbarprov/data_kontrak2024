@@ -9,6 +9,7 @@ use App\Models\Permission;
 use App\Models\Role;
 use App\Models\User;
 use Exception;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -192,6 +193,41 @@ class UserController extends Controller
         } catch (Exception $e) {
             DB::rollBack();
             return redirect()->back();
+        }
+    }
+
+    // GANTI SKPD
+    public function ubahSkpd()
+    {
+        $daftarSkpd = DB::connection('simakda')
+            ->table('ms_skpd')
+            ->select('kd_skpd', 'nm_skpd')
+            ->groupBy('kd_skpd', 'nm_skpd')
+            ->get();
+
+        return view('ubahskpd.index', compact('daftarSkpd'));
+    }
+
+    public function simpanUbahSkpd(Request $request)
+    {
+        $id = Auth::user()->id;
+
+        DB::beginTransaction();
+        try {
+            $user = User::find($id);
+
+            $user
+                ->update([
+                    'kd_skpd' => $request->kodeskpd,
+                ]);
+
+            DB::commit();
+            return redirect()
+                ->route('ubah_skpd.index')
+                ->with('message', 'SKPD berhasil diubah');
+        } catch (Exception $e) {
+            DB::rollBack();
+            return redirect()->back()->withInput();
         }
     }
 }

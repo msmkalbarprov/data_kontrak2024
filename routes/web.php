@@ -37,6 +37,10 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
+    // GANTI SKPD
+    Route::get('ubah_skpd', [UserController::class, 'ubahSkpd'])->name('ubah_skpd.index');
+    Route::post('simpan_ubah_skpd', [UserController::class, 'simpanUbahSkpd'])->name('ubah_skpd.store');
+
     // Permission
     Route::resource('akses', PermissionController::class);
     Route::post('akses/load', [PermissionController::class, 'load'])->name('akses.load');
