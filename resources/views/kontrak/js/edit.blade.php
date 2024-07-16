@@ -455,6 +455,11 @@
             let volume3 = parseFloat($('#sumber').find(':selected').data('volume3'));
             let volume4 = parseFloat($('#sumber').find(':selected').data('volume4'));
 
+            let realisasi_volume1 = rupiah($('#realisasi_volume1').val());
+            let realisasi_volume2 = rupiah($('#realisasi_volume2').val());
+            let realisasi_volume3 = rupiah($('#realisasi_volume3').val());
+            let realisasi_volume4 = rupiah($('#realisasi_volume4').val());
+
             let input_volume1 = angka($('#input_volume1').val());
             let input_volume2 = angka($('#input_volume2').val());
             let input_volume3 = angka($('#input_volume3').val());
@@ -555,6 +560,26 @@
 
             if (volume3 < input_volume4) {
                 swalAlert('Input volume 4 melebihi volume 4');
+                return;
+            }
+
+            if ((volume1 - realisasi_volume1) < input_volume1) {
+                swalAlert('Input volume 1 melebihi sisa volume 1');
+                return;
+            }
+
+            if ((volume2 - realisasi_volume2) < input_volume2) {
+                swalAlert('Input volume 2 melebihi sisa volume 2');
+                return;
+            }
+
+            if ((volume3 - realisasi_volume3) < input_volume3) {
+                swalAlert('Input volume 3 melebihi sisa volume 3');
+                return;
+            }
+
+            if ((volume4 - realisasi_volume4) < input_volume4) {
+                swalAlert('Input volume 4 melebihi sisa volume 4');
                 return;
             }
 
@@ -1367,11 +1392,16 @@
                     $('#sumber').empty();
                     $('#sumber').append(
                         `<option value="" disabled selected>Silahkan pilih</option>`);
-                    $.each(data, function(index, data) {
+                    $.each(data.sumber, function(index, data) {
                         $('#sumber').append(
                             `<option value="${data.sumber}" data-nama="${data.nm_sumber}" data-volume1="${data.volume1}" data-volume2="${data.volume2}" data-volume3="${data.volume3}" data-volume4="${data.volume4}" data-satuan1="${data.satuan1}" data-satuan2="${data.satuan2}" data-satuan3="${data.satuan3}" data-satuan4="${data.satuan4}" data-harga="${data.harga}" data-total="${data.total}" data-id="${data.id}" data-no_po="${data.no_po}" data-uraian="${data.uraian}" data-spesifikasi="${data.spesifikasi}">${data.sumber} | ${data.nm_sumber}</option>`
                         );
-                    })
+                    });
+
+                    $('#realisasi_volume1').val(conversi(data.realisasi.volume1));
+                    $('#realisasi_volume2').val(conversi(data.realisasi.volume2));
+                    $('#realisasi_volume3').val(conversi(data.realisasi.volume3));
+                    $('#realisasi_volume4').val(conversi(data.realisasi.volume4));
                 },
                 complete: function(data) {
                     $("#overlay").fadeOut(100);
@@ -1406,6 +1436,11 @@
             $('#satuan2').val(null)
             $('#satuan3').val(null)
             $('#satuan4').val(null)
+
+            $('#realisasi_volume1').val(null)
+            $('#realisasi_volume2').val(null)
+            $('#realisasi_volume3').val(null)
+            $('#realisasi_volume4').val(null)
 
             $('#input_volume1').val(null)
             $('#input_volume2').val(null)

@@ -177,7 +177,7 @@ class DataController extends Controller
                 if ($tipe == 'edit' || $tipe == 'adendum') {
                     $query->where('a.kd_sub_kegiatan', $kd_sub_kegiatan);
                 } else {
-                    $query->whereRaw("a.kd_sub_kegiatan NOT IN (SELECT c.kodesubkegiatan from data_kontrak.dbo.trdkontrak c where c.kodesubkegiatan=a.kd_sub_kegiatan and c.kodeskpd=a.kd_skpd)");
+                    // $query->whereRaw("a.kd_sub_kegiatan NOT IN (SELECT c.kodesubkegiatan from data_kontrak.dbo.trdkontrak c where c.kodesubkegiatan=a.kd_sub_kegiatan and c.kodeskpd=a.kd_skpd)");
                 }
             })
             ->select('a.kd_sub_kegiatan', 'b.nm_sub_kegiatan', 'a.kd_program', DB::raw("(SELECT nm_program FROM simakda_2024.dbo.ms_program WHERE kd_program=a.kd_program) as nm_program"), 'a.total')
@@ -285,6 +285,30 @@ class DataController extends Controller
         return $sumber;
     }
 
+    public function cariRealisasiSumber($request)
+    {
+        $sumber = DB::table('trdkontrak as a')
+            ->join('trhkontrak as b', function ($join) {
+                $join->on('a.idkontrak', '=', 'b.idkontrak');
+                $join->on('a.nomorkontrak', '=', 'b.nomorkontrak');
+                $join->on('a.kodeskpd', '=', 'b.kodeskpd');
+            })
+            ->where([
+                'a.kodeskpd' => Auth::user()->kd_skpd,
+                'a.kodesubkegiatan' => $request->kd_sub_kegiatan,
+                'a.kodeakun' => $request->kd_rek6,
+                'a.kodebarang' => $request->kd_barang,
+                'a.header' => $request->header,
+                'a.subheader' => $request->sub_header,
+                'b.statusAdendum' => 0
+            ])
+            ->where('a.nomorkontrak', '!=', $request->kontrak)
+            ->selectRaw("sum(volume1) as volume1,sum(volume2) as volume2,sum(volume3) as volume3,sum(volume4) as volume4")
+            ->first();
+
+        return $sumber;
+    }
+
     // Cari Kegiatan
     public function kodeSubKegiatan(Request $request)
     {
@@ -312,7 +336,10 @@ class DataController extends Controller
     // Cari Sumber Dana
     public function sumberDana(Request $request)
     {
-        return response()->json($this->cariSumber($request));
+        return response()->json([
+            'sumber' => $this->cariSumber($request),
+            'realisasi' => $this->cariRealisasiSumber($request)
+        ]);
     }
 
     // Cari Detail Kontrak Untuk Buat Kontrak Adendum
@@ -344,6 +371,7 @@ class DataController extends Controller
             'rekening' => $this->cariRekening($request),
             'kodeBarang' => $this->cariKodeBarang($request),
             'sumber' => $this->cariSumber($request),
+            'realisasi' => $this->cariRealisasiSumber($request),
             'detailKontrak' => DB::table('trdkontrak')
                 ->select('detailkontrak')
                 ->where(

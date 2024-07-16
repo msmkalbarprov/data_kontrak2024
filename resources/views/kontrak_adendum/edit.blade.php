@@ -513,9 +513,13 @@
                         <div class="col-md-2">
                             <input class="form-control kanan" type="text" readonly disabled id="volume1">
                         </div>
-                        <label class="form-label col-md-2">Satuan 1</label>
+                        {{-- <label class="form-label col-md-2">Satuan 1</label>
                         <div class="col-md-2">
                             <input class="form-control" type="text" readonly disabled id="satuan1">
+                        </div> --}}
+                        <label class="form-label col-md-2">Realisasi</label>
+                        <div class="col-md-2">
+                            <input class="form-control" type="text" readonly disabled id="realisasi_volume1">
                         </div>
                         <label class="form-label col-md-2">Input Volume 1</label>
                         <div class="col-md-2">
@@ -528,9 +532,13 @@
                         <div class="col-md-2">
                             <input class="form-control kanan" type="text" readonly disabled id="volume2">
                         </div>
-                        <label class="form-label col-md-2">Satuan 2</label>
+                        {{-- <label class="form-label col-md-2">Satuan 2</label>
                         <div class="col-md-2">
                             <input class="form-control" type="text" readonly disabled id="satuan2">
+                        </div> --}}
+                        <label class="form-label col-md-2">Realisasi</label>
+                        <div class="col-md-2">
+                            <input class="form-control" type="text" readonly disabled id="realisasi_volume2">
                         </div>
                         <label class="form-label col-md-2">Input Volume 2</label>
                         <div class="col-md-2">
@@ -543,9 +551,13 @@
                         <div class="col-md-2">
                             <input class="form-control kanan" type="text" readonly disabled id="volume3">
                         </div>
-                        <label class="form-label col-md-2">Satuan 3</label>
+                        {{-- <label class="form-label col-md-2">Satuan 3</label>
                         <div class="col-md-2">
                             <input class="form-control" type="text" readonly disabled id="satuan3">
+                        </div> --}}
+                        <label class="form-label col-md-2">Realisasi</label>
+                        <div class="col-md-2">
+                            <input class="form-control" type="text" readonly disabled id="realisasi_volume3">
                         </div>
                         <label class="form-label col-md-2">Input Volume 3</label>
                         <div class="col-md-2">
@@ -558,9 +570,13 @@
                         <div class="col-md-2">
                             <input class="form-control kanan" type="text" readonly disabled id="volume4">
                         </div>
-                        <label class="form-label col-md-2">Satuan 4</label>
+                        {{-- <label class="form-label col-md-2">Satuan 4</label>
                         <div class="col-md-2">
                             <input class="form-control" type="text" readonly disabled id="satuan4">
+                        </div> --}}
+                        <label class="form-label col-md-2">Realisasi</label>
+                        <div class="col-md-2">
+                            <input class="form-control" type="text" readonly disabled id="realisasi_volume4">
                         </div>
                         <label class="form-label col-md-2">Input Volume 4</label>
                         <div class="col-md-2">
