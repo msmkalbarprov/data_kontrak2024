@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <!--favicon-->
-    <link rel="icon" href="{{ asset('template/assets/images/favicon-32x32.png') }}" type="image/png" />
+    <link rel="icon" href="{{ asset('template/assets/images/logo.png') }}" type="image/png" />
 
     <!--plugins-->
     <link href="{{ asset('template/assets/plugins/vectormap/jquery-jvectormap-2.0.2.css') }}" rel="stylesheet" />

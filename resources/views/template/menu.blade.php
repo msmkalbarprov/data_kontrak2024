@@ -4,7 +4,7 @@
             <div class="offcanvas-header border-bottom">
                 <div class="d-flex align-items-center">
                     <div class="">
-                        <img src="{{ asset('template/assets/images/logo-icon.png') }}" class="logo-icon" alt="logo icon">
+                        <img src="{{ asset('template/assets/images/logo.png') }}" class="logo-icon" alt="logo icon">
                     </div>
                     <div class="">
                         <h4 class="logo-text">Data Kontrak</h4>

@@ -9,7 +9,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!--favicon-->
-    <link rel="icon" href="{{ asset('template/assets/images/favicon-32x32.png') }}" type="image/png" />
+    <link rel="icon" href="{{ asset('template/assets/images/logo.png') }}" type="image/png" />
     <!--plugins-->
     <link href="{{ asset('template/assets/plugins/simplebar/css/simplebar.css') }}" rel="stylesheet" />
     <link href="{{ asset('template/assets/plugins/perfect-scrollbar/css/perfect-scrollbar.css') }}" rel="stylesheet" />
@@ -50,7 +50,7 @@
                             <div class="card-body p-sm-5">
                                 <div class="">
                                     <div class="mb-3 text-center">
-                                        <img src="{{ asset('template/assets/images/logo-icon.png') }}" width="60"
+                                        <img src="{{ asset('template/assets/images/logo.png') }}" width="60"
                                             alt="">
                                     </div>
                                     <div class="text-center mb-4">
