@@ -4,11 +4,12 @@
             <div class="offcanvas-header border-bottom">
                 <div class="d-flex align-items-center">
                     <div class="">
-                        <img src="{{ asset('template/assets/images/logo.png') }}" class="logo-icon" alt="logo icon">
+                        <img src="{{ asset('template/assets/images/logosamping.png') }}" class="logo-icon"
+                            alt="logo icon" style="width: 50%">
                     </div>
-                    <div class="">
+                    {{-- <div class="">
                         <h4 class="logo-text">Data Kontrak</h4>
-                    </div>
+                    </div> --}}
                 </div>
                 <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
             </div>

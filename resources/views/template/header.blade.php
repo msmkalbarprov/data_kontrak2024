@@ -3,14 +3,14 @@
         <nav class="navbar navbar-expand gap-3">
             <div class="topbar-logo-header d-none d-lg-flex">
                 <div class="">
-                    <img src="{{ asset('template/assets/images/logo.png') }}" class="logo-icon" alt="logo icon">
-                </div>
-                <div class="">
-                    <h4 class="logo-text">Data Kontrak</h4>
+                    <img src="{{ asset('template/assets/images/logosamping.png') }}" class="logo-icon" alt="logo icon"
+                        style="width:16%">
                 </div>
             </div>
             <div class="mobile-toggle-menu d-block d-lg-none" data-bs-toggle="offcanvas"
-                data-bs-target="#offcanvasNavbar"><i class='bx bx-menu'></i></div>
+                data-bs-target="#offcanvasNavbar">
+                <i class='bx bx-menu'></i>
+            </div>
 
             <div class="top-menu ms-auto">
                 <ul class="navbar-nav align-items-center gap-1">
