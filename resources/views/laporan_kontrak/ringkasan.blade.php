@@ -133,10 +133,11 @@
                         <th>No.</th>
                         <th>Uraian</th>
                         <th>Volume</th>
+                        <th>Satuan</th>
                         <th>Harga Satuan</th>
                         <th>Jumlah</th>
                     </tr>
-                    @php
+                    {{-- @php
                         $total = 0;
                     @endphp
                     @foreach ($dataRekening as $item)
@@ -167,6 +168,48 @@
                         <td colspan="3" style="text-align: center">Jumlah (termasuk Pajak PPn, PPh, Biaya lainnya)
                         </td>
                         <td style="text-align: right">{{ number_format($total, 2) }}</td>
+                    </tr> --}}
+
+                    @php
+                        $totalNilai = 0;
+                        $totalVolume = 0;
+                        $totalHarga = 0;
+                        $no = 0;
+                    @endphp
+                    @foreach ($dataDetailRekening as $item)
+                        @if ($item->urut == '1')
+                            <tr>
+                                <td style="text-align: center"><b>{{ ++$no }}</b></td>
+                                <td><b>{{ $item->uraianbarang }}</b></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                        @elseif ($item->urut == '2')
+                            @php
+                                $totalNilai += $item->nilai;
+                                $totalVolume += $item->volume;
+                                $totalHarga += $item->harga;
+                            @endphp
+                            <tr>
+                                <td></td>
+                                <td>- {{ $item->uraianbarang }}</td>
+                                <td style="text-align: right">{{ number_format($item->volume, 2) }}</td>
+                                <td style="text-align: center">{{ $item->satuan }}</td>
+                                <td style="text-align: right">{{ number_format($item->harga, 2) }}</td>
+                                <td style="text-align: right">{{ number_format($item->nilai, 2) }}</td>
+                            </tr>
+                        @endif
+                    @endforeach
+                    <tr>
+                        <td colspan="2" style="text-align: center">
+                            <b>Jumlah (termasuk Pajak PPn, PPh, Biaya lainnya)</b>
+                        </td>
+                        <td style="text-align: right"><b>{{ number_format($totalVolume, 2) }}</b></td>
+                        <td></td>
+                        <td style="text-align: right"><b>{{ number_format($totalHarga, 2) }}</b></td>
+                        <td style="text-align: right"><b>{{ number_format($totalNilai, 2) }}</b></td>
                     </tr>
                 </table>
             </td>
@@ -208,7 +251,7 @@
                     $tanggalakhir = \Carbon\Carbon::parse($dataKontrak->tanggalakhir);
                     $tanggalawal = \Carbon\Carbon::parse($dataKontrak->tanggalawal);
                     $jarak =
-                        $tanggalakhir->diffInDays($tanggalawal) === 0 ? 1 : $tanggalakhir->diffInDays($tanggalawal);
+                        $tanggalakhir->diffInDays($tanggalawal) === 0 ? 1 : $tanggalakhir->diffInDays($tanggalawal) + 1;
                 @endphp
 
                 {{ $jarak }} ({{ depan($jarak) }} ) hari kalendar <br>

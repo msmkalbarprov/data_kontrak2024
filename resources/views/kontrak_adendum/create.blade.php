@@ -234,8 +234,8 @@
                                 <th>Harga</th>
                                 <th>Total</th>
                                 <th>Aksi</th>
-                                <th>Header</th>
-                                <th>Sub Header</th>
+                                {{-- <th>Header</th>
+                                <th>Sub Header</th> --}}
                             </tr>
                         </thead>
                         <tbody>
@@ -246,6 +246,41 @@
                             Rincian Kontrak</label>
                         <div class="col-md-4">
                             <input type="text" readonly class="form-control kanan" id="total_rincian_kontrak"
+                                style="background-color:white;border:none">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    Rincian Detail Kontrak
+                    <button class="btn btn-success btn-md float-end" id="tambah_detail_rincian">Tambah</button>
+                </div>
+                <div class="card-body table-responsive">
+                    <table class="table align-middle mb-0" id="detail_rincian_kontrak" style="width: 100%">
+                        <thead class="table-light">
+                            <tr>
+                                <th>ID</th>
+                                <th>Kode Sub Kegiatan</th>
+                                <th>Kode Rekening</th>
+                                <th>Kode Barang</th>
+                                <th>Uraian</th>
+                                <th>Volume</th>
+                                <th>Satuan</th>
+                                <th>Harga</th>
+                                <th>Total</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                    <div class="mb-2 mt-2 row">
+                        <label class="col-md-8 col-form-label kanan">Total
+                            Rincian Detail Kontrak</label>
+                        <div class="col-md-4">
+                            <input type="text" readonly class="form-control kanan" id="total_rincian_detail_kontrak"
                                 style="background-color:white;border:none">
                         </div>
                     </div>
@@ -620,6 +655,77 @@
                                 <tbody>
                                 </tbody>
                             </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modal_detail_rincian">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Tambah Rincian Detail Kontrak</h5>
+                </div>
+                <div class="modal-body">
+                    <div class="row mb-3">
+                        <label class="form-label col-md-2">Kode Sub Kegiatan</label>
+                        <div class="col-md-10">
+                            <select class="form-select select_modal_detail" id="kd_sub_kegiatan_detail"
+                                data-nama_modal="modal_rincian">
+                                <option value="" selected>Silahkan Pilih</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <label class="form-label col-md-2">Kode Rekening</label>
+                        <div class="col-md-10">
+                            <select class="form-select select_modal_detail" id="kd_rek6_detail"
+                                data-nama_modal="modal_rincian">
+                                <option value="" selected>Silahkan Pilih</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <label class="form-label col-md-2">Kode Barang</label>
+                        <div class="col-md-10">
+                            <select class="form-select select_modal_detail" id="kd_barang_detail"
+                                data-nama_modal="modal_rincian">
+                                <option value="" selected>Silahkan Pilih</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <label class="form-label col-md-2">Uraian</label>
+                        <div class="col-md-10">
+                            <textarea class="form-control" id="uraian_detail"></textarea>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <label class="form-label col-md-2">Volume</label>
+                        <div class="col-md-10">
+                            <input type="text" class="form-control kanan" id="volume_detail"
+                                pattern="^\$\d{1,3}(,\d{3})*(\.\d+)?$" data-type="currency">
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <label class="form-label col-md-2">Satuan</label>
+                        <div class="col-md-10">
+                            <input class="form-control" type="text" id="satuan_detail">
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <label class="form-label col-md-2">Harga</label>
+                        <div class="col-md-10">
+                            <input type="text" class="form-control kanan" id="harga_detail"
+                                pattern="^\$\d{1,3}(,\d{3})*(\.\d+)?$" data-type="currency">
+                        </div>
+                    </div>
+                    <div class="mb-3 row">
+                        <div class="col-md-12 text-center">
+                            <button type="button" class="btn btn-success" id="simpan_rincian_detail">Simpan</button>
+                            <button type="button" class="btn btn-warning" data-bs-dismiss="modal">Kembali</button>
                         </div>
                     </div>
                 </div>

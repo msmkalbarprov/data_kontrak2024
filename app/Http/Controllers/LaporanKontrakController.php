@@ -58,8 +58,11 @@ class LaporanKontrakController extends Controller
                 ->table('ms_ttd')
                 ->where(['kd_skpd' => $request->kd_skpd, 'nip' => $request->pa_kpa])
                 ->whereIn('kode', ['PA', 'KPA'])
-                ->first()
+                ->first(),
+            'dataDetailRekening' => DB::select("SELECT 1 as urut, kodesubkegiatan,kodeakun,kodebarang,0 volume,''satuan,nilai,harga,uraianbarang from trdkontrak where nomorkontrak=? and idkontrak=? and kodeskpd=?
+        UNION ALL SELECT 2 as urut, kodesubkegiatan,kodeakun,kodebarang,volume,satuan,total as nilai,harga,uraian as uraianbarang from trdkontrak_rinci where nomorkontrak=? and idkontrak=? and kodeskpd=? ORDER BY kodesubkegiatan,kodeakun,kodebarang,urut", [$request->no_kontrak, $request->id_kontrak, $request->kd_skpd, $request->no_kontrak, $request->id_kontrak, $request->kd_skpd])
         ];
+
 
         return view('laporan_kontrak.ringkasan')->with($data);
     }

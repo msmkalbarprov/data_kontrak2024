@@ -66,6 +66,16 @@ Route::middleware('auth')->group(function () {
     Route::post('kontrak/update', [KontrakController::class, 'update'])->name('kontrak.update');
     Route::post('kontrak/delete', [KontrakController::class, 'delete'])->name('kontrak.delete');
 
+    // DATA RINCIAN KONTRAK TAMBAH KONTRAK AWAL
+    Route::post('rincian_kontrak', [KontrakController::class, 'rincianKontrak'])->name('rincian_kontrak');
+    Route::post('simpan_rincian_kontrak', [KontrakController::class, 'simpanRincianKontrak'])->name('rincian_kontrak.simpan');
+    Route::post('hapus_rincian_kontrak', [KontrakController::class, 'hapusRincianKontrak'])->name('rincian_kontrak.hapus');
+
+    // DATA DETAIL RINCIAN KONTRAK TAMBAH KONTRAK AWAL
+    Route::post('detail_rincian_kontrak', [KontrakController::class, 'detailRincianKontrak'])->name('detail_rincian_kontrak');
+    Route::post('simpan_detail_rincian_kontrak', [KontrakController::class, 'simpanDetailRincianKontrak'])->name('detail_rincian_kontrak.simpan');
+    Route::post('hapus_detail_rincian_kontrak', [KontrakController::class, 'hapusDetailRincianKontrak'])->name('detail_rincian_kontrak.hapus');
+
     // KONTRAK ADENDUM
     Route::get('kontrak_adendum', [KontrakAdendumController::class, 'index'])->name('kontrak_adendum.index');
     Route::post('kontrak_adendum/load', [KontrakAdendumController::class, 'load'])->name('kontrak_adendum.load');
@@ -74,6 +84,16 @@ Route::middleware('auth')->group(function () {
     Route::get('kontrak_adendum/{id}/{nomor}/{kd_skpd}/edit', [KontrakAdendumController::class, 'edit'])->name('kontrak_adendum.edit');
     Route::post('kontrak_adendum/update', [KontrakAdendumController::class, 'update'])->name('kontrak_adendum.update');
     Route::post('kontrak_adendum/delete', [KontrakAdendumController::class, 'delete'])->name('kontrak_adendum.delete');
+
+    // DATA RINCIAN KONTRAK ADENDUM
+    Route::post('rincian_kontrak_adendum', [KontrakAdendumController::class, 'rincianKontrak'])->name('rincian_kontrak_adendum');
+    Route::post('simpan_rincian_kontrak_adendum', [KontrakAdendumController::class, 'simpanRincianKontrak'])->name('rincian_kontrak_adendum.simpan');
+    Route::post('hapus_rincian_kontrak_adendum', [KontrakAdendumController::class, 'hapusRincianKontrak'])->name('rincian_kontrak_adendum.hapus');
+
+    // DATA DETAIL RINCIAN KONTRAK TAMBAH KONTRAK ADENDUM
+    Route::post('detail_rincian_kontrak_adendum', [KontrakAdendumController::class, 'detailRincianKontrak'])->name('detail_rincian_kontrak_adendum');
+    Route::post('simpan_detail_rincian_kontrak_adendum', [KontrakAdendumController::class, 'simpanDetailRincianKontrak'])->name('detail_rincian_kontrak_adendum.simpan');
+    Route::post('hapus_detail_rincian_kontrak_adendum', [KontrakAdendumController::class, 'hapusDetailRincianKontrak'])->name('detail_rincian_kontrak_adendum.hapus');
 
     // BAST
     Route::get('bast', [BastController::class, 'index'])->name('bast.index');
@@ -94,9 +114,7 @@ Route::middleware('auth')->group(function () {
     Route::post('detail_kontrak', [DataController::class, 'detailKontrak'])->name('detail_kontrak');
     Route::post('data_adendum', [DataController::class, 'dataAdendum'])->name('data_adendum');
     Route::post('cek_kontrak', [DataController::class, 'cekKontrak'])->name('cek_kontrak');
-    Route::post('daftarAnggaran', function (Request $request) {
-        return tipeAnggaran($request);
-    })->name('daftarAnggaran');
+    Route::post('daftarAnggaran', [DataController::class, 'cekAnggaran'])->name('daftarAnggaran');
 
     // DATA BAST/BAP/PESANAN
     Route::post('kegiatan_bast', [DataController::class, 'kegiatanBast'])->name('kegiatan_bast');

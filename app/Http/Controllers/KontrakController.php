@@ -20,6 +20,25 @@ class KontrakController extends Controller
         $this->tahun = tahun();
     }
 
+    public function hapusTemporary()
+    {
+        DB::table('trdkontrak_temp')
+            ->where([
+                'kodeskpd' => Auth::user()->kd_skpd,
+                'username' => Auth::user()->username,
+                'menu' => 'kontrak_awal'
+            ])
+            ->delete();
+
+        DB::table('trdkontrak_rinci_temp')
+            ->where([
+                'kodeskpd' => Auth::user()->kd_skpd,
+                'username' => Auth::user()->username,
+                'menu' => 'kontrak_awal'
+            ])
+            ->delete();
+    }
+
     public function index()
     {
         $data = [
@@ -34,6 +53,8 @@ class KontrakController extends Controller
                 ->whereIn('kode', ['PPK'])
                 ->get()
         ];
+
+        $this->hapusTemporary();
 
         return view('kontrak.index')->with($data);
     }
@@ -116,7 +137,17 @@ class KontrakController extends Controller
                 ->with('message', 'Anggaran belum disahkan, hubungi Anggaran!');;
         }
 
-        return view('kontrak.create', compact('skpd', 'tahun', 'status_anggaran'));
+        $urut = DB::table('trhkontrak')
+            ->selectRaw("ISNULL(MAX(urut),0)+1 as urut")
+            ->where(['kodeskpd' => Auth::user()->kd_skpd, 'adendum' => '0'])
+            ->first()
+            ->urut;
+
+        $idkontrak = $urut . "/KONTRAK" . "/" . $skpd->kd_skpd . "/" . $tahun;
+
+        $this->hapusTemporary();
+
+        return view('kontrak.create', compact('skpd', 'tahun', 'status_anggaran', 'idkontrak'));
     }
 
     public function store(Request $request)
@@ -134,16 +165,16 @@ class KontrakController extends Controller
                 ->where(['kd_skpd' => Auth::user()->kd_skpd])
                 ->first();
 
-            $urut = DB::table('trhkontrak')
-                ->selectRaw("ISNULL(MAX(urut),0)+1 as urut")
-                ->where(['kodeskpd' => Auth::user()->kd_skpd, 'adendum' => '0'])
-                ->first()
-                ->urut;
+            // $urut = DB::table('trhkontrak')
+            //     ->selectRaw("ISNULL(MAX(urut),0)+1 as urut")
+            //     ->where(['kodeskpd' => Auth::user()->kd_skpd, 'adendum' => '0'])
+            //     ->first()
+            //     ->urut;
 
-            $idkontrak = $urut . "/KONTRAK" . "/" . $skpd->kd_skpd . "/" . $this->tahun;
+            // $idkontrak = $urut . "/KONTRAK" . "/" . $skpd->kd_skpd . "/" . $this->tahun;
 
             $cekIdKontrak = DB::table('trhkontrak')
-                ->where(['idkontrak' => $idkontrak, 'kodeskpd' => $skpd->kd_skpd])
+                ->where(['idkontrak' => $data['id_kontrak'], 'kodeskpd' => $skpd->kd_skpd])
                 ->count();
 
             if ($cekIdKontrak > 0) {
@@ -173,7 +204,7 @@ class KontrakController extends Controller
 
             DB::table('trhkontrak')
                 ->insert([
-                    'idkontrak' => $idkontrak,
+                    'idkontrak' => $data['id_kontrak'],
                     'nomorkontrak' => $nomorKontrak,
                     'nomorpesanan' => $data['no_pesanan'],
                     'tanggalkontrak' => $data['tgl_kontrak'],
@@ -188,7 +219,7 @@ class KontrakController extends Controller
                     // 'rekening' => $data['rekening'],
                     // 'bank' => $data['bank'],
                     // 'npwp' => $data['npwp'],
-                    'urut' => $urut,
+                    'urut' => intval(explode("/", $data['id_kontrak'])[0]),
                     'jns_ang' => $data['status_anggaran'],
                     'statusAdendum' => '0',
                     'created_at' => date('Y-m-d H:i:s'),
@@ -224,23 +255,36 @@ class KontrakController extends Controller
                 ], 400);
             }
 
-            if (isset($data['kontrak'])) {
+            // AMBIL DARI TABEL TAMPUNGAN RINCIAN KONTRAK (TRDKONTRAK_TEMP)
+            $tampunganRincianKontrak = DB::table('trdkontrak_temp')
+                ->where([
+                    'idkontrak' => $data['id_kontrak'],
+                    'nomorkontrak' => $nomorKontrak,
+                    'kodeskpd' => Auth::user()->kd_skpd,
+                    'username' => Auth::user()->username,
+                    'menu' => 'kontrak_awal'
+                ])
+                ->get();
+
+            $tampunganRincianKontrak = json_decode($tampunganRincianKontrak, true);
+
+            if (isset($tampunganRincianKontrak)) {
                 DB::table('trdkontrak')
-                    ->insert(array_map(function ($value) use ($idkontrak, $skpd, $nomorKontrak) {
+                    ->insert(array_map(function ($value) use ($data, $skpd, $nomorKontrak) {
                         return [
-                            'idkontrak' => $idkontrak,
+                            'idkontrak' => $data['id_kontrak'],
                             'nomorkontrak' => $nomorKontrak,
-                            'kodesubkegiatan' => $value['kd_sub_kegiatan'],
-                            'namasubkegiatan' => $value['nm_sub_kegiatan'],
-                            'kodeakun' => $value['kd_rek6'],
-                            'namaakun' => $value['nm_rek6'],
-                            'kodebarang' => $value['kd_barang'],
-                            'idtrdpo' => $value['id'],
-                            'nomorpo' => $value['no_po'],
+                            'kodesubkegiatan' => $value['kodesubkegiatan'],
+                            'namasubkegiatan' => $value['namasubkegiatan'],
+                            'kodeakun' => $value['kodeakun'],
+                            'namaakun' => $value['namaakun'],
+                            'kodebarang' => $value['kodebarang'],
+                            'idtrdpo' => $value['idtrdpo'],
+                            'nomorpo' => $value['nomorpo'],
                             'header' => $value['header'],
-                            'subheader' => $value['sub_header'],
-                            'uraianbarang' => $value['uraian'],
-                            'spek' => strval($value['spesifikasi']),
+                            'subheader' => $value['subheader'],
+                            'uraianbarang' => $value['uraianbarang'],
+                            'spek' => strval($value['spek']),
                             'harga' => floatval($value['harga']),
                             'volume1' => floatval($value['volume1']),
                             'volume2' => floatval($value['volume2']),
@@ -250,15 +294,68 @@ class KontrakController extends Controller
                             'satuan2' => $value['satuan2'],
                             'satuan3' => $value['satuan3'],
                             'satuan4' => $value['satuan4'],
-                            'nilai' => floatval($value['total']),
-                            'kodesumberdana' => $value['sumber'],
-                            'namasumberdana' => $value['nm_sumber'],
+                            'nilai' => floatval($value['nilai']),
+                            'kodesumberdana' => $value['kodesumberdana'],
+                            'namasumberdana' => $value['namasumberdana'],
                             'kodeskpd' => $skpd->kd_skpd,
                             'namaskpd' => $skpd->nm_skpd,
-                            'detailkontrak' => json_encode(dataDetailKontrak($value['detail']))
+                            'detailkontrak' => json_encode(dataDetailKontrak(json_decode($value['detailkontrak'], true)))
                         ];
-                    }, $data['kontrak']));
+                    }, $tampunganRincianKontrak));
             }
+
+            // AMBIL DARI TABEL TAMPUNGAN DETAIL RINCIAN KONTRAK (TRDKONTRAK_RINCI_TEMP)
+            $tampunganDetailRincianKontrak = DB::table('trdkontrak_rinci_temp')
+                ->where([
+                    'idkontrak' => $data['id_kontrak'],
+                    'nomorkontrak' => $nomorKontrak,
+                    'kodeskpd' => Auth::user()->kd_skpd,
+                    'username' => Auth::user()->username,
+                    'menu' => 'kontrak_awal'
+                ])
+                ->get();
+
+            $tampunganDetailRincianKontrak = json_decode($tampunganDetailRincianKontrak, true);
+
+            if (isset($tampunganDetailRincianKontrak)) {
+                DB::table('trdkontrak_rinci')
+                    ->insert(array_map(function ($value) use ($skpd, $nomorKontrak) {
+                        return [
+                            'id' => $value['id'],
+                            'idkontrak' => $value['idkontrak'],
+                            'nomorkontrak' => $value['nomorkontrak'],
+                            'kodeskpd' => $value['kodeskpd'],
+                            'kodesubkegiatan' => $value['kodesubkegiatan'],
+                            'kodeakun' => $value['kodeakun'],
+                            'kodebarang' => $value['kodebarang'],
+                            'uraian' => $value['uraian'],
+                            'volume' => floatval($value['volume']),
+                            'satuan' => $value['satuan'],
+                            'harga' => floatval($value['harga']),
+                            'total' => floatval($value['total'])
+                        ];
+                    }, $tampunganDetailRincianKontrak));
+            }
+
+            DB::table('trdkontrak_temp')
+                ->where([
+                    'idkontrak' => $data['id_kontrak'],
+                    'nomorkontrak' => $nomorKontrak,
+                    'kodeskpd' => Auth::user()->kd_skpd,
+                    'username' => Auth::user()->username,
+                    'menu' => 'kontrak_awal'
+                ])
+                ->delete();
+
+            DB::table('trdkontrak_rinci_temp')
+                ->where([
+                    'idkontrak' => $data['id_kontrak'],
+                    'nomorkontrak' => $nomorKontrak,
+                    'kodeskpd' => Auth::user()->kd_skpd,
+                    'username' => Auth::user()->username,
+                    'menu' => 'kontrak_awal'
+                ])
+                ->delete();
 
             DB::commit();
             return response()->json([
@@ -321,13 +418,44 @@ class KontrakController extends Controller
             ->where(['nomorkontrak' => $kontrak->nomorkontrak, 'kodeskpd' => $kd_skpd, 'idkontrak' => $id])
             ->count();
 
+        // DATA KONTRAK KE TEMPORARY
+        if ($cekKontrakAdendum == 0 && $cekBast == 0) {
+            $this->hapusTemporary();
+
+            $username = Auth::user()->username;
+
+            // SIMPAN DATA RINCIAN KONTRAK KE TEMPORARY KETIKA EDIT
+            $dataKontrak = DB::table('trdkontrak')
+                ->select('idkontrak', 'nomorkontrak', 'kodesubkegiatan', 'namasubkegiatan', 'kodeakun', 'namaakun', 'kodebarang', 'idtrdpo', 'nomorpo', 'header', 'subheader', 'uraianbarang', 'spek', 'harga', 'volume1', 'volume2', 'volume3', 'volume4', 'satuan1', 'satuan2', 'satuan3', 'satuan4', 'nilai', 'kodesumberdana', 'namasumberdana', 'kodeskpd', 'namaskpd', 'detailkontrak', DB::raw("'$username' as username"), DB::raw("'kontrak_awal' as menu"))
+                ->where([
+                    'idkontrak' => $id,
+                    'kodeskpd' => Auth::user()->kd_skpd,
+                    'nomorkontrak' => $kontrak->nomorkontrak
+                ]);
+
+            DB::table('trdkontrak_temp')
+                ->insertUsing(['idkontrak', 'nomorkontrak', 'kodesubkegiatan', 'namasubkegiatan', 'kodeakun', 'namaakun', 'kodebarang', 'idtrdpo', 'nomorpo', 'header', 'subheader', 'uraianbarang', 'spek', 'harga', 'volume1', 'volume2', 'volume3', 'volume4', 'satuan1', 'satuan2', 'satuan3', 'satuan4', 'nilai', 'kodesumberdana', 'namasumberdana', 'kodeskpd', 'namaskpd', 'detailkontrak', 'username', 'menu'], $dataKontrak);
+
+            // SIMPAN DATA DETAIL RINCIAN KONTRAK KE TEMPORARY KETIKA EDIT
+            $dataDetailKontrak = DB::table('trdkontrak_rinci')
+                ->select('idkontrak', 'nomorkontrak', 'kodeskpd', 'volume', 'satuan', 'harga', 'total', 'kodesubkegiatan', 'kodeakun', 'kodebarang', 'uraian', DB::raw("'$username' as username"), DB::raw("'kontrak_awal' as menu"))
+                ->where([
+                    'idkontrak' => $id,
+                    'kodeskpd' => Auth::user()->kd_skpd,
+                    'nomorkontrak' => $kontrak->nomorkontrak
+                ]);
+
+            DB::table('trdkontrak_rinci_temp')
+                ->insertUsing(['idkontrak', 'nomorkontrak', 'kodeskpd', 'volume', 'satuan', 'harga', 'total', 'kodesubkegiatan', 'kodeakun', 'kodebarang', 'uraian', 'username', 'menu'], $dataDetailKontrak);
+        }
+
         return view('kontrak.edit', compact('tahun', 'kontrak', 'detail_kontrak', 'kd_sub_kegiatan', 'cekKontrakAdendum', 'cekBast'));
     }
 
     public function update(Request $request)
     {
         $data = $request->data;
-        // dd($data);
+
         DB::beginTransaction();
 
         try {
@@ -414,30 +542,55 @@ class KontrakController extends Controller
             }
 
             DB::table('trdkontrak')
-                ->where(['idkontrak' => $data['id_kontrak'], 'nomorkontrak' => $nomor_kontrak_lama, 'kodeskpd' => $data['kd_skpd']])
+                ->where([
+                    'idkontrak' => $data['id_kontrak'],
+                    'nomorkontrak' => $nomor_kontrak_lama,
+                    'kodeskpd' => $data['kd_skpd'],
+                ])
+                ->delete();
+
+            DB::table('trdkontrak_rinci')
+                ->where([
+                    'idkontrak' => $data['id_kontrak'],
+                    'nomorkontrak' => $nomor_kontrak_lama,
+                    'kodeskpd' => $data['kd_skpd'],
+                ])
                 ->delete();
 
             $skpd = $this->connection->table('ms_skpd')
                 ->where(['kd_skpd' => $data['kd_skpd']])
                 ->first();
 
-            if (isset($data['kontrak'])) {
+            // AMBIL DARI TABEL TAMPUNGAN RINCIAN KONTRAK (TRDKONTRAK_TEMP)
+            $tampunganRincianKontrak = DB::table('trdkontrak_temp')
+                ->where([
+                    'idkontrak' => $data['id_kontrak'],
+                    'nomorkontrak' => $nomor_kontrak_lama,
+                    'kodeskpd' => Auth::user()->kd_skpd,
+                    'username' => Auth::user()->username,
+                    'menu' => 'kontrak_awal'
+                ])
+                ->get();
+
+            $tampunganRincianKontrak = json_decode($tampunganRincianKontrak, true);
+
+            if (isset($tampunganRincianKontrak)) {
                 DB::table('trdkontrak')
                     ->insert(array_map(function ($value) use ($data, $skpd, $nomorKontrak) {
                         return [
                             'idkontrak' => $data['id_kontrak'],
                             'nomorkontrak' => $nomorKontrak,
-                            'kodesubkegiatan' => $value['kd_sub_kegiatan'],
-                            'namasubkegiatan' => $value['nm_sub_kegiatan'],
-                            'kodeakun' => $value['kd_rek6'],
-                            'namaakun' => $value['nm_rek6'],
-                            'kodebarang' => $value['kd_barang'],
-                            'idtrdpo' => $value['id'],
-                            'nomorpo' => $value['no_po'],
+                            'kodesubkegiatan' => $value['kodesubkegiatan'],
+                            'namasubkegiatan' => $value['namasubkegiatan'],
+                            'kodeakun' => $value['kodeakun'],
+                            'namaakun' => $value['namaakun'],
+                            'kodebarang' => $value['kodebarang'],
+                            'idtrdpo' => $value['idtrdpo'],
+                            'nomorpo' => $value['nomorpo'],
                             'header' => $value['header'],
-                            'subheader' => $value['sub_header'],
-                            'uraianbarang' => $value['uraian'],
-                            'spek' => strval($value['spesifikasi']),
+                            'subheader' => $value['subheader'],
+                            'uraianbarang' => $value['uraianbarang'],
+                            'spek' => strval($value['spek']),
                             'harga' => floatval($value['harga']),
                             'volume1' => floatval($value['volume1']),
                             'volume2' => floatval($value['volume2']),
@@ -447,15 +600,68 @@ class KontrakController extends Controller
                             'satuan2' => $value['satuan2'],
                             'satuan3' => $value['satuan3'],
                             'satuan4' => $value['satuan4'],
-                            'nilai' => floatval($value['total']),
-                            'kodesumberdana' => $value['sumber'],
-                            'namasumberdana' => $value['nm_sumber'],
+                            'nilai' => floatval($value['nilai']),
+                            'kodesumberdana' => $value['kodesumberdana'],
+                            'namasumberdana' => $value['namasumberdana'],
                             'kodeskpd' => $skpd->kd_skpd,
                             'namaskpd' => $skpd->nm_skpd,
-                            'detailkontrak' => json_encode(dataDetailKontrak($value['detail']))
+                            'detailkontrak' => json_encode(dataDetailKontrak(json_decode($value['detailkontrak'], true)))
                         ];
-                    }, $data['kontrak']));
+                    }, $tampunganRincianKontrak));
             }
+
+            // AMBIL DARI TABEL TAMPUNGAN DETAIL RINCIAN KONTRAK (TRDKONTRAK_RINCI_TEMP)
+            $tampunganDetailRincianKontrak = DB::table('trdkontrak_rinci_temp')
+                ->where([
+                    'idkontrak' => $data['id_kontrak'],
+                    'nomorkontrak' => $nomor_kontrak_lama,
+                    'kodeskpd' => Auth::user()->kd_skpd,
+                    'username' => Auth::user()->username,
+                    'menu' => 'kontrak_awal'
+                ])
+                ->get();
+
+            $tampunganDetailRincianKontrak = json_decode($tampunganDetailRincianKontrak, true);
+
+            if (isset($tampunganDetailRincianKontrak)) {
+                DB::table('trdkontrak_rinci')
+                    ->insert(array_map(function ($value) {
+                        return [
+                            'id' => $value['id'],
+                            'idkontrak' => $value['idkontrak'],
+                            'nomorkontrak' => $value['nomorkontrak'],
+                            'kodeskpd' => $value['kodeskpd'],
+                            'kodesubkegiatan' => $value['kodesubkegiatan'],
+                            'kodeakun' => $value['kodeakun'],
+                            'kodebarang' => $value['kodebarang'],
+                            'uraian' => $value['uraian'],
+                            'volume' => floatval($value['volume']),
+                            'satuan' => $value['satuan'],
+                            'harga' => floatval($value['harga']),
+                            'total' => floatval($value['total'])
+                        ];
+                    }, $tampunganDetailRincianKontrak));
+            }
+
+            DB::table('trdkontrak_temp')
+                ->where([
+                    'idkontrak' => $data['id_kontrak'],
+                    'nomorkontrak' => $nomor_kontrak_lama,
+                    'kodeskpd' => Auth::user()->kd_skpd,
+                    'username' => Auth::user()->username,
+                    'menu' => 'kontrak_awal'
+                ])
+                ->delete();
+
+            DB::table('trdkontrak_rinci_temp')
+                ->where([
+                    'idkontrak' => $data['id_kontrak'],
+                    'nomorkontrak' => $nomor_kontrak_lama,
+                    'kodeskpd' => Auth::user()->kd_skpd,
+                    'username' => Auth::user()->username,
+                    'menu' => 'kontrak_awal'
+                ])
+                ->delete();
 
             DB::commit();
             return response()->json([
@@ -509,6 +715,10 @@ class KontrakController extends Controller
                 ->delete();
 
             DB::table('trdkontrak')
+                ->where(['idkontrak' => $id, 'kodeskpd' => $kd_skpd, 'nomorkontrak' => $nomorkontrak])
+                ->delete();
+
+            DB::table('trdkontrak_rinci')
                 ->where(['idkontrak' => $id, 'kodeskpd' => $kd_skpd, 'nomorkontrak' => $nomorkontrak])
                 ->delete();
 
@@ -608,6 +818,33 @@ class KontrakController extends Controller
         }
 
         return $message;
+    }
+
+    public function cekKontrakSebelumnyaDanBast($request, $nomorKontrak)
+    {
+        $kontrak = DB::table('trhkontrak')
+            ->where([
+                'idkontrak' => $request->id_kontrak,
+                'nomorkontrak' => $nomorKontrak,
+                'kodeskpd' => Auth::user()->kd_skpd,
+                'adendum' => '0'
+            ])
+            ->first();
+
+        if (!$kontrak) {
+            return true;
+        }
+
+        $cekKontrakAdendum = DB::table('trhkontrak')
+            ->where(['nomorkontraklalu' => $kontrak->nomorkontrak, 'kodeskpd' => Auth::user()->kd_skpd])
+            ->where('adendum', '!=', '0')
+            ->count();
+
+        $cekBast = DB::table('trhbast')
+            ->where(['nomorkontrak' => $kontrak->nomorkontrak, 'kodeskpd' => Auth::user()->kd_skpd, 'idkontrak' => $request->id_kontrak])
+            ->count();
+
+        return ($cekKontrakAdendum == 0 && $cekBast == 0) ? true : false;
     }
 
     // public function cekDetailKontrak($request)
@@ -927,4 +1164,319 @@ class KontrakController extends Controller
 
     //     return $detailKontrak;
     // }
+
+    // RINCIAN KONTRAK DATATABLE UNTUK TAMBAH KONTRAK AWAL
+    public function rincianKontrak(Request $request)
+    {
+        $nomorKontrak = $request->tipe == 1 ? $request->no_kontrak : $request->no_pesanan;
+
+        $cekKontrak = $this->cekKontrakSebelumnyaDanBast($request, $nomorKontrak);
+
+        if ($cekKontrak) {
+            $data = DB::table('trdkontrak_temp')
+                ->select('idtrdpo as id', 'kodesubkegiatan as kd_sub_kegiatan', 'namasubkegiatan as nm_sub_kegiatan', 'kodeakun as kd_rek6', 'namaakun as nm_rek6', 'kodebarang as kd_barang', 'uraianbarang as uraian', 'kodesumberdana as sumber', 'namasumberdana as nm_sumber', 'spek as spesifikasi', 'nomorpo as no_po', 'subheader as sub_header', 'detailkontrak as detail', '*')
+                ->where([
+                    'idkontrak' => $request->id_kontrak,
+                    'kodeskpd' => Auth::user()->kd_skpd,
+                    'nomorkontrak' => $nomorKontrak,
+                    'menu' => 'kontrak_awal'
+                ])
+                ->get();
+        } else {
+            $data = DB::table('trdkontrak')
+                ->select('idtrdpo as id', 'kodesubkegiatan as kd_sub_kegiatan', 'namasubkegiatan as nm_sub_kegiatan', 'kodeakun as kd_rek6', 'namaakun as nm_rek6', 'kodebarang as kd_barang', 'uraianbarang as uraian', 'kodesumberdana as sumber', 'namasumberdana as nm_sumber', 'spek as spesifikasi', 'nomorpo as no_po', 'subheader as sub_header', 'detailkontrak as detail', '*')
+                ->where([
+                    'idkontrak' => $request->id_kontrak,
+                    'kodeskpd' => Auth::user()->kd_skpd,
+                    'nomorkontrak' => $nomorKontrak
+                ])
+                ->get();
+        }
+
+        return DataTables::of($data)
+            ->addColumn('aksi', function ($row) use ($cekKontrak) {
+
+                if ($cekKontrak) {
+                    $btn = '<a href="#" onclick="hapusRincian(\'' . $row->id . '\',\'' . $row->kd_sub_kegiatan . '\',\'' . $row->kd_rek6 . '\',\'' . $row->kd_barang . '\')" class="btn btn-danger btn-sm"><i class="fadeIn animated bx bx-trash"></i></a>';
+                } else {
+                    $btn = '';
+                }
+
+                return $btn;
+            })
+            ->rawColumns(['aksi'])
+            ->make(true);
+    }
+
+    // SIMPAN RINCIAN KONTRAK TEMPORARY
+    public function simpanRincianKontrak(Request $request)
+    {
+        DB::beginTransaction();
+        try {
+            $data = $request->data;
+
+            $cek = [
+                floatval($data['input_volume1']),
+                floatval($data['input_volume2']),
+                floatval($data['input_volume3']),
+                floatval($data['input_volume4'])
+            ];
+
+            $volume = array_reduce($cek, function ($prev, $current) {
+                if ($current != 0) {
+                    $prev *= $current;
+                }
+                return $prev;
+            }, 1);
+
+            $total = $volume * $data['harga_nego'];
+
+            $nomorKontrak = $data['tipe'] == 1 ? $data['no_kontrak'] : $data['no_pesanan'];
+
+            $skpd = $this->connection
+                ->table('ms_skpd')
+                ->select('kd_skpd', 'nm_skpd')
+                ->where(['kd_skpd' => Auth::user()->kd_skpd])
+                ->first();
+
+            $detail = [
+                'kelompok' => $data['kelompok'],
+                'nomor_sertifikat' => $data['nomor_sertifikat'],
+                'tanggal_sertifikat' => $data['tanggal_sertifikat'],
+                'status_tanah' => $data['status_tanah'],
+                'penggunaan' => $data['penggunaan'],
+                'panjang' => $data['panjang'],
+                'lebar' => $data['lebar'],
+                'luas' => $data['luas'],
+                'merk' => $data['merk'],
+                'ukuran' => $data['ukuran'],
+                'pabrik' => $data['pabrik'],
+                'rangka' => $data['rangka'],
+                'mesin' => $data['mesin'],
+                'polisi' => $data['polisi'],
+                'bpkb' => $data['bpkb'],
+                'bahan' => $data['bahan'],
+                'bertingkat' => $data['bertingkat'],
+                'beton' => $data['beton'],
+                'judul_buku' => $data['judul_buku'],
+                'pencipta_buku' => $data['pencipta_buku'],
+                'spesifikasi_buku' => $data['spesifikasi_buku'],
+                'asal_daerah' => $data['asal_daerah'],
+                'pencipta_daerah' => $data['pencipta_daerah'],
+                'bahan_daerah' => $data['bahan_daerah'],
+                'jenis_hewan' => $data['jenis_hewan'],
+                'ukuran_hewan' => $data['ukuran_hewan'],
+                'nik_hewan' => $data['nik_hewan'],
+                'nama_aplikasi' => $data['nama_aplikasi'],
+                'judul_aplikasi' => $data['judul_aplikasi'],
+                'pencipta_aplikasi' => $data['pencipta_aplikasi'],
+                'spesifikasi_aplikasi' => $data['spesifikasi_aplikasi'],
+            ];
+
+            DB::table('trdkontrak_temp')
+                ->insert([
+                    'idkontrak' => $data['id_kontrak'],
+                    'nomorkontrak' => $nomorKontrak,
+                    'kodesubkegiatan' => $data['kd_sub_kegiatan'],
+                    'namasubkegiatan' => $data['nm_sub_kegiatan'],
+                    'kodeakun' => $data['kd_rek6'],
+                    'namaakun' => $data['nm_rek6'],
+                    'kodebarang' => $data['kd_barang'],
+                    'idtrdpo' => $data['id_po'],
+                    'nomorpo' => $data['no_po'],
+                    'header' => $data['header'],
+                    'subheader' => $data['sub_header'],
+                    'uraianbarang' => $data['uraian'],
+                    'spek' => strval($data['spesifikasi']),
+                    'harga' => floatval($data['harga_nego']),
+                    'volume1' => floatval($data['input_volume1']),
+                    'volume2' => floatval($data['input_volume2']),
+                    'volume3' => floatval($data['input_volume3']),
+                    'volume4' => floatval($data['input_volume4']),
+                    'satuan1' => $data['satuan1'],
+                    'satuan2' => $data['satuan2'],
+                    'satuan3' => $data['satuan3'],
+                    'satuan4' => $data['satuan4'],
+                    'nilai' => floatval($total),
+                    'kodesumberdana' => $data['sumber'],
+                    'namasumberdana' => $data['nm_sumber'],
+                    'kodeskpd' => $skpd->kd_skpd,
+                    'namaskpd' => $skpd->nm_skpd,
+                    'detailkontrak' => json_encode(dataDetailKontrak($detail)),
+                    'username' => Auth::user()->username,
+                    'menu' => 'kontrak_awal'
+                ]);
+
+            DB::commit();
+            return response()->json([
+                'status' => true,
+                'message' => 'Berhasil tersimpan'
+            ], 200);
+        } catch (Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => false,
+                'error' => 'Data tidak berhasil tersimpan',
+                'e' => $e->getMessage()
+            ], 400);
+        }
+    }
+
+    public function hapusRincianKontrak(Request $request)
+    {
+        DB::beginTransaction();
+        try {
+            DB::table('trdkontrak_temp')
+                ->where([
+                    'idkontrak' => $request->idkontrak,
+                    'kodeskpd' => Auth::user()->kd_skpd,
+                    'idtrdpo' => $request->idtrdpo,
+                    'username' => Auth::user()->username,
+                    'menu' => 'kontrak_awal'
+                ])
+                ->delete();
+
+            DB::commit();
+            return response()->json([
+                'status' => true,
+                'message' => 'Berhasil terhapus'
+            ], 200);
+        } catch (Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => false,
+                'error' => 'Data tidak berhasil terhapus',
+                'e' => $e->getMessage()
+            ], 400);
+        }
+    }
+
+    // DETAIL RINCIAN KONTRAK DATATABLE
+    public function detailRincianKontrak(Request $request)
+    {
+        $nomorKontrak = $request->tipe == 1 ? $request->no_kontrak : $request->no_pesanan;
+
+        $cekKontrak = $this->cekKontrakSebelumnyaDanBast($request, $nomorKontrak);
+
+        if ($cekKontrak) {
+            $data = DB::table('trdkontrak_rinci_temp')
+                ->select('kodesubkegiatan as kd_sub_kegiatan', 'kodeakun as kd_rek6', 'kodebarang as kd_barang', '*')
+                ->where([
+                    'idkontrak' => $request->id_kontrak,
+                    'kodeskpd' => Auth::user()->kd_skpd,
+                    'nomorkontrak' => $nomorKontrak,
+                    'menu' => 'kontrak_awal'
+                ])
+                ->get();
+        } else {
+            $data = DB::table('trdkontrak_rinci')
+                ->select('kodesubkegiatan as kd_sub_kegiatan', 'kodeakun as kd_rek6', 'kodebarang as kd_barang', '*')
+                ->where([
+                    'idkontrak' => $request->id_kontrak,
+                    'kodeskpd' => Auth::user()->kd_skpd,
+                    'nomorkontrak' => $nomorKontrak
+                ])
+                ->get();
+        }
+
+        return DataTables::of($data)
+            ->addColumn('aksi', function ($row) use ($cekKontrak) {
+
+                if ($cekKontrak) {
+                    $btn = '<a href="#" onclick="hapusDetailRincian(\'' . $row->id . '\',\'' . $row->idkontrak . '\',\'' . $row->nomorkontrak . '\')" class="btn btn-danger btn-sm"><i class="fadeIn animated bx bx-trash"></i></a>';
+                } else {
+                    $btn = '';
+                }
+
+                return $btn;
+            })
+            ->rawColumns(['aksi'])
+            ->make(true);
+    }
+
+    public function simpanDetailRincianKontrak(Request $request)
+    {
+        DB::beginTransaction();
+        try {
+            $data = $request->data;
+
+            $nomorKontrak = $data['tipe'] == 1 ? $data['no_kontrak'] : $data['no_pesanan'];
+
+            $skpd = $this->connection
+                ->table('ms_skpd')
+                ->select('kd_skpd', 'nm_skpd')
+                ->where(['kd_skpd' => Auth::user()->kd_skpd])
+                ->first();
+
+            // $urut = DB::table('trhkontrak')
+            //     ->selectRaw("ISNULL(MAX(urut),0)+1 as urut")
+            //     ->where(['kodeskpd' => Auth::user()->kd_skpd, 'adendum' => '0'])
+            //     ->first()
+            //     ->urut;
+
+            // $idkontrak = $urut . "/KONTRAK" . "/" . $skpd->kd_skpd . "/" . $this->tahun;
+
+            DB::table('trdkontrak_rinci_temp')
+                ->insert([
+                    'idkontrak' => $data['id_kontrak'],
+                    'nomorkontrak' => $nomorKontrak,
+                    'kodesubkegiatan' => $data['kd_sub_kegiatan'],
+                    'kodeakun' => $data['kd_rek6'],
+                    'kodebarang' => $data['kd_barang'],
+                    'uraian' => $data['uraian'],
+                    'harga' => floatval($data['harga']),
+                    'volume' => floatval($data['volume']),
+                    'satuan' => $data['satuan'],
+                    'total' => floatval($data['volume'] * $data['harga']),
+                    'kodeskpd' => $skpd->kd_skpd,
+                    'username' => Auth::user()->username,
+                    'menu' => 'kontrak_awal'
+                ]);
+
+            DB::commit();
+            return response()->json([
+                'status' => true,
+                'message' => 'Berhasil tersimpan'
+            ], 200);
+        } catch (Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => false,
+                'error' => 'Data tidak berhasil tersimpan',
+                'e' => $e->getMessage()
+            ], 400);
+        }
+    }
+
+    public function hapusDetailRincianKontrak(Request $request)
+    {
+        DB::beginTransaction();
+        try {
+            DB::table('trdkontrak_rinci_temp')
+                ->where(
+                    [
+                        'id' => $request->id,
+                        'idkontrak' => $request->id_kontrak,
+                        'kodeskpd' => Auth::user()->kd_skpd,
+                        'nomorkontrak' => $request->no_kontrak,
+                        'username' => Auth::user()->username,
+                        'menu' => 'kontrak_awal'
+                    ]
+                )
+                ->delete();
+
+            DB::commit();
+            return response()->json([
+                'status' => true,
+                'message' => 'Berhasil terhapus'
+            ], 200);
+        } catch (Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => false,
+                'error' => 'Data tidak berhasil terhapus',
+                'e' => $e->getMessage()
+            ], 400);
+        }
+    }
 }

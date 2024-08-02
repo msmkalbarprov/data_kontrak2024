@@ -278,7 +278,7 @@ function cekDetailKontrak($request)
     $message = '';
 
     foreach ($request as $item) {
-        if (!empty($item['detail'])) {
+        if (!empty(json_decode($item['detail'], true))) {
             if ($item['detail']['kelompok'] == '5201') {
                 if (!$item['detail']['nomor_sertifikat']) {
                     $message .= "Kegiatan " . $item['kd_sub_kegiatan'] . " ,Rekening " . $item['kd_rek6'] . " ,Kode Barang " . $item['kd_barang'] . " .Silahkan isi nomor sertifikat! <br/><br/>";

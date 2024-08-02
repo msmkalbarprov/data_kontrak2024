@@ -2,18 +2,22 @@
 
 namespace App\Http\Controllers;
 
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Yajra\DataTables\Facades\DataTables;
 
 class DataController extends Controller
 {
     protected $connection;
+    protected $tahun;
 
     public function __construct()
     {
         $this->connection = DB::connection('simakda');
+        $this->tahun = tahun();
     }
 
     public function indexDashboard()
@@ -249,11 +253,28 @@ class DataController extends Controller
         $kd_sub_kegiatan = $request->kd_sub_kegiatan;
         $kd_rek6 = $request->kd_rek6;
         $jns_ang = $request->status_anggaran;
+        $rekeningRincian = $request->rekeningRincian;
+        $tipe = $request->tipe;
+
+        $rekening = [];
+        // EDIT ARTINYA UNTUK TAMBAH RINCIAN DETAIL KONTRAK
+        if ($tipe == 'edit') {
+            foreach ($rekeningRincian as $rincian) {
+                $rekening[] = '\'' . $rincian['kd_sub_kegiatan'] . '.' . $rincian['kd_rek6'] . '.' . $rincian['kd_barang'] . '\'';
+            }
+        }
+
+        $in = '(' . implode(',', $rekening) . ')';
 
         $data = $this->connection
             ->table('trdpo_rinci as a')
-            ->where(['a.kd_skpd' => $kd_skpd, 'a.kd_sub_kegiatan' => $kd_sub_kegiatan, 'a.kd_rek6' => $kd_rek6, 'a.jns_ang' => $jns_ang])
             ->select('a.kd_barang', 'a.header', 'a.sub_header', 'a.uraian')
+            ->where(['a.kd_skpd' => $kd_skpd, 'a.kd_sub_kegiatan' => $kd_sub_kegiatan, 'a.kd_rek6' => $kd_rek6, 'a.jns_ang' => $jns_ang])
+            ->where(function ($query) use ($tipe, $in) {
+                if ($tipe == 'edit') {
+                    $query->whereRaw("a.kd_sub_kegiatan+'.'+ a.kd_rek6+'.'+a.kd_barang in $in");
+                }
+            })
             ->get();
 
         return $data;
@@ -277,8 +298,6 @@ class DataController extends Controller
                 'b.header' => $request->header,
                 'b.sub_header' => $request->sub_header,
             ])
-            // ->where('b.header', 'LIKE', '%' . trim(Str::replace('[#]', '', $request->header)) . '%')
-            // ->where('b.sub_header', 'LIKE', '%' . trim(Str::replace('[-]', '', $request->sub_header)) . '%')
             ->select('a.sumber', 'a.nm_sumber', 'b.volume1', 'b.volume2', 'b.volume3', 'b.volume4', 'b.satuan1', 'b.satuan2', 'b.satuan3', 'b.satuan4', 'b.harga', 'b.total', 'b.id', 'b.no_po', 'b.uraian', 'b.spesifikasi')
             ->get();
 
@@ -365,14 +384,13 @@ class DataController extends Controller
     // Cari Kegiatan, Rekening, Kode Barang, Sumber pada rincian kontrak awal untuk Kontrak Adendum
     public function dataAdendum(Request $request)
     {
-
         return response()->json([
             'kegiatan' => $this->cariKegiatan($request),
             'rekening' => $this->cariRekening($request),
             'kodeBarang' => $this->cariKodeBarang($request),
             'sumber' => $this->cariSumber($request),
             'realisasi' => $this->cariRealisasiSumber($request),
-            'detailKontrak' => DB::table('trdkontrak')
+            'detailKontrak' => DB::table('trdkontrak_temp')
                 ->select('detailkontrak')
                 ->where(
                     [
@@ -382,7 +400,7 @@ class DataController extends Controller
                         'kodesumberdana' => $request->sumber,
                         'header' => $request->header,
                         'subheader' => $request->sub_header,
-                        'nomorkontrak' => $request->kontrak,
+                        'nomorkontraklalu' => $request->kontrak,
                         'kodeskpd' => Auth::user()->kd_skpd
                     ]
                 )
@@ -616,6 +634,61 @@ class DataController extends Controller
             return response()->json([
                 'status' => false,
                 'error' => $message
+            ], 400);
+        }
+    }
+
+    public function cekAnggaran(Request $request)
+    {
+        DB::beginTransaction();
+        try {
+            DB::table('trdkontrak_temp')
+                ->where([
+                    'kodeskpd' => Auth::user()->kd_skpd,
+                    'username' => Auth::user()->username,
+                    'menu' => 'kontrak_adendum'
+                ])
+                ->delete();
+
+            DB::table('trdkontrak_rinci_temp')
+                ->where([
+                    'kodeskpd' => Auth::user()->kd_skpd,
+                    'username' => Auth::user()->username,
+                    'menu' => 'kontrak_adendum'
+                ])
+                ->delete();
+
+            $username = Auth::user()->username;
+
+            // SIMPAN DATA RINCIAN KONTRAK KE TEMPORARY
+            $dataKontrak = DB::table('trdkontrak')
+                ->select('idkontrak', DB::raw("'' as nomorkontrak"), 'kodesubkegiatan', 'namasubkegiatan', 'kodeakun', 'namaakun', 'kodebarang', 'idtrdpo', 'nomorpo', 'header', 'subheader', 'uraianbarang', 'spek', 'harga', 'volume1', 'volume2', 'volume3', 'volume4', 'satuan1', 'satuan2', 'satuan3', 'satuan4', 'nilai', 'kodesumberdana', 'namasumberdana', 'kodeskpd', 'namaskpd', 'detailkontrak', 'nomorkontrak as nomorkontraklalu', DB::raw("'edit' as tipe"), DB::raw("'$username' as username"), DB::raw("'kontrak_adendum' as menu"))
+                ->where(['idkontrak' => $request->id_kontrak, 'kodeskpd' => Auth::user()->kd_skpd, 'nomorkontrak' => $request->no_kontrak])
+                ->get();
+
+            $dataKontrak = json_decode($dataKontrak, true);
+
+            DB::table('trdkontrak_temp')
+                ->insert($dataKontrak);
+
+            // SIMPAN DATA DETAIL RINCIAN KONTRAK KE TEMPORARY
+            $dataDetailKontrak = DB::table('trdkontrak_rinci')
+                ->select('idkontrak', DB::raw("'' as nomorkontrak"), 'kodeskpd', 'volume', 'satuan', 'harga', 'total', 'kodesubkegiatan', 'kodeakun', 'kodebarang', 'uraian', 'nomorkontrak as nomorkontraklalu', DB::raw("'$username' as username"), DB::raw("'kontrak_adendum' as menu"))
+                ->where(['idkontrak' => $request->id_kontrak, 'kodeskpd' => Auth::user()->kd_skpd, 'nomorkontrak' => $request->no_kontrak]);
+
+            DB::table('trdkontrak_rinci_temp')
+                ->insertUsing(['idkontrak', 'nomorkontrak', 'kodeskpd', 'volume', 'satuan', 'harga', 'total', 'kodesubkegiatan', 'kodeakun', 'kodebarang', 'uraian', 'nomorkontraklalu', 'username', 'menu'], $dataDetailKontrak);
+
+            DB::commit();
+            return response()->json([
+                'tipeAnggaran' => tipeAnggaran($request),
+                'kodesubkegiatan' => $dataKontrak[0]['kodesubkegiatan']
+            ], 200);
+        } catch (Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'error' => 'Proses Error!',
+                'e' => $e->getMessage()
             ], 400);
         }
     }
